@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16223A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OpsEnglish">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>OpsEnglish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -37,6 +43,31 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand span{color:var(--blue)}
 .pills{display:flex;gap:6px;align-items:center}
+.gear{border:1px solid var(--line);background:var(--panel);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;font-size:16px}
+h2.sh{font-size:21px;margin:26px 0 10px}
+.field{display:grid;gap:6px;margin-bottom:14px}
+input[type=range]{width:100%;accent-color:var(--ink)}
+input[type=time]{font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;flex:1}
+.wotd{background:var(--violetSoft);border-radius:14px;padding:14px 16px;margin-top:14px}
+.wotd .lab{font-size:14px;font-weight:700;color:var(--violet);margin:0 0 4px}
+.wotd .ww{font-size:22px;font-weight:700;margin:0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.wotd .wd{margin:4px 0 0;font-size:16px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{padding:16px}
+.stat .n{font-size:26px;font-weight:700;line-height:1.1}
+.stat .l{color:var(--muted);font-size:14px;margin-top:4px}
+.chart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px;margin-top:8px}
+.chart .col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.chart .bar{width:100%;max-width:34px;background:var(--amber);border-radius:6px 6px 2px 2px}
+.chart .bar.met{background:var(--ok)}
+.chart .v{font-size:12px;color:var(--muted)}
+.chart .d{font-size:13px;color:var(--muted)}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.heat i{aspect-ratio:1;border-radius:5px;background:var(--line);display:block}
+.heat i.l1{background:var(--amberSoft)}.heat i.l2{background:#E9B45F}.heat i.l3{background:var(--ok)}
+.lvbar{margin:10px 0}
+.lvbar .top{display:flex;justify-content:space-between;align-items:center;font-size:15px;margin-bottom:6px}
+.hard li{display:flex;justify-content:space-between;gap:10px}
 .field{display:grid;gap:6px;margin-bottom:14px}
 .field input,.linkrow input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
 .linkrow{display:flex;gap:8px;margin-top:10px}
@@ -179,7 +210,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 <main>
   <header>
     <div class="brand">Ops<span>English</span></div>
-    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pGoal">⚡ 0</span></div>
+    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pGoal">⚡ 0</span><button class="gear" id="meBtn" aria-label="Progress and settings">📊</button></div>
   </header>
 
   <section id="v-words">
@@ -191,7 +222,6 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div class="progress"><i id="vBar"></i></div>
     <div class="card flash" id="flash"></div>
     <div class="btns" id="flashBtns"></div>
-    <button class="linkbtn" id="resetBtn">Reset my progress</button>
   </section>
 
   <section id="v-quiz" hidden>
@@ -228,6 +258,41 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
       <button class="btn" id="newScenBtn">Random situation</button>
     </div>
     <div class="out" id="coachOut"></div>
+  </section>
+
+  <section id="v-me" hidden>
+    <h1>Progress</h1>
+    <p class="sub">Your stats, voice, reminders and sync.</p>
+    <div id="stats"></div>
+
+    <h2 class="sh">Voice</h2>
+    <div class="card">
+      <div class="field"><label class="lbl" for="voiceSel">Voice</label><select id="voiceSel"></select></div>
+      <div class="field"><label class="lbl" for="rateIn">Speed <span class="small" id="rateVal"></span></label><input type="range" id="rateIn" min="0.6" max="1.1" step="0.05"></div>
+      <button class="btn primary" id="voiceTest" style="width:100%">🔊 Test the voice</button>
+      <p class="small" style="margin:12px 0 0">For a much clearer voice on iPhone: Settings → Accessibility → Spoken Content → Voices → English, then download a <b>Premium</b> or <b>Enhanced</b> female voice (for example Ava, Zoe or Serena). Reopen the app and pick it here.</p>
+    </div>
+
+    <h2 class="sh">Daily reminder</h2>
+    <div class="card">
+      <p style="margin:0 0 12px">Add a daily event to your phone calendar with the word of the day habit.</p>
+      <div class="linkrow" style="margin:0"><input type="time" id="remTime" value="08:30" aria-label="Reminder time"><button class="sbtn play" id="remBtn">📅 Add to calendar</button></div>
+      <p class="small" id="remNote" style="margin:10px 0 0"></p>
+    </div>
+
+    <h2 class="sh">Sync between devices</h2>
+    <div class="card">
+      <p style="margin:0 0 12px">Copy your progress code on one device, then paste it on the other. Both progressions are merged, nothing is lost.</p>
+      <div class="btns" style="margin-top:0"><button class="btn primary" id="syncCopy">Copy my code</button><button class="btn" id="syncShow">Paste a code</button></div>
+      <div id="syncBox" hidden><textarea id="syncIn" class="dictin" placeholder="Paste the code from your other device…" aria-label="Progress code"></textarea><div class="btns one"><button class="btn primary" id="syncImport">Merge progress</button></div></div>
+      <p class="small" id="syncNote" style="margin:10px 0 0"></p>
+    </div>
+
+    <h2 class="sh">Install the app</h2>
+    <div class="card">
+      <p style="margin:0">On iPhone, open the app in <b>Safari</b>, tap <b>Share</b> → <b>Add to Home Screen</b>. It opens full screen with its own icon and works offline.</p>
+    </div>
+    <button class="linkbtn" id="resetBtn">Reset my progress</button>
   </section>
 
   <section id="v-listen" hidden>
@@ -552,10 +617,17 @@ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const randOther=(n,cur)=>{if(n<2)return 0;let i;do{i=Math.floor(Math.random()*n)}while(i===cur);return i};
 const canSpeak="speechSynthesis" in window;
-let VOICE=null;
-function pickVoice(){if(!canSpeak)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));VOICE=vs.find(v=>/GB/i.test(v.lang)&&/enhanced|premium|natural/i.test(v.name))||vs.find(v=>/GB/i.test(v.lang))||vs.find(v=>/US/i.test(v.lang)&&/enhanced|premium|natural/i.test(v.name))||vs[0]||null}
-if(canSpeak){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice)}catch(e){}}
-function speak(t,slow){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/^to /,"").replace(/[—…]/g,","));if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang="en-GB";u.rate=slow?.62:.92;speechSynthesis.speak(u)}
+let VOICE=null,VOICES=[];
+const FEM=/samantha|\bava\b|allison|susan|victoria|karen|moira|tessa|serena|\bkate\b|stephanie|martha|fiona|\bzoe\b|nicky|joelle|female|libby|sonia|aria|jenny|hazel|zira|\bemma\b|olivia|\bamy\b|salli|joanna|kendra|kimberly|\bivy\b|catherine|veena|shelley|sandy|\bflo\b/i;
+const MALE=/daniel|\balex\b|\bfred\b|\btom\b|aaron|arthur|oliver|rishi|gordon|\blee\b|\bmale\b|\bguy\b|ryan|george|evan|nathan|reed|rocko|eddy|grandpa|ralph|junior|albert/i;
+const isFem=v=>FEM.test(v.name)&&!MALE.test(v.name);
+function voiceScore(v){let s=0;if(/premium/i.test(v.name))s+=50;else if(/enhanced|natural|neural/i.test(v.name))s+=40;if(isFem(v))s+=30;if(/en[-_](US|GB)/i.test(v.lang))s+=10;if(/samantha|\bava\b|serena|\bzoe\b/i.test(v.name))s+=5;if(/google/i.test(v.name))s+=8;return s}
+function pickVoice(){if(!canSpeak)return;VOICES=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a));VOICE=(S.voice&&VOICES.find(v=>v.voiceURI===S.voice))||VOICES[0]||null;if(typeof fillVoices==="function")fillVoices()}
+if(canSpeak){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice)}catch(e){}setTimeout(pickVoice,800)}
+function speak(t,slow){if(!canSpeak)return;speechSynthesis.cancel();
+  const txt=String(t).replace(/^to /,"").replace(/[—–]/g,", ").replace(/…/g,"...").replace(/\bI\/O\b/g,"I O").replace(/\//g," ");
+  const u=new SpeechSynthesisUtterance(txt);if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang="en-US";
+  const base=S.rate||.9;u.rate=slow?Math.max(.5,base-.25):base;u.pitch=1;u.volume=1;setTimeout(()=>speechSynthesis.speak(u),60)}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const MIC_ERR="The microphone isn't available here. Use your phone keyboard's dictation button instead.";
 function listen(onText,onEnd,onErr){const rec=new SR();rec.lang="en-GB";rec.interimResults=true;rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;onText(t)};rec.onerror=e=>onErr(e.error);rec.onend=onEnd;rec.start();return rec}
@@ -580,7 +652,7 @@ async function ask(prompt){const sample=await getSample();if(!sample)throw {code
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));
   b.setAttribute("aria-current","page");
-  ["words","quiz","talk","write","listen"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
+  showView(b.dataset.v);
   window.scrollTo({top:0});
 });
 
@@ -593,7 +665,8 @@ function renderToday(){
   const dx=S.dxp[today()]||0,due=VOCAB.filter(isDue).length,pct=Math.min(100,dx/S.goal*100);
   $("#today").innerHTML=`<div class="trow"><b>${dx>=S.goal?"🎉 Daily goal reached!":"Today"}</b><button class="sbtn" id="goalBtn" aria-label="Change daily goal">Goal: ${S.goal} XP</button></div>
     <div class="progress goal ${dx>=S.goal?"done":""}"><i style="width:${pct}%"></i></div>
-    <p class="small" style="margin:0">⚡ ${dx} XP today · 🔁 ${due} due · 📚 ${learned()}/${VOCAB.length} learned · 🏆 ${S.xp} XP total</p>`;
+    <p class="small" style="margin:0">⚡ ${dx} XP today · 🔁 ${due} due · 📚 ${learned()}/${VOCAB.length} learned</p>${wotdHTML()}`;
+  const wb=$("#wotdSay");if(wb)wb.onclick=()=>{const w=wotd();speak(w.w+". "+w.e)};
   $("#goalBtn").onclick=()=>{const g=[30,50,100,150];S.goal=g[(g.indexOf(S.goal)+1)%g.length];save();renderHeader()};
 }
 function buildDeck(){
@@ -611,7 +684,7 @@ function rate(v,g){
   const c=Object.assign({ivl:0,ease:2.5},S.srs[v.w]),pv=preview(v);
   if(g===0){c.ivl=0;c.ease=Math.max(1.3,c.ease-.2);c.due=Date.now()+60e3;S.review[v.w]=1;delete S.known[v.w];if(!deck.slice(vi+1).includes(v))deck.push(v)}
   else{c.ivl=g===1?pv.good:pv.easy;if(g===2)c.ease+=.15;c.due=Date.now()+c.ivl*DAY;S.known[v.w]=1;delete S.review[v.w]}
-  S.srs[v.w]=c;vi++;flipped=false;addXP(2);
+  c.t=Date.now();if(g===0)c.lapses=(c.lapses||0)+1;S.srs[v.w]=c;vi++;flipped=false;addXP(2);
   if(vi>=deck.length){if(vCat==="Due"&&!practice){deck=[];renderCard();return}buildDeck();return}
   renderCard();
 }
@@ -871,6 +944,67 @@ function renderRes(){
     editing=null;save();renderRes();
   });
 }
+
+/* ================= PROGRESS / SETTINGS ================= */
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();window.scrollTo({top:0})}
+$("#meBtn").onclick=()=>showView("me");
+const dkey=d=>d.toISOString().slice(0,10);
+function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
+function wotdHTML(){const w=wotd();return `<div class="wotd"><p class="lab">Word of the day</p><p class="ww"><span>${esc(w.w)}</span>${canSpeak?'<button class="icon" id="wotdSay" aria-label="Listen">🔊</button>':""}</p><p class="wd">${esc(w.d)}</p><p class="wd" style="font-style:italic">${esc(w.e)}</p></div>`}
+function bestStreak(){const ds=[...new Set(S.days)].sort();let b=0,c=0,prev=null;ds.forEach(d=>{const t=Date.parse(d);c=prev!==null&&t-prev===DAY?c+1:1;b=Math.max(b,c);prev=t});return b}
+function renderStats(){
+  const days=[...Array(7)].map((_,i)=>{const d=new Date(Date.now()-(6-i)*DAY);return {k:dkey(d),lab:d.toLocaleDateString("en-GB",{weekday:"short"}).slice(0,2)}});
+  const vals=days.map(d=>S.dxp[d.k]||0),mx=Math.max(S.goal,...vals),week=vals.reduce((a,b)=>a+b,0);
+  const heat=[...Array(35)].map((_,i)=>{const k=dkey(new Date(Date.now()-(34-i)*DAY)),x=S.dxp[k]||0;return `<i class="${x>=S.goal?"l3":x>=S.goal/2?"l2":x>0?"l1":""}" title="${k}: ${x} XP"></i>`}).join("");
+  const lv=["B1","B2","C1"].map(l=>{const all=VOCAB.filter(v=>v.lvl===l),n=all.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;return `<div class="lvbar"><div class="top"><span class="tag ${l}">${l}</span><span>${n}/${all.length}</span></div><div class="progress" style="margin:0"><i style="width:${n/all.length*100}%"></i></div></div>`}).join("");
+  const hard=VOCAB.filter(v=>S.srs[v.w]&&S.srs[v.w].lapses).sort((a,b)=>S.srs[b.w].lapses-S.srs[a.w].lapses).slice(0,5);
+  const acc=S.quizTotal?Math.round(S.quizRight/S.quizTotal*100):0;
+  $("#stats").innerHTML=`<div class="sgrid">
+    <div class="card stat"><div class="n">🔥 ${streak()}</div><div class="l">Day streak · best ${bestStreak()}</div></div>
+    <div class="card stat"><div class="n">🏆 ${S.xp}</div><div class="l">Total XP · ${week} this week</div></div>
+    <div class="card stat"><div class="n">📚 ${learned()}</div><div class="l">Words learned of ${VOCAB.length}</div></div>
+    <div class="card stat"><div class="n">🎯 ${acc}%</div><div class="l">Quiz accuracy · ${S.quizTotal} answers</div></div></div>
+    <div class="card" style="margin-top:10px"><b>This week</b><div class="chart">${days.map((d,i)=>`<div class="col"><span class="v">${vals[i]||""}</span><div class="bar ${vals[i]>=S.goal?"met":""}" style="height:${Math.max(3,vals[i]/mx*90)}px"></div><span class="d">${d.lab}</span></div>`).join("")}</div></div>
+    <div class="card" style="margin-top:10px"><b>Last 5 weeks</b><div class="heat">${heat}</div><p class="small" style="margin:8px 0 0">Green: goal reached · yellow: some practice</p></div>
+    <div class="card" style="margin-top:10px"><b>Words by level</b>${lv}</div>
+    <div class="card" style="margin-top:10px"><b>Hardest words</b>${hard.length?`<ul class="vlist hard">${hard.map(v=>`<li><span>${esc(v.w)}</span><span class="small">missed ${S.srs[v.w].lapses}×</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">Nothing yet. Words you mark “Again” will show up here.</p>`}</div>`;
+}
+// voice settings
+function fillVoices(){const sel=$("#voiceSel");if(!sel)return;if(!VOICES.length){sel.innerHTML=`<option>No English voice found</option>`;sel.disabled=true;return}sel.disabled=false;sel.innerHTML=VOICES.map(v=>`<option value="${esc(v.voiceURI)}">${isFem(v)?"♀ ":""}${esc(v.name)} (${esc(v.lang)})</option>`).join("");if(VOICE)sel.value=VOICE.voiceURI}
+$("#voiceSel").onchange=e=>{S.voice=e.target.value;save();VOICE=VOICES.find(v=>v.voiceURI===S.voice)||VOICE;speak("Hi! This is how I sound.")};
+$("#rateIn").value=S.rate||.9;$("#rateVal").textContent=`(${(S.rate||.9).toFixed(2)}×)`;
+$("#rateIn").oninput=e=>{S.rate=+e.target.value;$("#rateVal").textContent=`(${S.rate.toFixed(2)}×)`;save()};
+$("#voiceTest").onclick=()=>speak("Hi! Let's roll back the deployment and check the logs together.");
+if(!canSpeak)$("#voiceTest").disabled=true;
+fillVoices();
+// reminder (.ics)
+$("#remBtn").onclick=()=>{
+  if(!OFF){$("#remNote").textContent="Open the app from tarekklouj.github.io/English to add the reminder.";return}
+  const [h,m]=$("#remTime").value.split(":").map(Number);const st=new Date();st.setHours(h,m,0,0);if(st<new Date())st.setDate(st.getDate()+1);
+  const en=new Date(st.getTime()+10*60e3),pad=n=>String(n).padStart(2,"0");
+  const f=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const url=location.href.split("#")[0];
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//OpsEnglish//EN","BEGIN:VEVENT","UID:opsenglish-daily-"+Date.now()+"@opsenglish","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART:"+f(st),"DTEND:"+f(en),"RRULE:FREQ=DAILY","SUMMARY:English practice (OpsEnglish)","DESCRIPTION:Word of the day + 10 minutes of review. "+url,"URL:"+url,"BEGIN:VALARM","TRIGGER:PT0M","ACTION:DISPLAY","DESCRIPTION:Time for English","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const a=document.createElement("a");a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics);a.download="opsenglish-reminder.ics";document.body.appendChild(a);a.click();a.remove();
+  $("#remNote").textContent="Open the file and tap “Add to Calendar”. You'll get a notification every day at "+$("#remTime").value+".";
+};
+// sync
+function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
+function mergeCode(code){
+  const d=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^OE1:/,"")))));if(!d||d.v!==1)throw new Error("bad");
+  Object.entries(d.srs||{}).forEach(([w,c])=>{const m=S.srs[w];if(!m||(c.t||0)>(m.t||0))S.srs[w]=c});
+  Object.entries(d.dxp||{}).forEach(([k,x])=>{S.dxp[k]=Math.max(S.dxp[k]||0,x)});
+  S.days=[...new Set([...S.days,...(d.days||[])])];
+  S.xp=Math.max(S.xp,d.xp||0);S.quizRight=Math.max(S.quizRight,d.quizRight||0);S.quizTotal=Math.max(S.quizTotal,d.quizTotal||0);S.coach=Math.max(S.coach,d.coach||0);
+  Object.assign(S.heard,d.heard||{});Object.assign(S.links,d.links||{});
+  Object.entries(S.srs).forEach(([w,c])=>{if(c.ivl>=1){S.known[w]=1;delete S.review[w]}else{S.review[w]=1;delete S.known[w]}});
+  save();renderHeader();buildDeck();renderRes();renderStats();
+}
+$("#syncCopy").onclick=async()=>{const c=exportCode();try{await navigator.clipboard.writeText(c);$("#syncNote").textContent="✅ Code copied. Send it to yourself (email, WhatsApp…) and paste it on your other device."}catch(e){$("#syncBox").hidden=false;$("#syncIn").value=c;$("#syncIn").select();$("#syncNote").textContent="Copy this code, then paste it on your other device."}};
+$("#syncShow").onclick=()=>{$("#syncBox").hidden=false;$("#syncIn").value="";$("#syncIn").focus()};
+$("#syncImport").onclick=()=>{try{mergeCode($("#syncIn").value);$("#syncBox").hidden=true;$("#syncNote").textContent="✅ Progress merged."}catch(e){$("#syncNote").textContent="This code isn't valid. Copy it again from your other device."}};
+// offline / install
+if("serviceWorker" in navigator&&/github\.io$/.test(location.hostname)){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 
 applyMode();getSample().then(sm=>{OFF=!sm;applyMode()});
 buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
