@@ -452,6 +452,33 @@ const TALKS=[
  {t:"Call your landlord",role:"Mr Peeters, your landlord, a bit busy",set:"a phone call about your broken heating; he asks questions and tries to delay",open:"Hello, Peeters speaking."},
 ];
 
+
+const MODEL={
+ "Daily standup":"Yesterday I finished migrating the staging cluster to the new node pool and fixed a flaky health check. Today I'm going to update the Terraform modules for production. No blockers on my side, but I might need a quick review this afternoon.",
+ "Incident alert on Slack":"🔴 Incident: the production API has been returning 502 errors since 14:05. Checkout is affected for most users. I'm investigating the load balancer and the latest deployment. Next update in 15 minutes.",
+ "Postmortem summary":"Last night at 23:10, the disk on db-prod-02 filled up and the database stopped accepting writes for 25 minutes. Root cause: old WAL files were not being cleaned up after a config change. We freed up space and restarted replication. Action items: add a disk usage alert at 80%, fix the cleanup job, and review our retention settings.",
+ "Explain to a manager":"Right now each application runs on its own VM, which is expensive and slow to update. With Kubernetes, we can run more apps on fewer servers and deploy in minutes instead of hours. The trade-off is that it's more complex at first, so we'd need about three months and some training. In the long run, it should cut costs and reduce downtime.",
+ "Job interview":"In my last job, our main API went down during peak hours. I was on-call, so I had to restore service quickly. I checked the metrics, saw that database connections were maxed out, and rolled back a recent change that had removed connection pooling. Service was back within 20 minutes, and afterwards I added an alert and a test so it wouldn't happen again.",
+ "Say no politely":"Thanks for asking! I'm afraid I can't give root access on production. It's against our security policy, and it protects all of us. What I can do is give you read access to the logs and set up a staging server where you have full rights. Would that work for you?",
+ "Code review comment":"Nice work overall! One thing: this security group allows SSH from 0.0.0.0/0, which exposes port 22 to the whole internet. Could we restrict it to the VPN range, or use SSM instead? Happy to pair on it if that helps.",
+ "Ask for a deadline extension":"Hi Elena, quick update on the monitoring migration: the dashboards and alerts are done, but the log pipeline is taking longer than expected because of a parsing issue. I won't be able to finish by Friday. Would next Wednesday work for you? I'll keep you posted if anything changes.",
+ "Monday small talk":"It was really nice, thanks! We went to Ghent on Saturday and walked around the old town, and on Sunday I just relaxed at home. What about you? Did you do anything fun?",
+ "Introduce yourself":"Hi, welcome to the team! I'm on the infrastructure side, mostly Kubernetes and CI/CD. I've been here for about two years. If you need help with access or anything else, just let me know.",
+ "Decline an invitation":"Thanks for the invite! I can't make it tonight, I've already got plans. Have fun, and let's do it next week?",
+ "Train strike":"Hi team, there's a rail strike today and my train has been cancelled, so I'll be working from home. I'm online as usual and can join all meetings on Teams.",
+ "Email to your landlord":"Dear Mr Peeters, the heating in my flat hasn't been working since Monday, and it's getting very cold. Could you please send someone to repair it as soon as possible? I'm available every day after 5 pm and on Saturday mornings. Thank you in advance. Best regards,",
+ "Book a doctor's appointment":"Hello, I'd like to book an appointment with the doctor, please. I've had a fever for three days and a bad cough. Is there anything available today or tomorrow?",
+};
+const SCRIPT={
+ "Coffee machine chat":[["Yeah, really good, thanks! I went to the coast with some friends. How about you?","Nice! I mostly stayed home, it rained all Saturday. Anything big on your plate this week?"],["Quite a lot, actually. We're migrating the monitoring stack, so it's going to be busy.","Sounds intense. Let me know if you need data for the dashboards. Lunch later?"],["Sure, sounds good. Let's grab something at noon.",""]],
+ "Standup with your lead":[["Yesterday I finished the Terraform changes for staging. Today I'll deploy them to production. No blockers.","Great. Any risk with the production deploy?"],["A small one: the security group changes. I'll do it after 6 pm to limit the impact.","Good call. Do you need anyone to review it?"],["Yes, could Tom take a quick look at the PR this afternoon?",""]],
+ "Incident call":[["I can see a spike of 502s on the load balancer since 14:05. It started right after the last deployment.","Okay. Can we roll back?"],["Yes, I'm rolling back to the previous version now. It should take about five minutes.","Thanks. Keep us posted. What should I tell customer support?"],["Tell them checkout is affected, we've found a likely cause, and we expect a fix in about ten minutes.",""]],
+ "Job interview":[["Sure. I'm a DevOps engineer specialised in Linux. In my current role, I manage our Kubernetes clusters and CI/CD pipelines, and I'm part of the on-call rotation.","Interesting. Which monitoring tools do you use?"],["Mainly Zabbix, and Prometheus with Grafana for dashboards. I also set up alerting so the team gets notified in Slack.","Great. How do you handle disagreements with developers?"],["I try to understand their constraints first, then explain the risk with data. Usually we find a compromise that works for both sides.",""]],
+ "Disagree in a design meeting":[["I see where you're coming from, but I'd lean towards a managed database. Backups and failover would be handled for us.","But managed services are expensive, right?"],["That's a fair point. They cost more, but we'd save a lot of engineering time and reduce the risk of data loss.","Hmm. Could we test both options first?"],["Good idea. Let's run a small proof of concept and compare cost and effort in two weeks.",""]],
+ "One-to-one with your manager":[["Pretty good overall, but the workload has been heavy lately with the migration.","I hear you. What could help?"],["Maybe we could move the log pipeline task to next sprint, so I can focus on the migration.","That makes sense. And what about your goals for next year?"],["I'd like to get a Kubernetes certification and take more ownership of the architecture.",""]],
+ "Afterwork drinks":[["Cheers! About two years now. I'm in the infrastructure team. And you?","I joined last spring, in marketing. Are you from Brussels originally?"],["Not originally, but I've lived here for a few years. I really like it, especially the food.","Same! Any favourite places?"],["There's a great little restaurant near Flagey, I'll send you the name. Another drink? It's my round.",""]],
+ "Call your landlord":[["Hello Mr Peeters, it's your tenant from the second floor. I'm calling because the heating has been broken since Monday.","Oh dear. Have you checked the boiler pressure?"],["Yes, I checked it and it looks normal, but the radiators are still cold.","Alright, I'll call a technician. When are you available?"],["I'm home every day after 5 pm, and on Saturday morning. Could it be this week, please?",""]],
+};
 const RES=[
  {k:"Podcasts",t:"6 Minute English",who:"BBC Learning English",lvl:"B1",th:"English",why:"Very short episodes on a current topic, with the key vocabulary explained."},
  {k:"Podcasts",t:"The English We Speak",who:"BBC Learning English",lvl:"B1",th:"English",why:"One everyday expression explained in three minutes."},
@@ -460,6 +487,10 @@ const RES=[
  {k:"Podcasts",t:"All Ears English",who:"Lindsay McMahon & Michelle Kaplan",lvl:"B2",th:"Communication",why:"Natural American conversation focused on connection, small talk and workplace English."},
  {k:"Podcasts",t:"Business English Pod",who:"Business English Pod",lvl:"B2",th:"Communication",why:"Realistic dialogues for meetings, negotiations, presentations and emails."},
  {k:"Podcasts",t:"Luke's English Podcast",who:"Luke Thompson",lvl:"B2",th:"English",why:"Long, funny episodes in British English. Great for listening without stopping."},
+ {k:"Podcasts",t:"BigDeal",who:"Codie Sanchez",lvl:"B2",th:"Business",why:"Interviews about money, business and ownership. Fast, energetic American English."},
+ {k:"Podcasts",t:"My First Million",who:"Shaan Puri & Sam Parr",lvl:"B2",th:"Business",why:"Two friends brainstorm business ideas. Very natural, informal conversation."},
+ {k:"Podcasts",t:"The Game",who:"Alex Hormozi",lvl:"B2",th:"Business",why:"Short, direct lessons on business and discipline. Clear and punchy."},
+ {k:"Podcasts",t:"Modern Wisdom",who:"Chris Williamson",lvl:"B2",th:"Interviews",why:"Conversations about psychology, habits and success. British host."},
  {k:"Podcasts",t:"The Diary of a CEO",who:"Steven Bartlett",lvl:"B2",th:"Interviews",why:"Long, honest conversations with entrepreneurs and experts. Clear British English."},
  {k:"Podcasts",t:"How I Built This",who:"Guy Raz",lvl:"B2",th:"Business",why:"Founders tell how they built their companies. Calm, very clear storytelling."},
  {k:"Podcasts",t:"Freakonomics Radio",who:"Stephen Dubner",lvl:"B2",th:"Ideas",why:"Surprising stories about how the world works, well produced and easy to follow."},
@@ -506,7 +537,8 @@ function chips(el,items,cur,on){
 let samplePromise=null;
 function getSample(){if(!samplePromise)samplePromise=(window.claude&&claude.use)?claude.use("sample").catch(()=>null):Promise.resolve(null);return samplePromise}
 function errMsg(e){const c=e&&e.code;if(c==="no_key")return NEED_CLAUDE;return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
-const NEED_CLAUDE=`Talk and Write run on Claude, free with your Claude account. <a class="sbtn play" href="${"https://claude.ai/artifact/ErgzojUA61ZnrAL3Dc4JJY"}" target="_blank" rel="noopener">Open in Claude</a>`;
+const NEED_CLAUDE="";
+let OFF=!(window.claude&&window.claude.use);
 async function hasAI(){return !!(await getSample())}
 async function ask(prompt){const sample=await getSample();if(!sample)throw {code:"no_key"};return sample.json(prompt,{modelTier:"default",cache:false})}
 
@@ -588,9 +620,9 @@ function renderQ(){
 }
 
 /* ================= TALK ================= */
-let tIdx=Math.floor(Math.random()*TALKS.length),hist=[],busy=false;
+let tIdx=Math.floor(Math.random()*TALKS.length),hist=[],busy=false,step=0;
 function startTalk(){
-  const t=TALKS[tIdx];hist=[{r:"them",x:t.open}];
+  const t=TALKS[tIdx];hist=[{r:"them",x:t.open}];step=0;
   $("#sceneBox").innerHTML=`<div><p><b>${esc(t.t)}</b></p><p class="small">You're talking with ${esc(t.role)}.</p></div><button class="sbtn" id="newTalk">New</button>`;
   $("#newTalk").onclick=()=>{tIdx=randOther(TALKS.length,tIdx);startTalk()};
   renderChat();
@@ -600,13 +632,23 @@ function renderChat(extra=""){
   $("#chat").innerHTML=hist.map(m=>{
     if(m.r==="them")return `<div class="bub them"><span class="who">${esc(name)}</span>${esc(m.x)}</div>`;
     if(m.r==="me")return `<div class="bub me">${esc(m.x)}</div>`;
+    if(m.r==="model")return `<div class="fb good"><b>A natural answer could be:</b>${esc(m.x)}</div>`;
+    if(m.r==="end")return `<p class="small" style="text-align:center">End of the conversation. Tap <b>New</b> for another one.</p>`;
     if(m.r==="fb")return m.ok?`<div class="fb good">✅ Natural and correct.</div>`:`<div class="fb"><b>More natural: “${esc(m.better)}”</b>${esc(m.note)}</div>`;
     return "";
   }).join("")+extra;
 }
 async function sendMsg(){
   const txt=$("#msg").value.trim();if(!txt||busy)return;
-  if(!(await hasAI())){renderChat(`<p class="small">${NEED_CLAUDE}</p>`);return}
+  if(OFF){
+    const sc=SCRIPT[TALKS[tIdx].t]||[];if(step>=sc.length)return;
+    hist.push({r:"me",x:txt});$("#msg").value="";
+    const [model,nxt]=sc[step];hist.push({r:"model",x:model});
+    if(nxt)hist.push({r:"them",x:nxt});else hist.push({r:"end"});
+    step++;renderChat();markActive();
+    if($("#readAloud").checked)speak(nxt||model);
+    const c=$("#chat").lastElementChild;if(c)c.scrollIntoView({block:"nearest"});return;
+  }
   busy=true;$("#send").disabled=true;
   hist.push({r:"me",x:txt});$("#msg").value="";
   const t=TALKS[tIdx];const name=t.role.split(",")[0];
@@ -659,7 +701,13 @@ $("#newScenBtn").onclick=()=>{sIdx=randOther(SCENARIOS.length,sIdx);$("#answer")
 $("#checkBtn").onclick=async()=>{
   const txt=$("#answer").value.trim();
   if(txt.length<15){$("#coachOut").innerHTML=`<p class="small">Write at least one or two sentences so the feedback is useful.</p>`;return}
-  if(!(await hasAI())){$("#coachOut").innerHTML=`<p class="small">${NEED_CLAUDE}</p>`;return}
+  if(OFF){
+    const s=SCENARIOS[sIdx];const m=MODEL[s.t]||"";
+    $("#coachOut").innerHTML=`<div class="card"><h3 style="margin-top:0">A model answer</h3>
+      <div class="ex" style="font-style:normal"><span>${esc(m)}</span>${canSpeak?'<button class="icon" id="sayImp" aria-label="Listen">🔊</button>':""}</div>
+      <h3>Check yourself</h3><ul class="vlist"><li>Did you cover everything? <span class="small">${esc(s.h)}</span></li><li>Past simple for finished actions (yesterday, last night)?</li><li>Short, clear sentences?</li><li>Any phrase from the model you'd like to reuse? Say it out loud twice.</li></ul></div>`;
+    const b=$("#sayImp");if(b)b.onclick=()=>speak(m);S.coach++;save();markActive();return;
+  }
   const btn=$("#checkBtn");btn.disabled=true;btn.textContent="Checking…";
   $("#coachOut").innerHTML=`<div class="card"><p class="small">Reading your text…</p></div>`;
   const s=SCENARIOS[sIdx];
@@ -679,8 +727,13 @@ At most 6 mistakes, most important first; empty array if none. phrases: exactly 
     const r=await ask(prompt);
     S.coach++;save();markActive();renderCoach(r);
   }catch(e){$("#coachOut").innerHTML=`<p class="small">${errMsg(e)}</p>`}
-  finally{btn.disabled=false;btn.textContent="Check my text"}
+  finally{btn.disabled=false;applyMode()}
 };
+function applyMode(){
+  $("#checkBtn").textContent=OFF?"Compare with a model answer":"Check my text";
+  $("#v-talk .sub").textContent=OFF?"Practise real conversations. Reply, then compare with a natural answer.":"Have a real conversation. Type or use the mic, and get a quick tip after each message.";
+  $("#v-write .sub").textContent=OFF?"Write about a real situation, then compare with a model answer.":"Write about a real situation. Claude corrects it and explains why.";
+}
 function renderCoach(r){
   const ms=r.mistakes||[];
   $("#coachOut").innerHTML=`<div class="card">
@@ -718,7 +771,7 @@ function renderRes(){
         <p class="rwho">${esc(r.who)}</p>
         <div class="rtags"><span class="tag ${r.lvl}">${r.lvl}</span><span class="tag cat">${esc(r.th)}</span></div>
         <p class="rwhy">${esc(r.why)}</p>
-        <div class="ractions">${main}<a class="sbtn yt" href="${yt}" target="_blank" rel="noopener">YouTube</a><button class="sbtn" data-t="${id}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button>${link?`<button class="sbtn ghost" data-add="${id}">Edit link</button>`:""}</div>
+        <div class="ractions">${main}${r.k==="Podcasts"&&!link?`<a class="sbtn spot" href="https://open.spotify.com/search/${encodeURIComponent(r.t+" "+r.who.split(" & ")[0])}/podcasts" target="_blank" rel="noopener">Spotify</a>`:""}<a class="sbtn yt" href="${yt}" target="_blank" rel="noopener">YouTube</a><button class="sbtn" data-t="${id}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button>${link?`<button class="sbtn ghost" data-add="${id}">Edit link</button>`:""}</div>
         ${edit}
       </div></article>`}).join(""):`<p class="small">Nothing here yet. Mark something as done to find it here.</p>`;
   $("#resList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=RES[+b.dataset.t].t;if(S.heard[t])delete S.heard[t];else S.heard[t]=1;save();renderRes()});
@@ -730,7 +783,7 @@ function renderRes(){
   });
 }
 
-getSample().then(sm=>{if(!sm){["#v-talk .sub","#v-write .sub"].forEach(q=>{const el=$(q);el.insertAdjacentHTML("afterend",`<div class="tipcard">${NEED_CLAUDE}</div>`)})}});
+applyMode();getSample().then(sm=>{OFF=!sm;applyMode()});
 buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
 </script>
 </body>
