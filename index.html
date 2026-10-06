@@ -37,7 +37,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand span{color:var(--blue)}
 .pills{display:flex;gap:6px;align-items:center}
-.gear{border:1px solid var(--line);background:var(--panel);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;font-size:16px}
 .field{display:grid;gap:6px;margin-bottom:14px}
 .field input,.linkrow input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
 .linkrow{display:flex;gap:8px;margin-top:10px}
@@ -161,7 +160,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 <main>
   <header>
     <div class="brand">Ops<span>English</span></div>
-    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span><button class="gear" id="gear" aria-label="Settings">⚙️</button></div>
+    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span></div>
   </header>
 
   <section id="v-words">
@@ -209,24 +208,6 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
       <button class="btn" id="newScenBtn">Random situation</button>
     </div>
     <div class="out" id="coachOut"></div>
-  </section>
-
-  <section id="v-settings" hidden>
-    <h1>Settings</h1>
-    <p class="sub">Talk and Write use Claude. Inside claude.ai it works automatically. On any other site (like GitHub Pages), add your own Anthropic API key.</p>
-    <div class="card">
-      <ol class="steps">
-        <li>Create an account at <b>console.anthropic.com</b> and add a little credit.</li>
-        <li>Set a monthly spending limit (for example $5) in <b>Billing → Limits</b>.</li>
-        <li>Create a key in <b>API keys</b> and paste it below.</li>
-      </ol>
-      <div class="field"><label class="lbl" for="apiKey">API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="sk-ant-…"></div>
-      <div class="field"><label class="lbl" for="apiModel">Model</label>
-        <select id="apiModel"><option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, cheapest)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 (best feedback)</option></select></div>
-      <div class="btns"><button class="btn primary" id="saveKey">Save</button><button class="btn" id="delKey">Remove key</button></div>
-      <p class="status" id="keyStatus"></p>
-      <p class="small">The key is stored only in this browser on this device. It is never sent to GitHub or anywhere except Anthropic.</p>
-    </div>
   </section>
 
   <section id="v-listen" hidden>
@@ -479,19 +460,22 @@ const RES=[
  {k:"Podcasts",t:"All Ears English",who:"Lindsay McMahon & Michelle Kaplan",lvl:"B2",th:"Communication",why:"Natural American conversation focused on connection, small talk and workplace English."},
  {k:"Podcasts",t:"Business English Pod",who:"Business English Pod",lvl:"B2",th:"Communication",why:"Realistic dialogues for meetings, negotiations, presentations and emails."},
  {k:"Podcasts",t:"Luke's English Podcast",who:"Luke Thompson",lvl:"B2",th:"English",why:"Long, funny episodes in British English. Great for listening without stopping."},
+ {k:"Podcasts",t:"The Diary of a CEO",who:"Steven Bartlett",lvl:"B2",th:"Interviews",why:"Long, honest conversations with entrepreneurs and experts. Clear British English."},
+ {k:"Podcasts",t:"How I Built This",who:"Guy Raz",lvl:"B2",th:"Business",why:"Founders tell how they built their companies. Calm, very clear storytelling."},
+ {k:"Podcasts",t:"Freakonomics Radio",who:"Stephen Dubner",lvl:"B2",th:"Ideas",why:"Surprising stories about how the world works, well produced and easy to follow."},
+ {k:"Podcasts",t:"TED Talks Daily",who:"TED",lvl:"B2",th:"Ideas",why:"One short talk a day on any topic. Great variety of accents."},
+ {k:"Podcasts",t:"The Tim Ferriss Show",who:"Tim Ferriss",lvl:"C1",th:"Interviews",why:"Deep interviews with top performers about habits and tools."},
+ {k:"Podcasts",t:"Lex Fridman Podcast",who:"Lex Fridman",lvl:"C1",th:"Tech & ideas",why:"Very long conversations on AI, science and tech. Slow pace, rich vocabulary."},
  {k:"Podcasts",t:"Command Line Heroes",who:"Red Hat",lvl:"B2",th:"Tech",why:"The story of open source and Linux, beautifully produced."},
  {k:"Podcasts",t:"Darknet Diaries",who:"Jack Rhysider",lvl:"B2",th:"Tech",why:"True hacking stories, told slowly and clearly. Hard to stop listening."},
  {k:"Podcasts",t:"Late Night Linux",who:"Late Night Linux",lvl:"B2",th:"Tech",why:"Linux and open-source news with British and Irish accents."},
  {k:"Podcasts",t:"Kubernetes Podcast from Google",who:"Google Cloud",lvl:"C1",th:"Tech",why:"Interviews with maintainers and cloud-native engineers. Very technical vocabulary."},
  {k:"Podcasts",t:"Software Engineering Daily",who:"SE Daily",lvl:"C1",th:"Tech",why:"In-depth technical interviews: the English of architects and CTOs."},
- {k:"Audiobooks",t:"The Phoenix Project",who:"Gene Kim, Kevin Behr, George Spafford",lvl:"B2",th:"DevOps",why:"The classic DevOps novel. You already know the context, so you understand faster."},
- {k:"Audiobooks",t:"The Unicorn Project",who:"Gene Kim",lvl:"B2",th:"DevOps",why:"The follow-up, from the developers' side. Same world, new vocabulary."},
- {k:"Audiobooks",t:"The Martian",who:"Andy Weir",lvl:"B2",th:"Novel",why:"An engineer troubleshoots his way to survival on Mars. Funny and technical."},
- {k:"Audiobooks",t:"Project Hail Mary",who:"Andy Weir",lvl:"B2",th:"Novel",why:"Same author, same fun, with a highly praised narration."},
- {k:"Audiobooks",t:"Harry Potter and the Philosopher's Stone",who:"J.K. Rowling, read by Stephen Fry",lvl:"B1",th:"Novel",why:"A story you know, in clear British English. Excellent for fluency."},
- {k:"Audiobooks",t:"The Curious Incident of the Dog in the Night-Time",who:"Mark Haddon",lvl:"B1",th:"Novel",why:"Short sentences and simple language, but a gripping story."},
- {k:"Audiobooks",t:"Atomic Habits",who:"James Clear",lvl:"B1",th:"Self-improvement",why:"Simple sentences and concrete ideas. Also helps you build a learning habit."},
- {k:"Audiobooks",t:"Crucial Conversations",who:"Patterson, Grenny, McMillan, Switzler",lvl:"B2",th:"Communication",why:"How to speak up and handle difficult conversations at work."},
+ {k:"Audiobooks",t:"The Adventures of Sherlock Holmes",who:"Arthur Conan Doyle · LibriVox (free)",lvl:"B2",th:"Classic",why:"Short detective stories, perfect for a commute. Free and legal: it's in the public domain."},
+ {k:"Audiobooks",t:"The Wonderful Wizard of Oz",who:"L. Frank Baum · LibriVox (free)",lvl:"B1",th:"Classic",why:"Simple sentences and a story everyone knows. A gentle first full audiobook."},
+ {k:"Audiobooks",t:"Alice's Adventures in Wonderland",who:"Lewis Carroll · LibriVox (free)",lvl:"B1",th:"Classic",why:"Short chapters and playful British English."},
+ {k:"Audiobooks",t:"The Time Machine",who:"H. G. Wells · LibriVox (free)",lvl:"B2",th:"Sci-fi",why:"The original time-travel story, short enough to finish in a week."},
+ {k:"Audiobooks",t:"The Call of the Wild",who:"Jack London · LibriVox (free)",lvl:"B2",th:"Classic",why:"A gripping adventure, under four hours."},
  {k:"Videos",t:"TechWorld with Nana",who:"YouTube",lvl:"B1",th:"Tech",why:"Docker, Kubernetes and CI/CD explained slowly and clearly."},
  {k:"Videos",t:"NetworkChuck",who:"YouTube",lvl:"B1",th:"Tech",why:"Linux, networking and homelab, energetic and easy to follow."},
  {k:"Videos",t:"Jeff Geerling",who:"YouTube",lvl:"B2",th:"Tech",why:"Raspberry Pi, Ansible and homelab. Calm, clear American English."},
@@ -521,36 +505,16 @@ function chips(el,items,cur,on){
 }
 let samplePromise=null;
 function getSample(){if(!samplePromise)samplePromise=(window.claude&&claude.use)?claude.use("sample").catch(()=>null):Promise.resolve(null);return samplePromise}
-function errMsg(e){const c=e&&e.code;if(c==="no_key")return NEED_CLAUDE;if(c==="bad_key")return "Your API key was rejected. Check it in ⚙️ Settings.";if(c==="no_credit")return "Your Anthropic account has no credit left. Add some in the Console.";if(c==="network")return "No connection to Anthropic. Check your internet and try again.";return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
-const NEED_CLAUDE='This feature needs Claude. Add your API key in <button class="sbtn" onclick="openSettings()">⚙️ Settings</button>';
-const AKEY="opsenglish:api";
-function apiCfg(){try{return JSON.parse(localStorage.getItem(AKEY))||{}}catch(e){return {}}}
-async function hasAI(){return !!(await getSample())||!!apiCfg().key}
-async function ask(prompt){
-  const sample=await getSample();
-  if(sample)return sample.json(prompt,{modelTier:"default",cache:false});
-  const cfg=apiCfg();if(!cfg.key)throw {code:"no_key"};
-  let res;
-  try{
-    res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":cfg.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:cfg.model||"claude-haiku-4-5-20251001",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
-  }catch(e){throw {code:"network"}}
-  if(res.status===401)throw {code:"bad_key"};
-  if(res.status===429)throw {code:"rate_limited"};
-  if(res.status===400||res.status===402){let m="";try{m=(await res.json()).error.message}catch(e){}if(/credit/i.test(m))throw {code:"no_credit"};throw {code:"api",message:m}}
-  if(!res.ok)throw {code:"api"};
-  const data=await res.json();
-  const text=(data.content||[]).map(b=>b.type==="text"?b.text:"").join("").replace(/```json|```/g,"").trim();
-  const a=text.indexOf("{"),b=text.lastIndexOf("}");
-  return JSON.parse(text.slice(a,b+1));
-}
-function openSettings(){document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));["words","quiz","talk","write","listen","settings"].forEach(v=>$("#v-"+v).hidden=v!=="settings");const c=apiCfg();$("#apiKey").value=c.key||"";$("#apiModel").value=c.model||"claude-haiku-4-5-20251001";$("#keyStatus").textContent=c.key?"✅ A key is saved.":"";window.scrollTo({top:0})}
+function errMsg(e){const c=e&&e.code;if(c==="no_key")return NEED_CLAUDE;return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
+const NEED_CLAUDE=`Talk and Write run on Claude, free with your Claude account. <a class="sbtn play" href="${"https://claude.ai/artifact/ErgzojUA61ZnrAL3Dc4JJY"}" target="_blank" rel="noopener">Open in Claude</a>`;
+async function hasAI(){return !!(await getSample())}
+async function ask(prompt){const sample=await getSample();if(!sample)throw {code:"no_key"};return sample.json(prompt,{modelTier:"default",cache:false})}
 
 /* ================= NAV ================= */
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));
   b.setAttribute("aria-current","page");
-  ["words","quiz","talk","write","listen","settings"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
+  ["words","quiz","talk","write","listen"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
   window.scrollTo({top:0});
 });
 
@@ -742,7 +706,7 @@ function renderRes(){
   const list=RES.filter(r=>rCat==="All"||(rCat==="__done"?S.heard[r.t]:r.k===rCat));
   $("#resList").innerHTML=list.length?list.map((r,i)=>{
     const done=!!S.heard[r.t];const link=S.links[r.t];const id=RES.indexOf(r);
-    const yt=`https://www.youtube.com/results?search_query=${encodeURIComponent(r.t+(r.k==="Videos"?"":" "+r.who.split(",")[0]))}`;
+    const yt=`https://www.youtube.com/results?search_query=${encodeURIComponent(r.t+(r.k==="Videos"?"":r.k==="Audiobooks"?" librivox audiobook":" podcast"))}`;
     const main=link
       ?`<a class="sbtn play" href="${esc(link)}" target="_blank" rel="noopener">▶ Play</a>`
       :`<button class="sbtn play" data-add="${id}">＋ Add my link</button>`;
@@ -766,9 +730,7 @@ function renderRes(){
   });
 }
 
-$("#gear").onclick=openSettings;
-$("#saveKey").onclick=()=>{const k=$("#apiKey").value.trim();if(!/^sk-ant-/.test(k)){$("#keyStatus").textContent="That doesn't look like an Anthropic key (it starts with sk-ant-).";return}try{localStorage.setItem(AKEY,JSON.stringify({key:k,model:$("#apiModel").value}));$("#keyStatus").textContent="✅ Saved. Talk and Write are ready."}catch(e){$("#keyStatus").textContent="This browser blocked saving. Try another browser."}};
-$("#delKey").onclick=()=>{try{localStorage.removeItem(AKEY)}catch(e){}$("#apiKey").value="";$("#keyStatus").textContent="Key removed."};
+getSample().then(sm=>{if(!sm){["#v-talk .sub","#v-write .sub"].forEach(q=>{const el=$(q);el.insertAdjacentHTML("afterend",`<div class="tipcard">${NEED_CLAUDE}</div>`)})}});
 buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
 </script>
 </body>
