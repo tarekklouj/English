@@ -36,7 +36,17 @@ button:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px}
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand span{color:var(--blue)}
-.pills{display:flex;gap:6px}
+.pills{display:flex;gap:6px;align-items:center}
+.gear{border:1px solid var(--line);background:var(--panel);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;font-size:16px}
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field input,.linkrow input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.linkrow{display:flex;gap:8px;margin-top:10px}
+.linkrow input{padding:9px 12px;font-size:15px}
+.sbtn.play{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.sbtn.ghost{border:none;background:none;text-decoration:underline;color:var(--muted);padding:7px 4px}
+.steps{margin:0 0 14px;padding-left:22px;font-size:16px}
+.steps li{margin-bottom:6px}
+.status{font-size:15px;font-weight:700;margin-top:10px}
 .pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:15px;font-weight:700;white-space:nowrap}
 
 h1{font-size:30px;line-height:1.15;margin:18px 0 6px;letter-spacing:-.01em}
@@ -151,7 +161,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 <main>
   <header>
     <div class="brand">Ops<span>English</span></div>
-    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span></div>
+    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span><button class="gear" id="gear" aria-label="Settings">⚙️</button></div>
   </header>
 
   <section id="v-words">
@@ -201,10 +211,28 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div class="out" id="coachOut"></div>
   </section>
 
+  <section id="v-settings" hidden>
+    <h1>Settings</h1>
+    <p class="sub">Talk and Write use Claude. Inside claude.ai it works automatically. On any other site (like GitHub Pages), add your own Anthropic API key.</p>
+    <div class="card">
+      <ol class="steps">
+        <li>Create an account at <b>console.anthropic.com</b> and add a little credit.</li>
+        <li>Set a monthly spending limit (for example $5) in <b>Billing → Limits</b>.</li>
+        <li>Create a key in <b>API keys</b> and paste it below.</li>
+      </ol>
+      <div class="field"><label class="lbl" for="apiKey">API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="sk-ant-…"></div>
+      <div class="field"><label class="lbl" for="apiModel">Model</label>
+        <select id="apiModel"><option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, cheapest)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 (best feedback)</option></select></div>
+      <div class="btns"><button class="btn primary" id="saveKey">Save</button><button class="btn" id="delKey">Remove key</button></div>
+      <p class="status" id="keyStatus"></p>
+      <p class="small">The key is stored only in this browser on this device. It is never sent to GitHub or anywhere except Anthropic.</p>
+    </div>
+  </section>
+
   <section id="v-listen" hidden>
     <h1>Listen</h1>
     <p class="sub">Podcasts, audiobooks and videos picked for your level and your job.</p>
-    <div class="tipcard">💡 Fifteen minutes a day is enough: on the train, while shopping or at the gym. Start at B1 and move up when you understand about 80% without effort.</div>
+    <div class="tipcard">💡 <b>Make every card play in one tap.</b> Open the show or book once in Spotify, Audible or YouTube, tap <b>Share → Copy link</b>, then tap <b>＋ Add my link</b> here and paste it. From then on, ▶ Play opens it directly.</div>
     <div class="chips" id="resCats"></div>
     <div class="res" id="resList"></div>
   </section>
@@ -493,14 +521,36 @@ function chips(el,items,cur,on){
 }
 let samplePromise=null;
 function getSample(){if(!samplePromise)samplePromise=(window.claude&&claude.use)?claude.use("sample").catch(()=>null):Promise.resolve(null);return samplePromise}
-function errMsg(e){return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
-const NEED_CLAUDE="This feature needs Claude: open the page in claude.ai and allow access when asked.";
+function errMsg(e){const c=e&&e.code;if(c==="no_key")return NEED_CLAUDE;if(c==="bad_key")return "Your API key was rejected. Check it in ⚙️ Settings.";if(c==="no_credit")return "Your Anthropic account has no credit left. Add some in the Console.";if(c==="network")return "No connection to Anthropic. Check your internet and try again.";return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
+const NEED_CLAUDE='This feature needs Claude. Add your API key in <button class="sbtn" onclick="openSettings()">⚙️ Settings</button>';
+const AKEY="opsenglish:api";
+function apiCfg(){try{return JSON.parse(localStorage.getItem(AKEY))||{}}catch(e){return {}}}
+async function hasAI(){return !!(await getSample())||!!apiCfg().key}
+async function ask(prompt){
+  const sample=await getSample();
+  if(sample)return sample.json(prompt,{modelTier:"default",cache:false});
+  const cfg=apiCfg();if(!cfg.key)throw {code:"no_key"};
+  let res;
+  try{
+    res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":cfg.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:cfg.model||"claude-haiku-4-5-20251001",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
+  }catch(e){throw {code:"network"}}
+  if(res.status===401)throw {code:"bad_key"};
+  if(res.status===429)throw {code:"rate_limited"};
+  if(res.status===400||res.status===402){let m="";try{m=(await res.json()).error.message}catch(e){}if(/credit/i.test(m))throw {code:"no_credit"};throw {code:"api",message:m}}
+  if(!res.ok)throw {code:"api"};
+  const data=await res.json();
+  const text=(data.content||[]).map(b=>b.type==="text"?b.text:"").join("").replace(/```json|```/g,"").trim();
+  const a=text.indexOf("{"),b=text.lastIndexOf("}");
+  return JSON.parse(text.slice(a,b+1));
+}
+function openSettings(){document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));["words","quiz","talk","write","listen","settings"].forEach(v=>$("#v-"+v).hidden=v!=="settings");const c=apiCfg();$("#apiKey").value=c.key||"";$("#apiModel").value=c.model||"claude-haiku-4-5-20251001";$("#keyStatus").textContent=c.key?"✅ A key is saved.":"";window.scrollTo({top:0})}
 
 /* ================= NAV ================= */
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));
   b.setAttribute("aria-current","page");
-  ["words","quiz","talk","write","listen"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
+  ["words","quiz","talk","write","listen","settings"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
   window.scrollTo({top:0});
 });
 
@@ -542,7 +592,7 @@ function renderCard(){
   const s=$("#say");if(s)s.onclick=()=>speak(v.w);
 }
 function next(){save();markActive();vi++;flipped=false;if(vi>=deck.length){buildDeck();return}renderCard()}
-$("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assign(S,{known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{}});save();renderHeader();buildDeck();renderRes()}};
+$("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assign(S,{known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},links:S.links||{}});save();renderHeader();buildDeck();renderRes()}};
 
 /* ================= QUIZ ================= */
 let qCat="All",qset=[],qi=0,qScore=0;
@@ -592,8 +642,7 @@ function renderChat(extra=""){
 }
 async function sendMsg(){
   const txt=$("#msg").value.trim();if(!txt||busy)return;
-  const sample=await getSample();
-  if(!sample){renderChat(`<p class="small">${NEED_CLAUDE}</p>`);return}
+  if(!(await hasAI())){renderChat(`<p class="small">${NEED_CLAUDE}</p>`);return}
   busy=true;$("#send").disabled=true;
   hist.push({r:"me",x:txt});$("#msg").value="";
   const t=TALKS[tIdx];const name=t.role.split(",")[0];
@@ -611,7 +660,7 @@ Return ONLY a JSON object, no markdown:
 {"reply":"your in-character reply","ok":true or false,"better":"a more natural version of the learner's last message (empty if ok)","note":"one short explanation in simple English of the main fix (empty if ok)"}
 Mark ok as true if the message is correct and natural enough for a native speaker, even if informal.`;
   try{
-    const r=await sample.json(prompt,{modelTier:"default",cache:false});
+    const r=await ask(prompt);
     hist.push({r:"fb",ok:!!r.ok,better:r.better||"",note:r.note||""});
     hist.push({r:"them",x:r.reply||"…"});
     renderChat();markActive();
@@ -646,8 +695,7 @@ $("#newScenBtn").onclick=()=>{sIdx=randOther(SCENARIOS.length,sIdx);$("#answer")
 $("#checkBtn").onclick=async()=>{
   const txt=$("#answer").value.trim();
   if(txt.length<15){$("#coachOut").innerHTML=`<p class="small">Write at least one or two sentences so the feedback is useful.</p>`;return}
-  const sample=await getSample();
-  if(!sample){$("#coachOut").innerHTML=`<p class="small">${NEED_CLAUDE}</p>`;return}
+  if(!(await hasAI())){$("#coachOut").innerHTML=`<p class="small">${NEED_CLAUDE}</p>`;return}
   const btn=$("#checkBtn");btn.disabled=true;btn.textContent="Checking…";
   $("#coachOut").innerHTML=`<div class="card"><p class="small">Reading your text…</p></div>`;
   const s=SCENARIOS[sIdx];
@@ -664,7 +712,7 @@ Write ALL feedback in simple, clear English (no French). Return ONLY a JSON obje
  "phrases": [{"term":"useful expression from the improved version","meaning":"short meaning in simple English"}]}
 At most 6 mistakes, most important first; empty array if none. phrases: exactly 3 items.`;
   try{
-    const r=await sample.json(prompt,{modelTier:"default",cache:false});
+    const r=await ask(prompt);
     S.coach++;save();markActive();renderCoach(r);
   }catch(e){$("#coachOut").innerHTML=`<p class="small">${errMsg(e)}</p>`}
   finally{btn.disabled=false;btn.textContent="Check my text"}
@@ -686,15 +734,19 @@ function renderCoach(r){
 /* ================= LISTEN ================= */
 let rCat="All";
 const ICO={"Podcasts":"🎙️","Audiobooks":"📖","Videos":"▶️"};
+let editing=null;
 function renderRes(){
+  S.links=S.links||{};
   const nDone=Object.keys(S.heard).length;
   chips($("#resCats"),[{v:"All"},{v:"Podcasts"},{v:"Audiobooks"},{v:"Videos"},{v:"__done",label:`Done (${nDone})`}],rCat,c=>{rCat=c;renderRes()});
   const list=RES.filter(r=>rCat==="All"||(rCat==="__done"?S.heard[r.t]:r.k===rCat));
-  $("#resList").innerHTML=list.length?list.map(r=>{
-    const done=!!S.heard[r.t];
-    const link=r.k==="Videos"
-      ?`<a class="sbtn yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(r.t)}" target="_blank" rel="noopener">Open in YouTube</a>`
-      :`<a class="sbtn spot" href="https://open.spotify.com/search/${encodeURIComponent(r.k==="Audiobooks"?r.t+" "+r.who.split(",")[0]:r.t)}" target="_blank" rel="noopener">Open in Spotify</a>`;
+  $("#resList").innerHTML=list.length?list.map((r,i)=>{
+    const done=!!S.heard[r.t];const link=S.links[r.t];const id=RES.indexOf(r);
+    const yt=`https://www.youtube.com/results?search_query=${encodeURIComponent(r.t+(r.k==="Videos"?"":" "+r.who.split(",")[0]))}`;
+    const main=link
+      ?`<a class="sbtn play" href="${esc(link)}" target="_blank" rel="noopener">▶ Play</a>`
+      :`<button class="sbtn play" data-add="${id}">＋ Add my link</button>`;
+    const edit=editing===id?`<div class="linkrow"><input id="linkIn" type="url" inputmode="url" placeholder="https://…" value="${esc(link||"")}" aria-label="Direct link"><button class="sbtn play" data-savelink="${id}">Save</button></div>`:"";
     return `<article class="ritem ${done?"done":""}">
       <div class="rico" aria-hidden="true">${ICO[r.k]}</div>
       <div>
@@ -702,11 +754,21 @@ function renderRes(){
         <p class="rwho">${esc(r.who)}</p>
         <div class="rtags"><span class="tag ${r.lvl}">${r.lvl}</span><span class="tag cat">${esc(r.th)}</span></div>
         <p class="rwhy">${esc(r.why)}</p>
-        <div class="ractions">${link}<button class="sbtn" data-t="${esc(r.t)}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button></div>
+        <div class="ractions">${main}<a class="sbtn yt" href="${yt}" target="_blank" rel="noopener">YouTube</a><button class="sbtn" data-t="${id}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button>${link?`<button class="sbtn ghost" data-add="${id}">Edit link</button>`:""}</div>
+        ${edit}
       </div></article>`}).join(""):`<p class="small">Nothing here yet. Mark something as done to find it here.</p>`;
-  $("#resList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(S.heard[t])delete S.heard[t];else S.heard[t]=1;save();renderRes()});
+  $("#resList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=RES[+b.dataset.t].t;if(S.heard[t])delete S.heard[t];else S.heard[t]=1;save();renderRes()});
+  $("#resList").querySelectorAll("button[data-add]").forEach(b=>b.onclick=()=>{editing=+b.dataset.add;renderRes();const inp=$("#linkIn");if(inp)inp.focus()});
+  $("#resList").querySelectorAll("button[data-savelink]").forEach(b=>b.onclick=()=>{
+    const r=RES[+b.dataset.savelink];const v=$("#linkIn").value.trim();
+    if(!v)delete S.links[r.t];else if(/^https:\/\//.test(v))S.links[r.t]=v;else{$("#linkIn").setCustomValidity("Paste a link starting with https://");$("#linkIn").reportValidity();return}
+    editing=null;save();renderRes();
+  });
 }
 
+$("#gear").onclick=openSettings;
+$("#saveKey").onclick=()=>{const k=$("#apiKey").value.trim();if(!/^sk-ant-/.test(k)){$("#keyStatus").textContent="That doesn't look like an Anthropic key (it starts with sk-ant-).";return}try{localStorage.setItem(AKEY,JSON.stringify({key:k,model:$("#apiModel").value}));$("#keyStatus").textContent="✅ Saved. Talk and Write are ready."}catch(e){$("#keyStatus").textContent="This browser blocked saving. Try another browser."}};
+$("#delKey").onclick=()=>{try{localStorage.removeItem(AKEY)}catch(e){}$("#apiKey").value="";$("#keyStatus").textContent="Key removed."};
 buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
 </script>
 </body>
