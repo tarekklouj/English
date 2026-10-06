@@ -189,11 +189,10 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div class="chat" id="chat" aria-live="polite"></div>
     <div class="composer">
       <textarea id="msg" placeholder="Your reply…" aria-label="Your reply"></textarea>
-      <button class="sq" id="mic" aria-label="Speak" hidden>🎤</button>
       <button class="sq send" id="send" aria-label="Send">➤</button>
     </div>
     <label class="toggle"><input type="checkbox" id="readAloud"> Read replies aloud</label>
-    <p class="small" id="micNote" hidden></p>
+    <p class="small">🎙️ To speak instead of typing, tap the microphone on your phone keyboard.</p>
   </section>
 
   <section id="v-write" hidden>
@@ -676,21 +675,6 @@ Mark ok as true if the message is correct and natural enough for a native speake
 }
 $("#send").onclick=sendMsg;
 $("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg()}});
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(SR){
-  const mic=$("#mic");mic.hidden=false;let rec=null;
-  mic.onclick=()=>{
-    if(rec){rec.stop();return}
-    try{
-      rec=new SR();rec.lang="en-GB";rec.interimResults=true;
-      const base=$("#msg").value?$("#msg").value+" ":"";
-      rec.onresult=e=>{let s="";for(const r of e.results)s+=r[0].transcript;$("#msg").value=base+s};
-      rec.onerror=e=>{const n=$("#micNote");n.hidden=false;n.textContent=e.error==="not-allowed"||e.error==="service-not-allowed"?"The microphone isn't available here. Use your phone keyboard's dictation button instead.":"Couldn't hear you. Try again."};
-      rec.onend=()=>{rec=null;mic.classList.remove("rec")};
-      rec.start();mic.classList.add("rec");$("#micNote").hidden=true;
-    }catch(err){rec=null;const n=$("#micNote");n.hidden=false;n.textContent="The microphone isn't available here. Use your phone keyboard's dictation button instead."}
-  };
-}
 
 /* ================= WRITE ================= */
 let sIdx=Math.floor(Math.random()*SCENARIOS.length);
@@ -771,7 +755,7 @@ function renderRes(){
         <p class="rwho">${esc(r.who)}</p>
         <div class="rtags"><span class="tag ${r.lvl}">${r.lvl}</span><span class="tag cat">${esc(r.th)}</span></div>
         <p class="rwhy">${esc(r.why)}</p>
-        <div class="ractions">${main}${r.k==="Podcasts"&&!link?`<a class="sbtn spot" href="https://open.spotify.com/search/${encodeURIComponent(r.t+" "+r.who.split(" & ")[0])}/podcasts" target="_blank" rel="noopener">Spotify</a>`:""}<a class="sbtn yt" href="${yt}" target="_blank" rel="noopener">YouTube</a><button class="sbtn" data-t="${id}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button>${link?`<button class="sbtn ghost" data-add="${id}">Edit link</button>`:""}</div>
+        <div class="ractions">${main}${r.k==="Podcasts"&&!link?`<a class="sbtn spot" href="https://open.spotify.com/search/${encodeURIComponent(r.t+" "+r.who.split(" & ")[0])}" target="_blank" rel="noopener">Spotify</a>`:""}<a class="sbtn yt" href="${yt}" target="_blank" rel="noopener">YouTube</a><button class="sbtn" data-t="${id}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button>${link?`<button class="sbtn ghost" data-add="${id}">Edit link</button>`:""}</div>
         ${edit}
       </div></article>`}).join(""):`<p class="small">Nothing here yet. Mark something as done to find it here.</p>`;
   $("#resList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=RES[+b.dataset.t].t;if(S.heard[t])delete S.heard[t];else S.heard[t]=1;save();renderRes()});
