@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OpsEnglish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F3F6; --panel:#FFFFFF; --ink:#16223A; --muted:#5E6B80; --line:#DDE2EA; --soft:#F6F8FA;
+  --blue:#2C58C9; --blueSoft:#E6ECFB; --green:#1D8357; --greenSoft:#E1F3EA; --violet:#6B46C1; --violetSoft:#EEE8FB;
+  --amber:#C9821A; --amberSoft:#FCF0DC; --ok:#1D8357; --okSoft:#E1F3EA; --err:#B83F35; --errSoft:#F9E3E0;
+  --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1724; --panel:#18233A; --ink:#E8EDF5; --muted:#98A5BA; --line:#2A3853; --soft:#1D2A44;
+  --blue:#7FA2F5; --blueSoft:#1E2C52; --green:#5CC796; --greenSoft:#163A2B; --violet:#B39AF0; --violetSoft:#2C2350;
+  --amber:#F0B04D; --amberSoft:#3A2C14; --ok:#5CC796; --okSoft:#163A2B; --err:#EE8378; --errSoft:#3E1F1C;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1724; --panel:#18233A; --ink:#E8EDF5; --muted:#98A5BA; --line:#2A3853; --soft:#1D2A44;
+  --blue:#7FA2F5; --blueSoft:#1E2C52; --green:#5CC796; --greenSoft:#163A2B; --violet:#B39AF0; --violetSoft:#2C2350;
+  --amber:#F0B04D; --amberSoft:#3A2C14; --ok:#5CC796; --okSoft:#163A2B; --err:#EE8378; --errSoft:#3E1F1C;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased}
+main{max-width:620px;margin:0 auto;padding:12px 16px 120px}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+button:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+[hidden]{display:none!important}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px}
+.brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
+.brand span{color:var(--blue)}
+.pills{display:flex;gap:6px}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:15px;font-weight:700;white-space:nowrap}
+
+h1{font-size:30px;line-height:1.15;margin:18px 0 6px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 18px;font-size:17px}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;margin-bottom:12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:16px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.rev{border-color:var(--amber);color:var(--amber)}
+.chip.rev[aria-pressed="true"]{background:var(--amber);color:#fff}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.progress{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin:0 0 14px}
+.progress>i{display:block;height:100%;background:var(--ink);transition:width .3s}
+@media (prefers-reduced-motion:reduce){.progress>i{transition:none}}
+
+.flash{min-height:300px;display:flex;flex-direction:column}
+.fhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:8px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:14px;font-weight:700;padding:3px 10px;border-radius:6px;background:var(--blueSoft);color:var(--blue)}
+.tag.B1{background:var(--greenSoft);color:var(--green)}
+.tag.B2{background:var(--blueSoft);color:var(--blue)}
+.tag.C1{background:var(--violetSoft);color:var(--violet)}
+.tag.cat{background:var(--soft);color:var(--muted)}
+.word{font-size:34px;line-height:1.15;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
+.hint{color:var(--muted);margin-top:auto}
+.def{font-size:19px;margin:6px 0 16px}
+.ex{background:var(--soft);border-radius:12px;padding:14px 16px;font-style:italic;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.icon{border:1px solid var(--line);background:var(--panel);border-radius:10px;width:42px;height:42px;flex:none;font-size:18px;display:grid;place-items:center}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.btns.one{grid-template-columns:1fr}
+.btn{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:14px 16px;font-weight:700;font-size:17px}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.ok{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+.btn.no{background:var(--errSoft);border-color:var(--err);color:var(--err)}
+.btn:disabled{opacity:.55;cursor:default}
+.linkbtn{border:none;background:none;color:var(--muted);text-decoration:underline;font-size:15px;padding:8px 0;margin-top:22px}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:15px;margin-bottom:8px}
+
+.q{font-size:22px;line-height:1.35;margin:4px 0 18px;font-weight:700}
+.q b{color:var(--blue)}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 16px;font-size:18px}
+.opt.right{border-color:var(--ok);background:var(--okSoft)}
+.opt.wrong{border-color:var(--err);background:var(--errSoft)}
+.explain{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--amberSoft);font-size:17px}
+.big{font-size:48px;font-weight:700;line-height:1;margin:6px 0 10px}
+
+label.lbl{display:block;font-weight:700;font-size:16px;margin:0 0 6px}
+select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px}
+textarea{min-height:170px;resize:vertical;font-size:17px;margin-top:12px}
+.task{margin-top:12px}
+.task p{margin:0}
+.task .tip{color:var(--muted);font-size:16px;margin-top:10px}
+.out{margin-top:16px}
+.out h3{font-size:18px;margin:20px 0 8px}
+.mistake{padding:12px 0;border-bottom:1px solid var(--line)}
+.mistake:last-child{border-bottom:none}
+.strike{text-decoration:line-through;color:var(--err)}
+.fix{color:var(--ok);font-weight:700}
+.small{color:var(--muted);font-size:16px}
+.scoreline{display:flex;gap:16px;align-items:center}
+.scoreline .big{margin:0;color:var(--amber)}
+.vlist{margin:0;padding:0;list-style:none}
+.vlist li{padding:10px 0;border-bottom:1px solid var(--line)}
+.vlist li:last-child{border-bottom:none}
+
+/* talk */
+.scene{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.scene p{margin:0}
+.chat{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.bub{max-width:86%;padding:12px 15px;border-radius:16px;font-size:17px}
+.bub.them{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:5px}
+.bub.me{align-self:flex-end;background:var(--ink);color:var(--bg);border-bottom-right-radius:5px}
+.bub .who{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.fb{align-self:flex-end;max-width:86%;background:var(--amberSoft);border-radius:12px;padding:10px 14px;font-size:15px}
+.fb.good{background:var(--okSoft)}
+.fb b{display:block}
+.typing{align-self:flex-start;color:var(--muted);font-size:15px;font-style:italic}
+.composer{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;background:var(--bg);padding:8px 0}
+.composer textarea{min-height:52px;height:52px;margin:0;resize:none}
+.sq{flex:none;width:52px;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);font-size:20px;display:grid;place-items:center}
+.sq.send{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sq.rec{background:var(--errSoft);border-color:var(--err)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--muted);margin-top:4px}
+
+/* listen */
+.res{display:grid;gap:12px}
+.ritem{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;grid-template-columns:44px 1fr;gap:14px}
+.ritem.done{opacity:.6}
+.rico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--soft)}
+.rtitle{font-weight:700;font-size:18px;line-height:1.3;margin:0}
+.rwho{color:var(--muted);font-size:15px;margin:2px 0 8px}
+.rwhy{margin:0 0 10px;font-size:16px}
+.rtags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ractions{display:flex;gap:8px;flex-wrap:wrap}
+.sbtn{border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 12px;font-size:15px;font-weight:700;text-decoration:none}
+.sbtn.spot{background:#1DB954;border-color:#1DB954;color:#062B14}
+.sbtn.yt{background:#E53935;border-color:#E53935;color:#fff}
+.sbtn[aria-pressed="true"]{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+.tipcard{background:var(--blueSoft);border-radius:16px;padding:16px 18px;margin-bottom:14px;font-size:16px}
+
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav button{border:none;background:none;padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:var(--muted)}
+nav button .ic{font-size:22px;line-height:1}
+nav button[aria-current="page"]{color:var(--ink);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">Ops<span>English</span></div>
+    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span></div>
+  </header>
+
+  <section id="v-words">
+    <h1>Words &amp; phrases</h1>
+    <p class="sub">Flip the card, listen, then say whether you knew it.</p>
+    <div class="chips" id="vocabCats"></div>
+    <div class="meta"><span id="vocabCount"></span><span id="vocabKnown"></span></div>
+    <div class="progress"><i id="vBar"></i></div>
+    <div class="card flash" id="flash"></div>
+    <div class="btns" id="flashBtns"></div>
+    <button class="linkbtn" id="resetBtn">Reset my progress</button>
+  </section>
+
+  <section id="v-quiz" hidden>
+    <h1>Quiz</h1>
+    <p class="sub">Ten questions, with an explanation after each answer.</p>
+    <div class="chips" id="quizCats"></div>
+    <div class="progress"><i id="quizBar"></i></div>
+    <div class="card" id="quizCard"></div>
+  </section>
+
+  <section id="v-talk" hidden>
+    <h1>Talk</h1>
+    <p class="sub">Have a real conversation. Type or use the mic, and get a quick tip after each message.</p>
+    <div class="card scene" id="sceneBox"></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="composer">
+      <textarea id="msg" placeholder="Your reply…" aria-label="Your reply"></textarea>
+      <button class="sq" id="mic" aria-label="Speak" hidden>🎤</button>
+      <button class="sq send" id="send" aria-label="Send">➤</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="readAloud"> Read replies aloud</label>
+    <p class="small" id="micNote" hidden></p>
+  </section>
+
+  <section id="v-write" hidden>
+    <h1>Write</h1>
+    <p class="sub">Write about a real situation. Claude corrects it and explains why.</p>
+    <label class="lbl" for="scenario">Situation</label>
+    <select id="scenario"></select>
+    <div class="card task" id="scenarioBox"></div>
+    <textarea id="answer" placeholder="Write your answer…" aria-label="Your answer"></textarea>
+    <div class="btns">
+      <button class="btn primary" id="checkBtn">Check my text</button>
+      <button class="btn" id="newScenBtn">Random situation</button>
+    </div>
+    <div class="out" id="coachOut"></div>
+  </section>
+
+  <section id="v-listen" hidden>
+    <h1>Listen</h1>
+    <p class="sub">Podcasts, audiobooks and videos picked for your level and your job.</p>
+    <div class="tipcard">💡 Fifteen minutes a day is enough: on the train, while shopping or at the gym. Start at B1 and move up when you understand about 80% without effort.</div>
+    <div class="chips" id="resCats"></div>
+    <div class="res" id="resList"></div>
+  </section>
+</main>
+
+<nav aria-label="Sections"><div class="in">
+  <button data-v="words" aria-current="page"><span class="ic">🗂️</span>Words</button>
+  <button data-v="quiz"><span class="ic">🎯</span>Quiz</button>
+  <button data-v="talk"><span class="ic">💬</span>Talk</button>
+  <button data-v="write"><span class="ic">✍️</span>Write</button>
+  <button data-v="listen"><span class="ic">🎧</span>Listen</button>
+</div></nav>
+
+<script>
+/* ================= DATA ================= */
+const LVL={"Incidents":"B2","Infra":"B2","Projects":"B2","Meetings":"B2","Communication":"B2","Office chat":"B1","Going out":"B1","Home":"B1","Health":"B1","Shopping":"B1","Getting around":"B1","Admin":"B1","Idioms":"C1","Advanced verbs":"C1"};
+const V=(c,list)=>list.map(([w,d,e])=>({w,c,d,e,lvl:LVL[c]}));
+const VOCAB=[
+ ...V("Incidents",[
+  ["outage","A period when a service is unavailable.","We had a 20-minute outage after the DNS change."],
+  ["to roll back","To return to a previous working version.","Let's roll back to v2.3 until we find the root cause."],
+  ["root cause","The fundamental reason a problem happened.","The root cause was an expired TLS certificate."],
+  ["postmortem","A written review after an incident, usually blameless.","I'll write the postmortem by Friday."],
+  ["on-call","Responsible for responding to alerts outside normal hours.","I'm on-call this weekend, so ping me if anything breaks."],
+  ["to mitigate","To reduce the impact of a problem without fully fixing it.","We mitigated the issue by scaling up the pods."],
+  ["to escalate","To pass an issue to someone with more authority or expertise.","If it's still down in 15 minutes, escalate to the DB team."],
+  ["downtime","Time during which a system is not working.","The migration requires zero downtime."],
+  ["blast radius","How much of the system is affected when something fails.","Let's deploy to one region first to limit the blast radius."],
+ ]),
+ ...V("Infra",[
+  ["to spin up","To create and start a server, container or environment quickly.","Can you spin up a staging environment for QA?"],
+  ["to tear down","To destroy an environment or resources.","Terraform will tear down the test cluster tonight."],
+  ["bottleneck","The part of a system that limits overall performance.","Disk I/O is the bottleneck, not the CPU."],
+  ["throughput","The amount of work processed in a given time.","Throughput dropped by 40% after the upgrade."],
+  ["to provision","To set up and allocate infrastructure resources.","Ansible provisions the VMs in about five minutes."],
+  ["failover","An automatic switch to a backup system when the main one fails.","Failover to the secondary region took 30 seconds."],
+  ["to troubleshoot","To find and fix the cause of a problem.","I spent the morning troubleshooting a networking issue."],
+  ["to tweak","To make small adjustments.","I tweaked the kernel parameters to improve latency."],
+  ["overhead","Extra cost in resources or effort.","The sidecar adds some memory overhead."],
+  ["flaky","Unreliable; sometimes works, sometimes fails.","That integration test is flaky, it fails one run in five."],
+ ]),
+ ...V("Projects",[
+  ["to ship","To release something to production or users.","We shipped the new pipeline last sprint."],
+  ["blocker","Something that prevents you from progressing.","No blockers on my side today."],
+  ["to follow up","To continue or check on something later.","I'll follow up with the network team tomorrow."],
+  ["heads-up","An advance warning.","Quick heads-up: the VPN will be down at 6 pm."],
+  ["workaround","A temporary solution that avoids a problem.","There's a workaround until the patch is released."],
+  ["to deprecate","To mark something as obsolete and soon removed.","The v1 API will be deprecated in March."],
+  ["backlog","A list of work waiting to be done.","Let's add it to the backlog for next sprint."],
+  ["to own","To be responsible for something.","Who owns the monitoring stack?"],
+  ["scope creep","When a project slowly grows beyond what was agreed.","Adding SSO now would be scope creep, let's keep it for phase two."],
+ ]),
+ ...V("Meetings",[
+  ["to push back","To disagree or resist a request politely.","I pushed back on the deadline because testing wasn't done."],
+  ["trade-off","A balance between two things you can't fully have at once.","It's a trade-off between cost and availability."],
+  ["to walk someone through","To explain something step by step.","Can you walk me through the deployment process?"],
+  ["to flag","To draw attention to a potential problem.","I want to flag a risk with the database upgrade."],
+  ["on the same page","Sharing the same understanding.","Just to make sure we're on the same page: the freeze starts Monday."],
+  ["ballpark figure","A rough estimate.","Can you give me a ballpark figure for the migration?"],
+  ["to sync","(informal) To have a short meeting to align.","Let's sync after lunch about the release."],
+  ["action item","A task someone agrees to do after a meeting.","Let's go through the action items before we wrap up."],
+ ]),
+ ...V("Communication",[
+  ["Could you elaborate on that?","A polite way to ask for more detail.","Could you elaborate on that? I'm not sure how it affects the pipeline."],
+  ["Sorry, I didn't catch that.","You didn't hear or understand what was said.","Sorry, I didn't catch that. Could you repeat the last part?"],
+  ["Just to clarify, …","Used to check that you understood correctly.","Just to clarify, you want this done before the release?"],
+  ["If I understand correctly, …","You rephrase what someone said to confirm it.","If I understand correctly, the issue only happens in prod."],
+  ["Sorry to interrupt, but …","A polite way to cut in.","Sorry to interrupt, but we're running out of time."],
+  ["That's a fair point, but …","You accept part of an argument before disagreeing.","That's a fair point, but it would double our costs."],
+  ["I see where you're coming from.","You understand someone's view, even if you disagree.","I see where you're coming from, but I'd rather wait."],
+  ["Let me think about that for a second.","You buy time before answering.","Good question. Let me think about that for a second."],
+  ["To put it simply, …","You're about to explain something in an easy way.","To put it simply, the database ran out of space."],
+  ["What do you mean by …?","You ask someone to explain a word or idea.","What do you mean by “cold storage”?"],
+  ["Would you mind …?","A very polite way to ask for something.","Would you mind sending me the logs?"],
+  ["I'd better get going.","A natural way to end a conversation.","Anyway, I'd better get going, I have a call at two."],
+  ["to take this offline","To continue a discussion later, outside the meeting.","This is getting detailed, let's take this offline."],
+  ["to keep someone in the loop","To keep someone informed.","Please keep me in the loop on the vendor discussion."],
+ ]),
+ ...V("Office chat",[
+  ["How was your weekend?","The classic Monday-morning question.","How was your weekend? Did you do anything fun?"],
+  ["What are you up to?","What are you doing or planning to do?","What are you up to this weekend?"],
+  ["to catch up","To talk with someone to get their news.","Let's catch up over coffee, it's been ages."],
+  ["to grab lunch","To have a quick, informal lunch together.","Want to grab lunch at noon?"],
+  ["I'm swamped.","I have far too much work.","I'm swamped this week, can we do it Monday?"],
+  ["No worries.","A friendly way to say it's not a problem.","Sorry I'm late! — No worries."],
+  ["Fair enough.","I accept your point; that's reasonable.","I'd rather wait for the patch. — Fair enough."],
+  ["to call in sick","To tell your employer you're ill and won't come.","Tom called in sick, so I'm covering his tickets."],
+  ["to take a day off","To not work for one day.","I'm taking Friday off for a long weekend."],
+ ]),
+ ...V("Going out",[
+  ["Fancy a drink?","(UK, informal) Would you like to go for a drink?","Fancy a drink after work? There's a nice bar near Flagey."],
+  ["It's my round.","It's my turn to buy drinks for the group.","Put your wallet away, it's my round."],
+  ["to be up for something","To be willing to do something.","We're going bowling Friday. Are you up for it?"],
+  ["to take a rain check","To decline now but suggest another time.","I'll take a rain check tonight, but next week works."],
+  ["to split the bill","To share the cost of a meal.","Shall we just split the bill?"],
+  ["Could I get the bill, please?","A polite way to ask to pay at a restaurant.","Excuse me, could I get the bill, please?"],
+ ]),
+ ...V("Home",[
+  ["landlord","The person who owns the flat you rent.","I emailed my landlord about the leaking tap."],
+  ["lease","The legal contract to rent a place.","I signed a three-year lease."],
+  ["rental deposit","Money blocked as a guarantee when you rent.","The rental deposit is two months' rent."],
+  ["utilities","Gas, electricity, water, etc.","Does the rent include utilities?"],
+  ["The heating is broken.","The heating system doesn't work.","The heating is broken, could you send someone?"],
+  ["to move in / out","To start or stop living somewhere.","We're moving out at the end of May."],
+ ]),
+ ...V("Health",[
+  ["GP","General practitioner: your family doctor.","I need to see my GP about this cough."],
+  ["to book an appointment","To reserve a time with a doctor, dentist, etc.","I'd like to book an appointment for tomorrow morning."],
+  ["prescription","A doctor's note to get medicine.","You'll need a prescription for antibiotics."],
+  ["sick note","A doctor's certificate saying you can't work.","HR needs a sick note if you're off more than one day."],
+  ["I've got a sore throat.","My throat hurts.","I've got a sore throat and a bit of a fever."],
+ ]),
+ ...V("Shopping",[
+  ["receipt","The paper proving you paid.","Do you need the receipt?"],
+  ["on sale","Sold at a reduced price.","The coffee is on sale this week."],
+  ["Do you take card?","Can I pay by bank card?","Do you take card, or is it cash only?"],
+  ["takeaway","Food you take with you (US: to go).","Let's order a takeaway tonight."],
+ ]),
+ ...V("Getting around",[
+  ["commute","The daily trip between home and work.","My commute is 40 minutes by train."],
+  ["delayed / cancelled","Late / not running at all.","My train is delayed, I'll be 15 minutes late."],
+  ["strike","When workers stop working to protest.","There's a rail strike on Tuesday, I'll work from home."],
+  ["platform","Where you wait for a train.","The train to Ghent leaves from platform 4."],
+  ["return ticket","A ticket to go and come back.","A return ticket to Antwerp, please."],
+  ["traffic jam","Many cars stuck on the road.","Sorry, I'm stuck in a traffic jam on the ring."],
+ ]),
+ ...V("Admin",[
+  ["town hall","The local administration office.","I have to go to the town hall to register my new address."],
+  ["to register","To officially record your address or details.","You must register within eight days of moving."],
+  ["to fill in a form","To write your details on an official document.","Please fill in this form and sign at the bottom."],
+  ["payslip","The monthly document showing your salary.","The bank asked for my last three payslips."],
+  ["tax return","The yearly declaration of your income.","Have you filed your tax return yet?"],
+ ]),
+ ...V("Idioms",[
+  ["to touch base","To make brief contact to check progress.","Let's touch base on Thursday to see where we are."],
+  ["to circle back","To return to a topic later.","Good question, can we circle back to it after the demo?"],
+  ["bandwidth","(figurative) Time or energy available to take on work.","I don't have the bandwidth for another project this month."],
+  ["low-hanging fruit","Easy tasks that bring quick results.","Enabling compression is low-hanging fruit for performance."],
+  ["to get the ball rolling","To start something.","Let me get the ball rolling with a quick proposal."],
+  ["to bring someone up to speed","To give someone the latest information.","Can you bring the new hire up to speed on our CI setup?"],
+  ["to drop the ball","To make a mistake by failing to do something.","I dropped the ball on the certificate renewal, sorry."],
+  ["to cut corners","To do something badly to save time or money.","We can't cut corners on security testing."],
+  ["to go the extra mile","To make more effort than expected.","She really went the extra mile on that migration."],
+  ["to have a lot on your plate","To be very busy.","I know you have a lot on your plate, so no rush."],
+  ["a long shot","Something unlikely to succeed.","It's a long shot, but try clearing the DNS cache."],
+  ["a no-brainer","A very easy decision.","Moving the backups off-site is a no-brainer."],
+  ["rule of thumb","A practical general principle.","As a rule of thumb, keep disk usage under 80%."],
+  ["to hit a snag","To meet an unexpected problem.","We hit a snag with the firewall rules."],
+  ["to be on the fence","To be undecided.","I'm still on the fence about switching to ArgoCD."],
+  ["to beat around the bush","To avoid saying something directly.","Don't beat around the bush: is the project late?"],
+  ["to play it by ear","To decide as things happen, without a plan.","Let's play it by ear and see how the load looks tomorrow."],
+  ["the elephant in the room","An obvious problem nobody talks about.","The elephant in the room is that nobody owns this service."],
+ ]),
+ ...V("Advanced verbs",[
+  ["to iron out","To solve small remaining problems.","We still need to iron out a few issues before go-live."],
+  ["to rule out","To exclude a possibility.","We've ruled out the network, it's the application."],
+  ["to sign off on","To give official approval.","The CTO needs to sign off on the budget."],
+  ["to come up with","To think of an idea or solution.","We need to come up with a better alerting strategy."],
+  ["to run into","To meet a problem unexpectedly.","We ran into rate limits on the API."],
+  ["to sort out","To fix or organise something.","Don't worry, I'll sort it out after lunch."],
+  ["to get the hang of","To learn how to do something.","You'll get the hang of Helm after a few charts."],
+  ["to weigh up","To compare advantages and disadvantages.","We're weighing up managed Kubernetes versus self-hosted."],
+  ["to lean towards","To slightly prefer one option.","I'm leaning towards PostgreSQL for this."],
+  ["to back someone up","To support someone.","Thanks for backing me up in the meeting."],
+  ["to speak up","To say what you think, especially in a group.","If you see a risk, please speak up."],
+  ["to put on hold","To pause something.","The migration is on hold until the audit is done."],
+  ["to bear in mind","To remember and consider something.","Bear in mind that prod has more traffic than staging."],
+ ]),
+];
+
+const QUIZ=[
+ {c:"Phrasal verbs",q:"The deployment failed, so we had to roll it ___.",o:["back","off","down","out"],x:"“Roll back” means return to the previous version. “Roll out” means deploy, often gradually."},
+ {c:"Phrasal verbs",q:"Can you ___ up a new VM for the load tests?",o:["spin","turn","make","put"],x:"“Spin up” means create and start an instance quickly."},
+ {c:"Phrasal verbs",q:"I'll look ___ the memory leak this afternoon.",o:["into","after","for","at"],x:"“Look into” = investigate. “Look for” = search. “Look after” = take care of."},
+ {c:"Phrasal verbs",q:"We ran ___ of disk space on /var.",o:["out","off","over","away"],x:"“Run out of” = have no more of something."},
+ {c:"Phrasal verbs",q:"We've ruled ___ the network; it's the app.",o:["out","off","down","away"],x:"“Rule out” = exclude a possibility."},
+ {c:"Phrasal verbs",q:"We still need to iron ___ a few bugs before go-live.",o:["out","off","up","down"],x:"“Iron out” = solve the last small problems."},
+ {c:"Phrasal verbs",q:"Let's catch ___ over coffee, it's been ages!",o:["up","on","with","out"],x:"“Catch up” = talk to get each other's news."},
+ {c:"Phrasal verbs",q:"We ran ___ a weird bug with the load balancer.",o:["into","onto","over","through"],x:"“Run into” = meet a problem unexpectedly."},
+ {c:"Prepositions",q:"The service is running ___ port 8080.",o:["on","in","at","by"],x:"We say “on port 8080”, “on the server”, “on Linux”."},
+ {c:"Prepositions",q:"The meeting is ___ Monday ___ 10 am.",o:["on / at","in / at","at / on","on / in"],x:"“On” for days, “at” for times, “in” for months and years."},
+ {c:"Prepositions",q:"I'm responsible ___ the CI/CD pipelines.",o:["for","of","about","on"],x:"“Responsible for”, but “in charge of”."},
+ {c:"Prepositions",q:"We need to fix it ___ Friday at the latest.",o:["by","until","for","in"],x:"“By” = no later than (a deadline). “Until” = up to a point in time (continuous)."},
+ {c:"Prepositions",q:"I'm stuck ___ traffic on the ring.",o:["in","on","at","into"],x:"“Stuck in traffic”, “in a traffic jam”."},
+ {c:"Prepositions",q:"It depends ___ the load.",o:["on","of","from","at"],x:"Always “depend on”, never “depend of”."},
+ {c:"Common mistakes",q:"Which sentence is correct?",o:["I deployed it yesterday.","I have deployed it yesterday.","I have deploy it yesterday.","I am deployed it yesterday."],x:"With a finished time (yesterday, last week), use the past simple, not the present perfect."},
+ {c:"Common mistakes",q:"Which sentence is correct?",o:["I've been living in Brussels for three years.","I live in Brussels since three years.","I'm living in Brussels since three years.","I live in Brussels for three years."],x:"For something that started in the past and continues now, use the present perfect (continuous) + for/since."},
+ {c:"Common mistakes",q:"Which sentence is correct?",o:["Here is some information.","Here are some informations.","Here is an information.","Here are informations."],x:"“Information” is uncountable, like “advice”, “feedback” and “equipment”."},
+ {c:"Common mistakes",q:"“Eventually, the server crashed.” This means:",o:["In the end, the server crashed.","Possibly, the server crashed.","The server almost crashed.","The server crashed several times."],x:"“Eventually” means “in the end / finally”. For “possibly”, say “possibly” or “potentially”."},
+ {c:"Common mistakes",q:"Which word means “at the present time”?",o:["currently","actually","actively","eventually"],x:"“Actually” means “in fact”. “Currently” means “now”."},
+ {c:"Common mistakes",q:"Which sentence is correct?",o:["Can you explain the architecture to me?","Can you explain me the architecture?","Can you explain to me about it?","Can you explain me about it?"],x:"The structure is “explain something to someone”."},
+ {c:"Common mistakes",q:"Which sentence is correct?",o:["I agree with you.","I am agree with you.","I'm agreed with you.","I agree you."],x:"“Agree” is a verb, so no “am” before it."},
+ {c:"Common mistakes",q:"How do you say your age?",o:["I'm 32.","I have 32 years.","I have 32.","I'm 32 years."],x:"Use “be”: “I'm 32” or “I'm 32 years old”."},
+ {c:"Common mistakes",q:"Your schedule has no free time. You say:",o:["My calendar is full.","My agenda is full.","My planning is full.","My diary is complete."],x:"An “agenda” is the list of topics for a meeting. For your schedule, say “calendar”."},
+ {c:"Common mistakes",q:"Your company pays for a Kubernetes course. It's a…",o:["training","formation","form","formation course"],x:"Say “training” or “course”. A “formation” is a military or geological term."},
+ {c:"Everyday English",q:"A colleague says “How are you?” in the morning. The most natural reply:",o:["Good, thanks! You?","Yes, and you?","I have a good morning.","I'm going good, thanks you."],x:"Keep it short and positive, then ask back."},
+ {c:"Everyday English",q:"You can't go for drinks tonight but would like to another time:",o:["I'll take a rain check.","I'll take a raincoat.","I'm not up.","Maybe never."],x:"“Take a rain check” = politely postpone."},
+ {c:"Everyday English",q:"At the train station, you want to go and come back:",o:["A return ticket, please.","A go-back ticket, please.","A round ticket, please.","A double ticket, please."],x:"UK: “return ticket”. US: “round-trip ticket”."},
+ {c:"Everyday English",q:"You want to know if gas and electricity are included:",o:["Does the rent include utilities?","Does the rent include charges?","Is the rent with the charges?","Are the charges in the rent price?"],x:"“Utilities” covers gas, water and electricity."},
+ {c:"Everyday English",q:"You phone the office because you're ill:",o:["I'm calling in sick today.","I'm calling sick today.","I'm sick calling today.","I call me sick today."],x:"“Call in sick” = tell work you're ill."},
+ {c:"Everyday English",q:"It's raining very heavily:",o:["It's pouring.","It's raining ropes.","It's raining strong.","It rains a lot of water."],x:"“It's pouring (down)” is the natural expression."},
+ {c:"Everyday English",q:"You didn't hear what your colleague said in a noisy café:",o:["Sorry, I didn't catch that.","Sorry, I didn't take that.","Sorry, I didn't hear you well.","Repeat, please."],x:"“I didn't catch that” is natural and polite."},
+ {c:"Idioms",q:"“I don't have the bandwidth for that right now.” This means:",o:["I don't have time or energy for it.","My internet connection is slow.","I don't understand it.","I'm not allowed to do it."],x:"In office English, “bandwidth” often means capacity to take on work."},
+ {c:"Idioms",q:"“Let's circle back to this.” This means:",o:["Let's discuss it later.","Let's cancel it.","Let's draw a diagram.","Let's repeat it again now."],x:"“Circle back” = return to a topic later."},
+ {c:"Idioms",q:"“I dropped the ball on that.” This means:",o:["I forgot or failed to do it.","I did it perfectly.","I gave it to someone else.","I played sport instead."],x:"“Drop the ball” = make a mistake by not doing something."},
+ {c:"Idioms",q:"“Upgrading the TLS config is low-hanging fruit.” It is:",o:["easy with quick results","very risky","impossible","expensive"],x:"“Low-hanging fruit” = easy wins."},
+ {c:"Idioms",q:"“I'm on the fence about it.” This means:",o:["I haven't decided yet.","I'm against it.","I'm very excited about it.","I'm blocking it."],x:"“On the fence” = undecided."},
+ {c:"Idioms",q:"Which is the most polite way to disagree in a meeting?",o:["I see where you're coming from, but…","You're wrong.","No, that's stupid.","I don't agree you."],x:"Acknowledge the other view first, then give yours."},
+];
+
+const SCENARIOS=[
+ {t:"Daily standup",p:"Give your standup update: what you did yesterday, what you'll do today, and any blockers.",h:"Yesterday I… / Today I'm going to… / No blockers."},
+ {t:"Incident alert on Slack",p:"The production API is returning 502 errors. Write a short message to the #incidents channel.",h:"Impact, what you know, what you're doing, next update time."},
+ {t:"Postmortem summary",p:"A disk filled up on a database server last night and caused 25 minutes of downtime. Write a short postmortem summary.",h:"What happened, impact, root cause, action items."},
+ {t:"Explain to a manager",p:"Explain to a non-technical manager why you want to migrate from VMs to Kubernetes, and the trade-offs.",h:"No jargon: talk about cost, risk and benefits."},
+ {t:"Job interview",p:"Interview question: “Tell me about a difficult production issue you solved.”",h:"Use STAR: Situation, Task, Action, Result."},
+ {t:"Say no politely",p:"A developer asks for root access on production servers. Reply politely, say no and offer an alternative.",h:"Firm but friendly."},
+ {t:"Code review comment",p:"Comment on a teammate's Terraform pull request: the security group allows 0.0.0.0/0 on port 22.",h:"Flag the risk, suggest a fix, stay kind."},
+ {t:"Ask for a deadline extension",p:"You won't finish the monitoring migration by Friday. Email your manager to ask for more time.",h:"Explain why, give a new date, show what's already done."},
+ {t:"Monday small talk",p:"A colleague asks: “How was your weekend?” Answer in 3–4 sentences and ask something back.",h:"Share one detail, then ask “What about you?”"},
+ {t:"Introduce yourself",p:"A new colleague just joined your team. Introduce yourself at the coffee machine.",h:"Your name, your role, how long you've been here, offer to help."},
+ {t:"Decline an invitation",p:"Your team invites you for drinks tonight but you can't go. Write a friendly Slack reply.",h:"Thank them, give a reason, suggest another day."},
+ {t:"Train strike",p:"There's a rail strike and your train is cancelled. Message your team to say you'll work from home.",h:"Short and clear: situation, impact, solution."},
+ {t:"Email to your landlord",p:"Your heating has been broken for two days. Email your landlord to ask for a repair.",h:"Since when, the impact, a clear request, when you're available."},
+ {t:"Book a doctor's appointment",p:"Write what you would say on the phone to book an appointment with a GP because you've had a fever for three days.",h:"I'd like to book… / I've had… since…"},
+];
+
+const TALKS=[
+ {t:"Coffee machine chat",role:"Sam, a friendly British colleague from the data team",set:"a casual chat at the office coffee machine on Monday morning",open:"Morning! You look like you need that coffee. Good weekend?"},
+ {t:"Standup with your lead",role:"Priya, your team lead, running the daily standup",set:"the daily standup meeting; she asks for your update and follow-up questions",open:"Okay, your turn. What have you been working on, and is anything blocking you?"},
+ {t:"Incident call",role:"Marc, the incident commander during a production outage",set:"a live incident call: the checkout API is returning 502 errors and you're the on-call engineer",open:"Thanks for jumping on. Customers can't check out. What do you see on your side?"},
+ {t:"Job interview",role:"Laura, a hiring manager at a cloud company interviewing for a senior DevOps role",set:"a job interview; ask one question at a time about experience, tools and soft skills",open:"Thanks for coming in. To start, could you tell me a bit about yourself and your current role?"},
+ {t:"Disagree in a design meeting",role:"Tom, a senior developer who wants to run the database inside Kubernetes",set:"an architecture meeting where you think a managed database is better; he politely defends his view",open:"Honestly, I think we should just run Postgres in the cluster. It keeps everything in one place. What do you think?"},
+ {t:"One-to-one with your manager",role:"Elena, your manager, in a monthly one-to-one",set:"a one-to-one about your workload, goals and career growth",open:"So, how are things going for you lately? How's the workload?"},
+ {t:"Afterwork drinks",role:"Jonas, a colleague from another team, at an afterwork in a Brussels bar",set:"casual afterwork drinks; talk about life in Belgium, hobbies, travel",open:"Cheers! I don't think we've properly met. How long have you been at the company?"},
+ {t:"Call your landlord",role:"Mr Peeters, your landlord, a bit busy",set:"a phone call about your broken heating; he asks questions and tries to delay",open:"Hello, Peeters speaking."},
+];
+
+const RES=[
+ {k:"Podcasts",t:"6 Minute English",who:"BBC Learning English",lvl:"B1",th:"English",why:"Very short episodes on a current topic, with the key vocabulary explained."},
+ {k:"Podcasts",t:"The English We Speak",who:"BBC Learning English",lvl:"B1",th:"English",why:"One everyday expression explained in three minutes."},
+ {k:"Podcasts",t:"Plain English",who:"Jeremy Butler",lvl:"B1",th:"English",why:"Current events in clear, slightly slower English, with an idiom lesson in each episode."},
+ {k:"Podcasts",t:"Coffee Break English",who:"Coffee Break Languages",lvl:"B1",th:"English",why:"Structured lessons with a teacher and a learner. Good for speaking confidence."},
+ {k:"Podcasts",t:"All Ears English",who:"Lindsay McMahon & Michelle Kaplan",lvl:"B2",th:"Communication",why:"Natural American conversation focused on connection, small talk and workplace English."},
+ {k:"Podcasts",t:"Business English Pod",who:"Business English Pod",lvl:"B2",th:"Communication",why:"Realistic dialogues for meetings, negotiations, presentations and emails."},
+ {k:"Podcasts",t:"Luke's English Podcast",who:"Luke Thompson",lvl:"B2",th:"English",why:"Long, funny episodes in British English. Great for listening without stopping."},
+ {k:"Podcasts",t:"Command Line Heroes",who:"Red Hat",lvl:"B2",th:"Tech",why:"The story of open source and Linux, beautifully produced."},
+ {k:"Podcasts",t:"Darknet Diaries",who:"Jack Rhysider",lvl:"B2",th:"Tech",why:"True hacking stories, told slowly and clearly. Hard to stop listening."},
+ {k:"Podcasts",t:"Late Night Linux",who:"Late Night Linux",lvl:"B2",th:"Tech",why:"Linux and open-source news with British and Irish accents."},
+ {k:"Podcasts",t:"Kubernetes Podcast from Google",who:"Google Cloud",lvl:"C1",th:"Tech",why:"Interviews with maintainers and cloud-native engineers. Very technical vocabulary."},
+ {k:"Podcasts",t:"Software Engineering Daily",who:"SE Daily",lvl:"C1",th:"Tech",why:"In-depth technical interviews: the English of architects and CTOs."},
+ {k:"Audiobooks",t:"The Phoenix Project",who:"Gene Kim, Kevin Behr, George Spafford",lvl:"B2",th:"DevOps",why:"The classic DevOps novel. You already know the context, so you understand faster."},
+ {k:"Audiobooks",t:"The Unicorn Project",who:"Gene Kim",lvl:"B2",th:"DevOps",why:"The follow-up, from the developers' side. Same world, new vocabulary."},
+ {k:"Audiobooks",t:"The Martian",who:"Andy Weir",lvl:"B2",th:"Novel",why:"An engineer troubleshoots his way to survival on Mars. Funny and technical."},
+ {k:"Audiobooks",t:"Project Hail Mary",who:"Andy Weir",lvl:"B2",th:"Novel",why:"Same author, same fun, with a highly praised narration."},
+ {k:"Audiobooks",t:"Harry Potter and the Philosopher's Stone",who:"J.K. Rowling, read by Stephen Fry",lvl:"B1",th:"Novel",why:"A story you know, in clear British English. Excellent for fluency."},
+ {k:"Audiobooks",t:"The Curious Incident of the Dog in the Night-Time",who:"Mark Haddon",lvl:"B1",th:"Novel",why:"Short sentences and simple language, but a gripping story."},
+ {k:"Audiobooks",t:"Atomic Habits",who:"James Clear",lvl:"B1",th:"Self-improvement",why:"Simple sentences and concrete ideas. Also helps you build a learning habit."},
+ {k:"Audiobooks",t:"Crucial Conversations",who:"Patterson, Grenny, McMillan, Switzler",lvl:"B2",th:"Communication",why:"How to speak up and handle difficult conversations at work."},
+ {k:"Videos",t:"TechWorld with Nana",who:"YouTube",lvl:"B1",th:"Tech",why:"Docker, Kubernetes and CI/CD explained slowly and clearly."},
+ {k:"Videos",t:"NetworkChuck",who:"YouTube",lvl:"B1",th:"Tech",why:"Linux, networking and homelab, energetic and easy to follow."},
+ {k:"Videos",t:"Jeff Geerling",who:"YouTube",lvl:"B2",th:"Tech",why:"Raspberry Pi, Ansible and homelab. Calm, clear American English."},
+ {k:"Videos",t:"English with Lucy",who:"YouTube",lvl:"B1",th:"English",why:"Pronunciation and everyday expressions in British English."},
+];
+
+/* ================= STATE ================= */
+const KEY="opsenglish:v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{}},load());
+S.heard=S.heard||{};
+const today=()=>new Date().toISOString().slice(0,10);
+function markActive(){if(!S.days.includes(today())){S.days.push(today());save()}renderHeader()}
+function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(today()))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
+function renderHeader(){$("#pStreak").textContent=`🔥 ${streak()} d`;$("#pKnown").textContent=`📚 ${VOCAB.filter(v=>S.known[v.w]).length}/${VOCAB.length}`}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const randOther=(n,cur)=>{if(n<2)return 0;let i;do{i=Math.floor(Math.random()*n)}while(i===cur);return i};
+const canSpeak="speechSynthesis" in window;
+function speak(t){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/^to /,"").replace(/[—…]/g,","));u.lang="en-GB";u.rate=.92;speechSynthesis.speak(u)}
+function chips(el,items,cur,on){
+  el.innerHTML=items.map(it=>`<button class="chip ${it.cls||""}" aria-pressed="${it.v===cur}">${esc(it.label||it.v)}</button>`).join("");
+  el.querySelectorAll(".chip").forEach((b,i)=>b.onclick=()=>on(items[i].v));
+}
+let samplePromise=null;
+function getSample(){if(!samplePromise)samplePromise=(window.claude&&claude.use)?claude.use("sample").catch(()=>null):Promise.resolve(null);return samplePromise}
+function errMsg(e){return e&&e.code==="rate_limited"?"Too many requests at once. Wait a minute and try again.":e&&e.code==="not_granted"?"Access to Claude was declined. You can allow it from the artifact's Permissions menu.":"That didn't go through. Try again in a moment."}
+const NEED_CLAUDE="This feature needs Claude: open the page in claude.ai and allow access when asked.";
+
+/* ================= NAV ================= */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));
+  b.setAttribute("aria-current","page");
+  ["words","quiz","talk","write","listen"].forEach(v=>$("#v-"+v).hidden=v!==b.dataset.v);
+  window.scrollTo({top:0});
+});
+
+/* ================= WORDS ================= */
+let vCat="All",deck=[],vi=0,flipped=false;
+function pool(){if(vCat==="__review")return VOCAB.filter(v=>S.review[v.w]);if(/^(B1|B2|C1)$/.test(vCat))return VOCAB.filter(v=>v.lvl===vCat);return VOCAB.filter(v=>vCat==="All"||v.c===vCat)}
+function buildDeck(){
+  const nRev=VOCAB.filter(v=>S.review[v.w]).length;
+  if(vCat==="__review"&&!nRev)vCat="All";
+  const items=[{v:"All"}];
+  if(nRev)items.push({v:"__review",label:`To review (${nRev})`,cls:"rev"});
+  items.push({v:"C1",label:"Advanced (C1)"},...[...new Set(VOCAB.map(v=>v.c))].map(c=>({v:c})));
+  chips($("#vocabCats"),items,vCat,c=>{vCat=c;buildDeck()});
+  const p=pool();const unknown=p.filter(v=>!S.known[v.w]);
+  deck=shuffle(vCat==="__review"||!unknown.length?p:unknown);vi=0;flipped=false;
+  renderCard();
+}
+function renderCard(){
+  const p=pool();const v=deck[vi];
+  $("#vocabCount").textContent=`Card ${vi+1} of ${deck.length}`;
+  $("#vocabKnown").textContent=`${p.filter(x=>S.known[x.w]).length}/${p.length} learned`;
+  $("#vBar").style.width=(vi/deck.length*100)+"%";
+  const tags=`<div class="tags"><span class="tag ${v.lvl}">${v.lvl}</span><span class="tag cat">${esc(v.c)}</span></div>`;
+  const sp=canSpeak?`<button class="icon" id="say" aria-label="Listen">🔊</button>`:"";
+  if(!flipped){
+    $("#flash").innerHTML=`<div class="fhead">${tags}${sp}</div><p class="word">${esc(v.w)}</p><p class="hint">Do you know what it means?</p>`;
+    $("#flashBtns").className="btns one";
+    $("#flashBtns").innerHTML=`<button class="btn primary" id="flip">Show answer</button>`;
+    $("#flip").onclick=()=>{flipped=true;renderCard()};
+  }else{
+    $("#flash").innerHTML=`<div class="fhead">${tags}${sp}</div><p class="word">${esc(v.w)}</p><p class="def">${esc(v.d)}</p>
+      <div class="ex"><span>${esc(v.e)}</span>${canSpeak?'<button class="icon" id="sayEx" aria-label="Listen to the example">🔊</button>':""}</div>`;
+    $("#flashBtns").className="btns";
+    $("#flashBtns").innerHTML=`<button class="btn no" id="unk">Review later</button><button class="btn ok" id="kn">I knew it</button>`;
+    $("#kn").onclick=()=>{S.known[v.w]=1;delete S.review[v.w];next()};
+    $("#unk").onclick=()=>{delete S.known[v.w];S.review[v.w]=1;next()};
+    const se=$("#sayEx");if(se)se.onclick=()=>speak(v.e);
+  }
+  const s=$("#say");if(s)s.onclick=()=>speak(v.w);
+}
+function next(){save();markActive();vi++;flipped=false;if(vi>=deck.length){buildDeck();return}renderCard()}
+$("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assign(S,{known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{}});save();renderHeader();buildDeck();renderRes()}};
+
+/* ================= QUIZ ================= */
+let qCat="All",qset=[],qi=0,qScore=0;
+function buildQuiz(){
+  qset=shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
+  chips($("#quizCats"),["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v})),qCat,c=>{qCat=c;buildQuiz()});
+  renderQ();
+}
+function renderQ(){
+  $("#quizBar").style.width=(qi/qset.length*100)+"%";
+  if(qi>=qset.length){
+    const msg=qScore===qset.length?"Perfect score. Nothing to add.":qScore>=qset.length*.7?"Well done. Read the explanations for the ones you missed.":"Try another round: repetition is what works.";
+    $("#quizCard").innerHTML=`<p class="big">${qScore}/${qset.length}</p><p>${msg}</p><div class="btns one"><button class="btn primary" id="again">New round</button></div>`;
+    $("#again").onclick=buildQuiz;return;
+  }
+  const q=qset[qi];
+  const order=shuffle(q.o.map((t,i)=>({t,i})));
+  $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${esc(q.c)}</span></div>
+    <p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p>
+    <div class="opts">${order.map(o=>`<button class="opt" data-i="${o.i}">${esc(o.t)}</button>`).join("")}</div><div id="qx"></div>`;
+  $("#quizCard").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const ok=+b.dataset.i===0;
+    $("#quizCard").querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===0)x.classList.add("right")});
+    if(!ok)b.classList.add("wrong");
+    if(ok)qScore++;S.quizRight+=ok?1:0;S.quizTotal++;save();markActive();
+    $("#qx").innerHTML=`<div class="explain">${ok?"✅ Correct. ":"❌ "}${esc(q.x)}</div><div class="btns one"><button class="btn primary" id="qn">${qi+1<qset.length?"Next question":"See my score"}</button></div>`;
+    $("#qn").onclick=()=>{qi++;renderQ()};$("#qn").focus();
+  });
+}
+
+/* ================= TALK ================= */
+let tIdx=Math.floor(Math.random()*TALKS.length),hist=[],busy=false;
+function startTalk(){
+  const t=TALKS[tIdx];hist=[{r:"them",x:t.open}];
+  $("#sceneBox").innerHTML=`<div><p><b>${esc(t.t)}</b></p><p class="small">You're talking with ${esc(t.role)}.</p></div><button class="sbtn" id="newTalk">New</button>`;
+  $("#newTalk").onclick=()=>{tIdx=randOther(TALKS.length,tIdx);startTalk()};
+  renderChat();
+}
+function renderChat(extra=""){
+  const name=TALKS[tIdx].role.split(",")[0];
+  $("#chat").innerHTML=hist.map(m=>{
+    if(m.r==="them")return `<div class="bub them"><span class="who">${esc(name)}</span>${esc(m.x)}</div>`;
+    if(m.r==="me")return `<div class="bub me">${esc(m.x)}</div>`;
+    if(m.r==="fb")return m.ok?`<div class="fb good">✅ Natural and correct.</div>`:`<div class="fb"><b>More natural: “${esc(m.better)}”</b>${esc(m.note)}</div>`;
+    return "";
+  }).join("")+extra;
+}
+async function sendMsg(){
+  const txt=$("#msg").value.trim();if(!txt||busy)return;
+  const sample=await getSample();
+  if(!sample){renderChat(`<p class="small">${NEED_CLAUDE}</p>`);return}
+  busy=true;$("#send").disabled=true;
+  hist.push({r:"me",x:txt});$("#msg").value="";
+  const t=TALKS[tIdx];const name=t.role.split(",")[0];
+  renderChat(`<div class="typing">${esc(name)} is typing…</div>`);
+  const convo=hist.filter(m=>m.r!=="fb").slice(-14).map(m=>(m.r==="me"?"Learner: ":name+": ")+m.x).join("\n");
+  const prompt=`You are role-playing as ${t.role}. Setting: ${t.set}.
+The learner is a French-speaking DevOps/Linux engineer living in Belgium, intermediate level (B1-B2), practising spoken English to communicate better with colleagues and in daily life.
+Stay in character. Reply like a real person speaking: 1-3 short sentences, natural spoken English, and usually end with a question to keep the conversation going. Do not mention that you are an AI or a teacher in the reply.
+Separately, check the learner's LAST message for grammar mistakes or unnatural phrasing.
+
+Conversation so far:
+${convo}
+
+Return ONLY a JSON object, no markdown:
+{"reply":"your in-character reply","ok":true or false,"better":"a more natural version of the learner's last message (empty if ok)","note":"one short explanation in simple English of the main fix (empty if ok)"}
+Mark ok as true if the message is correct and natural enough for a native speaker, even if informal.`;
+  try{
+    const r=await sample.json(prompt,{modelTier:"default",cache:false});
+    hist.push({r:"fb",ok:!!r.ok,better:r.better||"",note:r.note||""});
+    hist.push({r:"them",x:r.reply||"…"});
+    renderChat();markActive();
+    if($("#readAloud").checked)speak(r.reply||"");
+  }catch(e){hist.pop();$("#msg").value=txt;renderChat(`<p class="small">${errMsg(e)}</p>`)}
+  finally{busy=false;$("#send").disabled=false;const c=$("#chat").lastElementChild;if(c)c.scrollIntoView({block:"nearest"})}
+}
+$("#send").onclick=sendMsg;
+$("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg()}});
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+  const mic=$("#mic");mic.hidden=false;let rec=null;
+  mic.onclick=()=>{
+    if(rec){rec.stop();return}
+    try{
+      rec=new SR();rec.lang="en-GB";rec.interimResults=true;
+      const base=$("#msg").value?$("#msg").value+" ":"";
+      rec.onresult=e=>{let s="";for(const r of e.results)s+=r[0].transcript;$("#msg").value=base+s};
+      rec.onerror=e=>{const n=$("#micNote");n.hidden=false;n.textContent=e.error==="not-allowed"||e.error==="service-not-allowed"?"The microphone isn't available here. Use your phone keyboard's dictation button instead.":"Couldn't hear you. Try again."};
+      rec.onend=()=>{rec=null;mic.classList.remove("rec")};
+      rec.start();mic.classList.add("rec");$("#micNote").hidden=true;
+    }catch(err){rec=null;const n=$("#micNote");n.hidden=false;n.textContent="The microphone isn't available here. Use your phone keyboard's dictation button instead."}
+  };
+}
+
+/* ================= WRITE ================= */
+let sIdx=Math.floor(Math.random()*SCENARIOS.length);
+$("#scenario").innerHTML=SCENARIOS.map((s,i)=>`<option value="${i}">${esc(s.t)}</option>`).join("");
+function renderScen(){const s=SCENARIOS[sIdx];$("#scenario").value=sIdx;$("#scenarioBox").innerHTML=`<p><b>${esc(s.p)}</b></p><p class="tip">💡 ${esc(s.h)}</p>`;$("#coachOut").innerHTML=""}
+$("#scenario").onchange=e=>{sIdx=+e.target.value;$("#answer").value="";renderScen()};
+$("#newScenBtn").onclick=()=>{sIdx=randOther(SCENARIOS.length,sIdx);$("#answer").value="";renderScen()};
+$("#checkBtn").onclick=async()=>{
+  const txt=$("#answer").value.trim();
+  if(txt.length<15){$("#coachOut").innerHTML=`<p class="small">Write at least one or two sentences so the feedback is useful.</p>`;return}
+  const sample=await getSample();
+  if(!sample){$("#coachOut").innerHTML=`<p class="small">${NEED_CLAUDE}</p>`;return}
+  const btn=$("#checkBtn");btn.disabled=true;btn.textContent="Checking…";
+  $("#coachOut").innerHTML=`<div class="card"><p class="small">Reading your text…</p></div>`;
+  const s=SCENARIOS[sIdx];
+  const prompt=`You are an English coach for a French-speaking DevOps / Linux engineer living in Belgium, intermediate level (B1-B2). He uses English with colleagues and in daily life and wants to communicate clearly and naturally.
+Task given to the learner: "${s.p}"
+Learner's answer:
+"""${txt}"""
+
+Write ALL feedback in simple, clear English (no French). Return ONLY a JSON object, no markdown:
+{"score": integer 0-10 (grammar, vocabulary, clarity, natural tone for the context),
+ "summary": "1-2 encouraging sentences summarising strengths and the main thing to improve",
+ "mistakes": [{"original":"exact wrong fragment","fix":"corrected fragment","why":"short, simple explanation"}],
+ "improved": "a natural, native-sounding rewrite of the whole answer, similar length, matching the register",
+ "phrases": [{"term":"useful expression from the improved version","meaning":"short meaning in simple English"}]}
+At most 6 mistakes, most important first; empty array if none. phrases: exactly 3 items.`;
+  try{
+    const r=await sample.json(prompt,{modelTier:"default",cache:false});
+    S.coach++;save();markActive();renderCoach(r);
+  }catch(e){$("#coachOut").innerHTML=`<p class="small">${errMsg(e)}</p>`}
+  finally{btn.disabled=false;btn.textContent="Check my text"}
+};
+function renderCoach(r){
+  const ms=r.mistakes||[];
+  $("#coachOut").innerHTML=`<div class="card">
+    <div class="scoreline"><p class="big">${esc(r.score)}/10</p><span>${esc(r.summary)}</span></div>
+    <h3>Corrections</h3>
+    ${ms.length?ms.map(m=>`<div class="mistake"><span class="strike">${esc(m.original)}</span> → <span class="fix">${esc(m.fix)}</span><div class="small">${esc(m.why)}</div></div>`).join(""):`<p>No real mistakes. 👏</p>`}
+    <h3>A more natural version</h3>
+    <div class="ex" style="font-style:normal"><span>${esc(r.improved)}</span>${canSpeak?'<button class="icon" id="sayImp" aria-label="Listen">🔊</button>':""}</div>
+    <h3>Phrases to remember</h3>
+    <ul class="vlist">${(r.phrases||[]).map(v=>`<li><b>${esc(v.term)}</b><div class="small">${esc(v.meaning)}</div></li>`).join("")}</ul>
+  </div>`;
+  const b=$("#sayImp");if(b)b.onclick=()=>speak(r.improved||"");
+}
+
+/* ================= LISTEN ================= */
+let rCat="All";
+const ICO={"Podcasts":"🎙️","Audiobooks":"📖","Videos":"▶️"};
+function renderRes(){
+  const nDone=Object.keys(S.heard).length;
+  chips($("#resCats"),[{v:"All"},{v:"Podcasts"},{v:"Audiobooks"},{v:"Videos"},{v:"__done",label:`Done (${nDone})`}],rCat,c=>{rCat=c;renderRes()});
+  const list=RES.filter(r=>rCat==="All"||(rCat==="__done"?S.heard[r.t]:r.k===rCat));
+  $("#resList").innerHTML=list.length?list.map(r=>{
+    const done=!!S.heard[r.t];
+    const link=r.k==="Videos"
+      ?`<a class="sbtn yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(r.t)}" target="_blank" rel="noopener">Open in YouTube</a>`
+      :`<a class="sbtn spot" href="https://open.spotify.com/search/${encodeURIComponent(r.k==="Audiobooks"?r.t+" "+r.who.split(",")[0]:r.t)}" target="_blank" rel="noopener">Open in Spotify</a>`;
+    return `<article class="ritem ${done?"done":""}">
+      <div class="rico" aria-hidden="true">${ICO[r.k]}</div>
+      <div>
+        <p class="rtitle">${esc(r.t)}</p>
+        <p class="rwho">${esc(r.who)}</p>
+        <div class="rtags"><span class="tag ${r.lvl}">${r.lvl}</span><span class="tag cat">${esc(r.th)}</span></div>
+        <p class="rwhy">${esc(r.why)}</p>
+        <div class="ractions">${link}<button class="sbtn" data-t="${esc(r.t)}" aria-pressed="${done}">${done?"✓ Done":"Mark as done"}</button></div>
+      </div></article>`}).join(""):`<p class="small">Nothing here yet. Mark something as done to find it here.</p>`;
+  $("#resList").querySelectorAll("button[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(S.heard[t])delete S.heard[t];else S.heard[t]=1;save();renderRes()});
+}
+
+buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
+</script>
+</body>
+</html>
