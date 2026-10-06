@@ -114,6 +114,25 @@ textarea{min-height:170px;resize:vertical;font-size:17px;margin-top:12px}
 .vlist li{padding:10px 0;border-bottom:1px solid var(--line)}
 .vlist li:last-child{border-bottom:none}
 
+/* today + srs */
+.todaycard{margin-bottom:14px;padding:18px 20px}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.trow b{font-size:19px}
+.progress.goal{height:10px;border-radius:5px;margin:0 0 8px}
+.progress.goal>i{background:var(--amber)}
+.progress.goal.done>i{background:var(--ok)}
+.btns.three{grid-template-columns:1fr 1fr 1fr}
+.btns.three .btn{padding:12px 6px;font-size:16px;line-height:1.2}
+.btns.three .btn small{display:block;font-weight:400;font-size:13px;opacity:.85;margin-top:2px}
+.btn.easy{background:var(--blueSoft);border-color:var(--blue);color:var(--blue)}
+.tools{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pron{margin-top:12px;font-size:16px}
+.w-ok{color:var(--ok);font-weight:700}
+.w-bad{color:var(--err);text-decoration:underline wavy;text-underline-offset:3px}
+.dictin{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;min-height:80px;resize:vertical}
+.donecard{text-align:center;padding:36px 22px}
+.donecard .big{font-size:52px}
+
 /* talk */
 .scene{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .scene p{margin:0}
@@ -160,12 +179,13 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 <main>
   <header>
     <div class="brand">Ops<span>English</span></div>
-    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pKnown">📚 0</span></div>
+    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pGoal">⚡ 0</span></div>
   </header>
 
   <section id="v-words">
     <h1>Words &amp; phrases</h1>
-    <p class="sub">Flip the card, listen, then say whether you knew it.</p>
+    <p class="sub">Smart review: cards come back just before you forget them.</p>
+    <div class="card todaycard" id="today"></div>
     <div class="chips" id="vocabCats"></div>
     <div class="meta"><span id="vocabCount"></span><span id="vocabKnown"></span></div>
     <div class="progress"><i id="vBar"></i></div>
@@ -176,7 +196,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 
   <section id="v-quiz" hidden>
     <h1>Quiz</h1>
-    <p class="sub">Ten questions, with an explanation after each answer.</p>
+    <p class="sub">Ten questions with explanations, or a dictation to train your ear.</p>
     <div class="chips" id="quizCats"></div>
     <div class="progress"><i id="quizBar"></i></div>
     <div class="card" id="quizCard"></div>
@@ -189,10 +209,11 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div class="chat" id="chat" aria-live="polite"></div>
     <div class="composer">
       <textarea id="msg" placeholder="Your reply…" aria-label="Your reply"></textarea>
+      <button class="sq" id="mic" aria-label="Speak" hidden>🎤</button>
       <button class="sq send" id="send" aria-label="Send">➤</button>
     </div>
     <label class="toggle"><input type="checkbox" id="readAloud"> Read replies aloud</label>
-    <p class="small">🎙️ To speak instead of typing, tap the microphone on your phone keyboard.</p>
+    <p class="small" id="micNote" hidden></p>
   </section>
 
   <section id="v-write" hidden>
@@ -516,19 +537,33 @@ const RES=[
 const KEY="opsenglish:v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{}},load());
-S.heard=S.heard||{};
+const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},srs:{},xp:0,dxp:{},goal:50},load());
+S.heard=S.heard||{};S.srs=S.srs||{};S.dxp=S.dxp||{};S.goal=S.goal||50;S.xp=S.xp||0;S.links=S.links||{};
+const DAY=864e5;
+if(!S.srsMigrated){Object.keys(S.known).forEach(w=>{if(!S.srs[w])S.srs[w]={ivl:3,ease:2.5,due:Date.now()+3*DAY}});Object.keys(S.review).forEach(w=>{S.srs[w]={ivl:0,ease:2.3,due:Date.now()}});S.srsMigrated=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function addXP(n){S.xp+=n;S.dxp[today()]=(S.dxp[today()]||0)+n;save();markActive()}
 const today=()=>new Date().toISOString().slice(0,10);
 function markActive(){if(!S.days.includes(today())){S.days.push(today());save()}renderHeader()}
 function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(today()))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
-function renderHeader(){$("#pStreak").textContent=`🔥 ${streak()} d`;$("#pKnown").textContent=`📚 ${VOCAB.filter(v=>S.known[v.w]).length}/${VOCAB.length}`}
+function renderHeader(){const dx=S.dxp[today()]||0;$("#pStreak").textContent=`🔥 ${streak()} d`;$("#pGoal").textContent=dx>=S.goal?`✅ ${dx} XP`:`⚡ ${dx}/${S.goal}`;if(typeof renderToday==="function"&&$("#today"))renderToday()}
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const randOther=(n,cur)=>{if(n<2)return 0;let i;do{i=Math.floor(Math.random()*n)}while(i===cur);return i};
 const canSpeak="speechSynthesis" in window;
-function speak(t){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/^to /,"").replace(/[—…]/g,","));u.lang="en-GB";u.rate=.92;speechSynthesis.speak(u)}
+let VOICE=null;
+function pickVoice(){if(!canSpeak)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));VOICE=vs.find(v=>/GB/i.test(v.lang)&&/enhanced|premium|natural/i.test(v.name))||vs.find(v=>/GB/i.test(v.lang))||vs.find(v=>/US/i.test(v.lang)&&/enhanced|premium|natural/i.test(v.name))||vs[0]||null}
+if(canSpeak){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice)}catch(e){}}
+function speak(t,slow){if(!canSpeak)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/^to /,"").replace(/[—…]/g,","));if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang="en-GB";u.rate=slow?.62:.92;speechSynthesis.speak(u)}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const MIC_ERR="The microphone isn't available here. Use your phone keyboard's dictation button instead.";
+function listen(onText,onEnd,onErr){const rec=new SR();rec.lang="en-GB";rec.interimResults=true;rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;onText(t)};rec.onerror=e=>onErr(e.error);rec.onend=onEnd;rec.start();return rec}
+const norm=t=>String(t).toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).filter(Boolean);
+function compare(expected,got){const a=norm(expected),b=norm(got),m=a.length,n=b.length;const L=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)L[i][j]=a[i]===b[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const hit=new Array(m).fill(false);let i=0,j=0;while(i<m&&j<n){if(a[i]===b[j]){hit[i]=true;i++;j++}else if(L[i+1][j]>=L[i][j+1])i++;else j++}
+  return {score:m?L[0][0]/Math.max(m,n):0,html:a.map((w,k)=>`<span class="${hit[k]?"w-ok":"w-bad"}">${esc(w)}</span>`).join(" ")}}
 function chips(el,items,cur,on){
   el.innerHTML=items.map(it=>`<button class="chip ${it.cls||""}" aria-pressed="${it.v===cur}">${esc(it.label||it.v)}</button>`).join("");
   el.querySelectorAll(".chip").forEach((b,i)=>b.onclick=()=>on(items[i].v));
@@ -550,24 +585,47 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
 });
 
 /* ================= WORDS ================= */
-let vCat="All",deck=[],vi=0,flipped=false;
-function pool(){if(vCat==="__review")return VOCAB.filter(v=>S.review[v.w]);if(/^(B1|B2|C1)$/.test(vCat))return VOCAB.filter(v=>v.lvl===vCat);return VOCAB.filter(v=>vCat==="All"||v.c===vCat)}
+let vCat="Due",deck=[],vi=0,flipped=false,practice=false;
+const isDue=v=>S.srs[v.w]&&S.srs[v.w].due<=Date.now();
+const learned=()=>VOCAB.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;
+function catPool(){if(vCat==="Due"||vCat==="All")return VOCAB;if(vCat==="C1")return VOCAB.filter(v=>v.lvl==="C1");return VOCAB.filter(v=>v.c===vCat)}
+function renderToday(){
+  const dx=S.dxp[today()]||0,due=VOCAB.filter(isDue).length,pct=Math.min(100,dx/S.goal*100);
+  $("#today").innerHTML=`<div class="trow"><b>${dx>=S.goal?"🎉 Daily goal reached!":"Today"}</b><button class="sbtn" id="goalBtn" aria-label="Change daily goal">Goal: ${S.goal} XP</button></div>
+    <div class="progress goal ${dx>=S.goal?"done":""}"><i style="width:${pct}%"></i></div>
+    <p class="small" style="margin:0">⚡ ${dx} XP today · 🔁 ${due} due · 📚 ${learned()}/${VOCAB.length} learned · 🏆 ${S.xp} XP total</p>`;
+  $("#goalBtn").onclick=()=>{const g=[30,50,100,150];S.goal=g[(g.indexOf(S.goal)+1)%g.length];save();renderHeader()};
+}
 function buildDeck(){
-  const nRev=VOCAB.filter(v=>S.review[v.w]).length;
-  if(vCat==="__review"&&!nRev)vCat="All";
-  const items=[{v:"All"}];
-  if(nRev)items.push({v:"__review",label:`To review (${nRev})`,cls:"rev"});
-  items.push({v:"C1",label:"Advanced (C1)"},...[...new Set(VOCAB.map(v=>v.c))].map(c=>({v:c})));
-  chips($("#vocabCats"),items,vCat,c=>{vCat=c;buildDeck()});
-  const p=pool();const unknown=p.filter(v=>!S.known[v.w]);
-  deck=shuffle(vCat==="__review"||!unknown.length?p:unknown);vi=0;flipped=false;
+  const due=VOCAB.filter(isDue).length;
+  const items=[{v:"Due",label:due?`Review (${due})`:"Review",cls:"rev"},{v:"All"},{v:"C1",label:"Advanced (C1)"},...[...new Set(VOCAB.map(v=>v.c))].map(c=>({v:c}))];
+  chips($("#vocabCats"),items,vCat,c=>{vCat=c;practice=false;buildDeck()});
+  const p=catPool(),d=shuffle(p.filter(isDue)),fresh=shuffle(p.filter(v=>!S.srs[v.w]));
+  if(vCat==="Due"&&!practice)deck=[...d,...fresh.slice(0,10)];
+  else deck=[...d,...fresh,...shuffle(p.filter(v=>S.srs[v.w]&&!isDue(v)))];
+  vi=0;flipped=false;renderCard();
+}
+function fmtIvl(d){return d<1?"<1 min":d<30?`${d} d`:`${Math.round(d/30)} mo`}
+function preview(v){const c=S.srs[v.w]||{ivl:0,ease:2.5};return {good:c.ivl<1?1:c.ivl<3?3:Math.round(c.ivl*c.ease),easy:c.ivl<1?4:Math.round(c.ivl*c.ease*1.3)}}
+function rate(v,g){
+  const c=Object.assign({ivl:0,ease:2.5},S.srs[v.w]),pv=preview(v);
+  if(g===0){c.ivl=0;c.ease=Math.max(1.3,c.ease-.2);c.due=Date.now()+60e3;S.review[v.w]=1;delete S.known[v.w];if(!deck.slice(vi+1).includes(v))deck.push(v)}
+  else{c.ivl=g===1?pv.good:pv.easy;if(g===2)c.ease+=.15;c.due=Date.now()+c.ivl*DAY;S.known[v.w]=1;delete S.review[v.w]}
+  S.srs[v.w]=c;vi++;flipped=false;addXP(2);
+  if(vi>=deck.length){if(vCat==="Due"&&!practice){deck=[];renderCard();return}buildDeck();return}
   renderCard();
 }
 function renderCard(){
-  const p=pool();const v=deck[vi];
+  $("#vBar").style.width=(deck.length?vi/deck.length*100:100)+"%";
+  if(!deck.length){
+    $("#vocabCount").textContent="";$("#vocabKnown").textContent="";
+    $("#flash").innerHTML=`<div class="donecard"><p class="big">✅</p><p><b>All caught up for now.</b></p><p class="small">Your next cards come back when they're due. You can keep practising anyway.</p></div>`;
+    $("#flashBtns").className="btns one";$("#flashBtns").innerHTML=`<button class="btn primary" id="more">Practise more</button>`;
+    $("#more").onclick=()=>{practice=true;buildDeck()};return;
+  }
+  const v=deck[vi],st=S.srs[v.w];
   $("#vocabCount").textContent=`Card ${vi+1} of ${deck.length}`;
-  $("#vocabKnown").textContent=`${p.filter(x=>S.known[x.w]).length}/${p.length} learned`;
-  $("#vBar").style.width=(vi/deck.length*100)+"%";
+  $("#vocabKnown").textContent=!st?"✨ New":isDue(v)?"🔁 Review":`Next review in ${fmtIvl(Math.max(1,Math.round((st.due-Date.now())/DAY)))}`;
   const tags=`<div class="tags"><span class="tag ${v.lvl}">${v.lvl}</span><span class="tag cat">${esc(v.c)}</span></div>`;
   const sp=canSpeak?`<button class="icon" id="say" aria-label="Listen">🔊</button>`:"";
   if(!flipped){
@@ -576,24 +634,40 @@ function renderCard(){
     $("#flashBtns").innerHTML=`<button class="btn primary" id="flip">Show answer</button>`;
     $("#flip").onclick=()=>{flipped=true;renderCard()};
   }else{
+    const pv=preview(v);
     $("#flash").innerHTML=`<div class="fhead">${tags}${sp}</div><p class="word">${esc(v.w)}</p><p class="def">${esc(v.d)}</p>
-      <div class="ex"><span>${esc(v.e)}</span>${canSpeak?'<button class="icon" id="sayEx" aria-label="Listen to the example">🔊</button>':""}</div>`;
-    $("#flashBtns").className="btns";
-    $("#flashBtns").innerHTML=`<button class="btn no" id="unk">Review later</button><button class="btn ok" id="kn">I knew it</button>`;
-    $("#kn").onclick=()=>{S.known[v.w]=1;delete S.review[v.w];next()};
-    $("#unk").onclick=()=>{delete S.known[v.w];S.review[v.w]=1;next()};
-    const se=$("#sayEx");if(se)se.onclick=()=>speak(v.e);
+      <div class="ex"><span>${esc(v.e)}</span></div>
+      <div class="tools">${canSpeak?'<button class="sbtn" id="sayEx">🔊 Listen</button><button class="sbtn" id="slowEx">🐢 Slowly</button>':""}${SR?'<button class="sbtn" id="sayIt">🎤 Say it</button>':""}</div>
+      <div class="pron" id="pron"></div>`;
+    $("#flashBtns").className="btns three";
+    $("#flashBtns").innerHTML=`<button class="btn no" id="r0">Again<small>${fmtIvl(0)}</small></button><button class="btn ok" id="r1">Good<small>${fmtIvl(pv.good)}</small></button><button class="btn easy" id="r2">Easy<small>${fmtIvl(pv.easy)}</small></button>`;
+    [0,1,2].forEach(g=>$("#r"+g).onclick=()=>rate(v,g));
+    const se=$("#sayEx");if(se){se.onclick=()=>speak(v.e);$("#slowEx").onclick=()=>speak(v.e,true)}
+    const si=$("#sayIt");if(si)si.onclick=()=>pronounce(v.e,si);
   }
   const s=$("#say");if(s)s.onclick=()=>speak(v.w);
 }
-function next(){save();markActive();vi++;flipped=false;if(vi>=deck.length){buildDeck();return}renderCard()}
-$("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assign(S,{known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},links:S.links||{}});save();renderHeader();buildDeck();renderRes()}};
+let pronRec=null;
+function pronounce(target,btn){
+  if(pronRec){pronRec.stop();return}
+  let heard="";
+  try{
+    pronRec=listen(t=>{heard=t;$("#pron").innerHTML=`<span class="small">Listening… ${esc(t)}</span>`},
+      ()=>{pronRec=null;btn.textContent="🎤 Say it";if(!heard)return;const r=compare(target,heard);const pct=Math.round(r.score*100);
+        $("#pron").innerHTML=`<div>${r.html}</div><p class="small" style="margin:6px 0 0">${pct>=85?"🎯 Great pronunciation!":pct>=60?"👍 Close. Listen again and repeat the red words.":"🔁 Try again more slowly."} (${pct}%)</p>`;if(pct>=85)addXP(3)},
+      e=>{$("#pron").innerHTML=`<span class="small">${e==="no-speech"?"I didn't hear anything. Tap and speak.":MIC_ERR}</span>`});
+    btn.textContent="⏹ Stop";$("#pron").innerHTML=`<span class="small">Listening… read the example out loud.</span>`;
+  }catch(e){pronRec=null;$("#pron").innerHTML=`<span class="small">${MIC_ERR}</span>`}
+}
+$("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assign(S,{known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},srs:{},xp:0,dxp:{}});save();renderHeader();buildDeck();renderRes()}};
 
 /* ================= QUIZ ================= */
 let qCat="All",qset=[],qi=0,qScore=0;
 function buildQuiz(){
-  qset=shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
-  chips($("#quizCats"),["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v})),qCat,c=>{qCat=c;buildQuiz()});
+  qset=qCat==="Dictation"
+    ?shuffle(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e))).slice(0,10).map(e=>({dict:true,e}))
+    :shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
+  chips($("#quizCats"),[{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
   renderQ();
 }
 function renderQ(){
@@ -604,6 +678,7 @@ function renderQ(){
     $("#again").onclick=buildQuiz;return;
   }
   const q=qset[qi];
+  if(q.dict){renderDict(q);return}
   const order=shuffle(q.o.map((t,i)=>({t,i})));
   $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${esc(q.c)}</span></div>
     <p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p>
@@ -612,10 +687,28 @@ function renderQ(){
     const ok=+b.dataset.i===0;
     $("#quizCard").querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===0)x.classList.add("right")});
     if(!ok)b.classList.add("wrong");
-    if(ok)qScore++;S.quizRight+=ok?1:0;S.quizTotal++;save();markActive();
+    if(ok){qScore++;addXP(5)}S.quizRight+=ok?1:0;S.quizTotal++;save();markActive();
     $("#qx").innerHTML=`<div class="explain">${ok?"✅ Correct. ":"❌ "}${esc(q.x)}</div><div class="btns one"><button class="btn primary" id="qn">${qi+1<qset.length?"Next question":"See my score"}</button></div>`;
     $("#qn").onclick=()=>{qi++;renderQ()};$("#qn").focus();
   });
+}
+
+function renderDict(q){
+  if(!canSpeak){$("#quizCard").innerHTML=`<p>Your browser can't read text aloud, so dictation isn't available here.</p>`;return}
+  $("#quizCard").innerHTML=`<div class="meta"><span>Sentence ${qi+1} of ${qset.length}</span><span>Dictation</span></div>
+    <p class="q">Listen and type what you hear.</p>
+    <div class="tools"><button class="btn primary" id="dPlay">🔊 Play</button><button class="btn" id="dSlow">🐢 Slowly</button></div>
+    <textarea class="dictin" id="dIn" placeholder="Type the sentence…" aria-label="What you heard" autocapitalize="sentences"></textarea>
+    <div class="btns one"><button class="btn primary" id="dCheck">Check</button></div><div id="qx"></div>`;
+  $("#dPlay").onclick=()=>speak(q.e);$("#dSlow").onclick=()=>speak(q.e,true);
+  $("#dCheck").onclick=()=>{
+    const got=$("#dIn").value.trim();if(!got){$("#dIn").focus();return}
+    const r=compare(q.e,got),ok=r.score>=.9;
+    if(ok){qScore++;addXP(5)}S.quizRight+=ok?1:0;S.quizTotal++;save();
+    $("#dCheck").disabled=true;$("#dIn").disabled=true;
+    $("#qx").innerHTML=`<div class="explain">${ok?"✅ Well heard!":"❌ Almost. The red words were missed or wrong."}<div style="margin-top:8px">${r.html}</div><div class="small" style="margin-top:8px">${esc(q.e)}</div></div><div class="btns one"><button class="btn primary" id="qn">${qi+1<qset.length?"Next sentence":"See my score"}</button></div>`;
+    $("#qn").onclick=()=>{qi++;renderQ()};$("#qn").focus();
+  };
 }
 
 /* ================= TALK ================= */
@@ -644,7 +737,7 @@ async function sendMsg(){
     hist.push({r:"me",x:txt});$("#msg").value="";
     const [model,nxt]=sc[step];hist.push({r:"model",x:model});
     if(nxt)hist.push({r:"them",x:nxt});else hist.push({r:"end"});
-    step++;renderChat();markActive();
+    step++;renderChat();addXP(3);
     if($("#readAloud").checked)speak(nxt||model);
     const c=$("#chat").lastElementChild;if(c)c.scrollIntoView({block:"nearest"});return;
   }
@@ -668,13 +761,25 @@ Mark ok as true if the message is correct and natural enough for a native speake
     const r=await ask(prompt);
     hist.push({r:"fb",ok:!!r.ok,better:r.better||"",note:r.note||""});
     hist.push({r:"them",x:r.reply||"…"});
-    renderChat();markActive();
+    renderChat();addXP(3);
     if($("#readAloud").checked)speak(r.reply||"");
   }catch(e){hist.pop();$("#msg").value=txt;renderChat(`<p class="small">${errMsg(e)}</p>`)}
   finally{busy=false;$("#send").disabled=false;const c=$("#chat").lastElementChild;if(c)c.scrollIntoView({block:"nearest"})}
 }
 $("#send").onclick=sendMsg;
 $("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg()}});
+
+if(SR){
+  const mic=$("#mic");mic.hidden=false;let rec=null;
+  mic.onclick=()=>{
+    if(rec){rec.stop();return}
+    const base=$("#msg").value?$("#msg").value+" ":"";
+    try{
+      rec=listen(t=>{$("#msg").value=base+t},()=>{rec=null;mic.classList.remove("rec")},e=>{const n=$("#micNote");n.hidden=false;n.textContent=e==="no-speech"?"I didn't hear anything. Tap the mic and speak.":MIC_ERR});
+      mic.classList.add("rec");$("#micNote").hidden=true;
+    }catch(err){rec=null;mic.classList.remove("rec");const n=$("#micNote");n.hidden=false;n.textContent=MIC_ERR}
+  };
+}
 
 /* ================= WRITE ================= */
 let sIdx=Math.floor(Math.random()*SCENARIOS.length);
@@ -690,7 +795,7 @@ $("#checkBtn").onclick=async()=>{
     $("#coachOut").innerHTML=`<div class="card"><h3 style="margin-top:0">A model answer</h3>
       <div class="ex" style="font-style:normal"><span>${esc(m)}</span>${canSpeak?'<button class="icon" id="sayImp" aria-label="Listen">🔊</button>':""}</div>
       <h3>Check yourself</h3><ul class="vlist"><li>Did you cover everything? <span class="small">${esc(s.h)}</span></li><li>Past simple for finished actions (yesterday, last night)?</li><li>Short, clear sentences?</li><li>Any phrase from the model you'd like to reuse? Say it out loud twice.</li></ul></div>`;
-    const b=$("#sayImp");if(b)b.onclick=()=>speak(m);S.coach++;save();markActive();return;
+    const b=$("#sayImp");if(b)b.onclick=()=>speak(m);S.coach++;addXP(10);return;
   }
   const btn=$("#checkBtn");btn.disabled=true;btn.textContent="Checking…";
   $("#coachOut").innerHTML=`<div class="card"><p class="small">Reading your text…</p></div>`;
@@ -709,7 +814,7 @@ Write ALL feedback in simple, clear English (no French). Return ONLY a JSON obje
 At most 6 mistakes, most important first; empty array if none. phrases: exactly 3 items.`;
   try{
     const r=await ask(prompt);
-    S.coach++;save();markActive();renderCoach(r);
+    S.coach++;addXP(10);renderCoach(r);
   }catch(e){$("#coachOut").innerHTML=`<p class="small">${errMsg(e)}</p>`}
   finally{btn.disabled=false;applyMode()}
 };
