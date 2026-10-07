@@ -1466,7 +1466,7 @@ $("#remBtn").onclick=()=>{
   $("#remNote").textContent="Open the file and tap “Add to Calendar”. You'll get a notification every day at "+$("#remTime").value+".";
 };
 // sync
-function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
+function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
 function mergeCode(code){
   const d=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^OE1:/,"")))));if(!d||d.v!==1)throw new Error("bad");
   Object.entries(d.srs||{}).forEach(([w,c])=>{const m=S.srs[w];if(!m||(c.t||0)>(m.t||0))S.srs[w]=c});
@@ -1474,6 +1474,10 @@ function mergeCode(code){
   S.days=[...new Set([...S.days,...(d.days||[])])];
   S.xp=Math.max(S.xp,d.xp||0);S.quizRight=Math.max(S.quizRight,d.quizRight||0);S.quizTotal=Math.max(S.quizTotal,d.quizTotal||0);S.coach=Math.max(S.coach,d.coach||0);
   Object.assign(S.heard,d.heard||{});Object.assign(S.links,d.links||{});
+  S.tests=S.tests||[];S.read=S.read||{};
+  (d.tests||[]).forEach(t=>{if(!S.tests.some(x=>x.d===t.d&&x.lvl===t.lvl&&JSON.stringify(x.s)===JSON.stringify(t.s)))S.tests.push(t)});
+  S.tests.sort((a,b)=>a.d.localeCompare(b.d));
+  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});
   Object.entries(S.srs).forEach(([w,c])=>{if(c.ivl>=1){S.known[w]=1;delete S.review[w]}else{S.review[w]=1;delete S.known[w]}});
   save();renderHeader();buildDeck();renderRes();renderStats();
 }
