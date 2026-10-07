@@ -201,7 +201,11 @@ textarea{min-height:170px;resize:vertical;font-size:17px;margin-top:12px}
 
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
 nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
-.story p{margin:0 0 14px;font-size:18px;line-height:1.6}
+.story p{margin:0 0 14px;font-size:18px;line-height:1.6;border-radius:8px;transition:background .2s;cursor:pointer}
+.story p.reading{background:var(--amberSoft);box-shadow:0 0 0 6px var(--amberSoft)}
+.player{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.player .btn{flex:1;min-width:110px;padding:12px 10px}
+.rlisten{margin-top:10px}
 .gloss li{display:block!important}
 .lvrow{display:grid;grid-template-columns:44px 1fr 48px;gap:10px;align-items:center;margin:8px 0}
 nav button{border:none;background:none;padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:var(--muted)}
@@ -1002,12 +1006,38 @@ function showLevelResult(){
 }
 
 /* ================= READ ================= */
+const PLAYER={id:null,state:"idle",i:0,slow:false,token:0};
+function utter(t,slow){const txt=String(t).replace(/[—–]/g,", ").replace(/…/g,"...").replace(/[“”]/g,'"');const u=new SpeechSynthesisUtterance(txt);if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang="en-US";const base=S.rate||.9;u.rate=slow?Math.max(.5,base-.25):base;return u}
+function playStory(st,from,slow){
+  if(!canSpeak)return;speechSynthesis.cancel();const tok=++PLAYER.token;
+  Object.assign(PLAYER,{id:st.id,state:"playing",i:from||0,slow:!!slow});updatePlayer();
+  const step=i=>{
+    if(tok!==PLAYER.token)return;
+    if(i>=st.text.length){Object.assign(PLAYER,{state:"idle",i:0});updatePlayer();return}
+    PLAYER.i=i;updatePlayer();
+    const u=utter((i===0?st.t+". ":"")+st.text[i],PLAYER.slow);
+    u.onend=()=>{if(tok===PLAYER.token&&PLAYER.state==="playing")step(i+1)};
+    u.onerror=()=>{if(tok===PLAYER.token&&PLAYER.state==="playing"){Object.assign(PLAYER,{state:"idle"});updatePlayer()}};
+    speechSynthesis.speak(u);
+  };
+  setTimeout(()=>step(PLAYER.i),60);
+}
+function pauseStory(){if(PLAYER.state==="playing"){speechSynthesis.pause();PLAYER.state="paused"}else if(PLAYER.state==="paused"){speechSynthesis.resume();PLAYER.state="playing"}updatePlayer()}
+function stopStory(){PLAYER.token++;speechSynthesis.cancel();Object.assign(PLAYER,{state:"idle",i:0,id:null});updatePlayer()}
+function updatePlayer(){
+  document.querySelectorAll(".story p[data-p]").forEach(p=>p.classList.toggle("reading",PLAYER.state!=="idle"&&storyOpen&&PLAYER.id===storyOpen.id&&+p.dataset.p===PLAYER.i));
+  const b=$("#plMain");if(b){const mine=storyOpen&&PLAYER.id===storyOpen.id;b.textContent=!mine||PLAYER.state==="idle"?"▶ Listen":PLAYER.state==="playing"?"⏸ Pause":"▶ Resume";$("#plStop").disabled=!mine||PLAYER.state==="idle"}
+  document.querySelectorAll("[data-listen]").forEach(x=>{const on=PLAYER.id===x.dataset.listen&&PLAYER.state!=="idle";x.textContent=on?"⏹ Stop":"▶ Listen";x.setAttribute("aria-pressed",on)});
+}
 let storyOpen=null,sAns={};
 function renderRead(){
   if(storyOpen){renderStory();return}
-  $("#readBox").innerHTML=`<div class="res">${STORIES.map(st=>{const r=S.read[st.id];return `<button class="ritem" data-st="${st.id}" style="text-align:left;cursor:pointer;width:100%">
+  $("#readBox").innerHTML=`<div class="res">${STORIES.map(st=>{const r=S.read[st.id];return `<div class="ritem">
     <div class="rico" aria-hidden="true">${r!==undefined?"✅":"📖"}</div>
-    <div><p class="rtitle">${esc(st.t)}</p><div class="rtags" style="margin:6px 0 0"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span>${r!==undefined?`<span class="tag cat">${r}/3</span>`:""}</div></div></button>`}).join("")}</div>`;
+    <div><p class="rtitle">${esc(st.t)}</p><div class="rtags" style="margin:6px 0 0"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span>${r!==undefined?`<span class="tag cat">${r}/3</span>`:""}</div>
+    <div class="ractions rlisten"><button class="sbtn play" data-st="${st.id}">📖 Read</button>${canSpeak?`<button class="sbtn" data-listen="${st.id}" aria-pressed="false">▶ Listen</button>`:""}</div></div></div>`}).join("")}</div>`;
+  document.querySelectorAll("[data-listen]").forEach(b=>b.onclick=()=>{const st=STORIES.find(x=>x.id===b.dataset.listen);if(PLAYER.id===st.id&&PLAYER.state!=="idle")stopStory();else playStory(st,0,false)});
+  updatePlayer();
   document.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{storyOpen=STORIES.find(x=>x.id===b.dataset.st);sAns={};renderStory();window.scrollTo({top:0})});
 }
 function renderStory(){
@@ -1015,13 +1045,18 @@ function renderStory(){
   if(!st._ord)st._ord=st.qs.map(q=>shuffle(q.o.map((t,i)=>({t,i}))));
   $("#readBox").innerHTML=`<button class="sbtn" id="stBack">← All stories</button>
     <div class="card story" style="margin-top:12px"><div class="fhead"><div class="tags"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span></div>${canSpeak?`<span style="display:flex;gap:6px"><button class="icon" id="stPlay" aria-label="Listen to the story">🔊</button><button class="icon" id="stSlow" aria-label="Listen slowly">🐢</button></span>`:""}</div>
-      <h2 style="margin:0 0 12px;font-size:24px">${esc(st.t)}</h2>${st.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+      <h2 style="margin:0 0 8px;font-size:24px">${esc(st.t)}</h2>
+      ${canSpeak?`<div class="player"><button class="btn primary" id="plMain">▶ Listen</button><button class="btn" id="plSlow">🐢 Slowly</button><button class="btn" id="plStop" disabled>⏹ Stop</button></div><p class="small" style="cursor:default;font-size:14px;margin:0 0 12px">Tip: tap a paragraph to listen from there.</p>`:""}
+      ${st.text.map((p,i)=>`<p data-p="${i}">${esc(p)}</p>`).join("")}</div>
     <h2 class="sh">Key words</h2><div class="card"><ul class="vlist gloss">${st.gl.map(([w,m])=>`<li><b>${esc(w)}</b> <span class="small">: ${esc(m)}</span></li>`).join("")}</ul></div>
     <h2 class="sh">Questions</h2>
     ${st.qs.map((q,qi)=>`<div class="card" style="margin-bottom:10px"><p class="q" style="font-size:19px">${qi+1}. ${esc(q.q)}</p><div class="opts">${st._ord[qi].map(o=>{const a=sAns[qi];const cls=a===undefined?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-q="${qi}" data-i="${o.i}" ${a!==undefined?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div></div>`).join("")}
     ${done?`<div class="card" style="text-align:center"><p class="big">${Object.values(sAns).filter(x=>x===0).length}/3</p><p>${Object.values(sAns).filter(x=>x===0).length===3?"Perfect understanding!":"Read the story again and check the key words."}</p><div class="btns one"><button class="btn primary" id="stNext">Next story</button></div></div>`:""}`;
   $("#stBack").onclick=()=>{storyOpen=null;renderRead()};
-  const pl=$("#stPlay");if(pl){pl.onclick=()=>speak(st.text.join(" "));$("#stSlow").onclick=()=>speak(st.text.join(" "),true)}
+  const pl=$("#stPlay");if(pl){pl.onclick=()=>playStory(st,0,false);$("#stSlow").onclick=()=>playStory(st,0,true)}
+  const pm=$("#plMain");if(pm){pm.onclick=()=>{if(PLAYER.id===st.id&&PLAYER.state!=="idle")pauseStory();else playStory(st,0,false)};$("#plSlow").onclick=()=>playStory(st,PLAYER.id===st.id&&PLAYER.state!=="idle"?PLAYER.i:0,true);$("#plStop").onclick=stopStory}
+  if(canSpeak)document.querySelectorAll(".story p[data-p]").forEach(p=>p.onclick=()=>playStory(st,+p.dataset.p,PLAYER.slow));
+  updatePlayer();
   document.querySelectorAll("#readBox .opt").forEach(b=>b.onclick=()=>{const qi=+b.dataset.q;if(sAns[qi]!==undefined)return;sAns[qi]=+b.dataset.i;
     if(Object.keys(sAns).length===st.qs.length){const sc=Object.values(sAns).filter(x=>x===0).length;const first=S.read[st.id]===undefined;S.read[st.id]=Math.max(S.read[st.id]||0,sc);addXP(first?15:5);save()}
     const y=window.scrollY;renderStory();window.scrollTo({top:y})});
@@ -1190,7 +1225,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="read")renderRead();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
