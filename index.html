@@ -200,7 +200,25 @@ textarea{min-height:170px;resize:vertical;font-size:17px;margin-top:12px}
 .tipcard{background:var(--blueSoft);border-radius:16px;padding:16px 18px;margin-bottom:14px;font-size:16px}
 
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr)}
+nav button{font-size:12px!important;padding-left:0!important;padding-right:0!important}
+.tcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.tcard summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tcard summary::-webkit-details-marker{display:none}
+.tcard summary b{font-size:18px}
+.tcard summary .chev{transition:transform .2s;color:var(--muted)}
+.tcard[open] summary .chev{transform:rotate(90deg)}
+.tbody{padding:0 18px 16px;display:grid;gap:12px}
+.tbody h4{margin:0 0 4px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tbody ul{margin:0;padding-left:20px}
+.tform{display:grid;gap:4px;background:var(--soft);border-radius:12px;padding:10px 12px;font-size:16px}
+.tform span b{display:inline-block;width:22px;color:var(--muted)}
+.tex{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-style:italic}
+.tex:last-child{border-bottom:none}
+.tmis{background:var(--amberSoft);border-radius:12px;padding:10px 12px;font-size:15px}
+.tmis .bad{color:var(--err);text-decoration:line-through}
+.tmis .good{color:var(--ok);font-weight:700}
+.icon.sm{width:34px;height:34px;font-size:15px}
 .story p{margin:0 0 14px;font-size:18px;line-height:1.6;border-radius:8px;transition:background .2s;cursor:pointer}
 .story p.reading{background:var(--amberSoft);box-shadow:0 0 0 6px var(--amberSoft)}
 .player{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
@@ -308,6 +326,12 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div id="readBox"></div>
   </section>
 
+  <section id="v-tenses" hidden>
+    <h1>Tenses</h1>
+    <p class="sub">When to use each tense, how to build it, with work examples and the classic mistakes of French speakers.</p>
+    <div id="tensesBox"></div>
+  </section>
+
   <section id="v-listen" hidden>
     <h1>Listen</h1>
     <p class="sub">Podcasts, audiobooks and videos picked for your level and your job.</p>
@@ -323,6 +347,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
   <button data-v="talk"><span class="ic">💬</span>Talk</button>
   <button data-v="write"><span class="ic">✍️</span>Write</button>
   <button data-v="read"><span class="ic">📖</span>Read</button>
+  <button data-v="tenses"><span class="ic">⏳</span>Tenses</button>
   <button data-v="listen"><span class="ic">🎧</span>Listen</button>
 </div></nav>
 
@@ -642,6 +667,26 @@ const QUIZ=[
  {c:"Phrasal verbs",q:"I finally figured ___ why the pipeline was failing.",o:["out","up","in","on"],x:"“Figure out” = understand, solve."},
  {c:"Phrasal verbs",q:"She turned ___ the job offer because of the salary.",o:["down","off","out","away"],x:"“Turn down” = refuse."},
  {c:"Everyday English",q:"You have no money until your salary arrives:",o:["I'm broke until payday.","I'm broken until payday.","I have zero money to payday.","I'm poor of money."],x:"“Broke” (informal) = no money. “Broken” = damaged."},
+ {c:"Tenses",q:"I ___ the bug yesterday.",o:["fixed","have fixed","was fixed","fix"],x:"Yesterday = finished time → past simple."},
+ {c:"Tenses",q:"___ you ever ___ Terraform?",o:["Have / used","Did / use","Do / use","Are / using"],x:"Experience with “ever” → present perfect."},
+ {c:"Tenses",q:"I ___ here since 2022.",o:["have been working","work","am working","worked"],x:"Started in the past and continues now + since → present perfect continuous."},
+ {c:"Tenses",q:"Look, the CPU ___ again right now!",o:["is spiking","spikes","spiked","has spike"],x:"Happening now → present continuous."},
+ {c:"Tenses",q:"The backup ___ every night at 2 am.",o:["runs","is running","run","has run"],x:"Routine / schedule → present simple, with -s for it."},
+ {c:"Tenses",q:"I ___ when the alert fired.",o:["was deploying","deployed","have deployed","am deploying"],x:"Long action interrupted by a short one → past continuous."},
+ {c:"Tenses",q:"When I arrived, the team ___ already ___ back.",o:["had / rolled","has / rolled","did / roll","was / rolling"],x:"Action before another past action → past perfect."},
+ {c:"Tenses",q:"“The build failed.” — “Okay, I ___ into it.”",o:["'ll look","look","'m going to look","looked"],x:"Decision made at the moment of speaking → will."},
+ {c:"Tenses",q:"We ___ migrate to ArgoCD next quarter. It's in the roadmap.",o:["are going to","will to","migrate","have"],x:"Plan already decided → going to."},
+ {c:"Tenses",q:"If it ___ again, I'll roll back.",o:["fails","will fail","failed","would fail"],x:"First conditional: if + present, will. Never “will” after if."},
+ {c:"Tenses",q:"If we ___ more time, we would automate it.",o:["had","have","will have","would have"],x:"Second conditional (imaginary): if + past, would."},
+ {c:"Tenses",q:"If we had tested it, it ___ in production.",o:["wouldn't have failed","won't fail","didn't fail","wouldn't fail"],x:"Third conditional (imaginary past): if + had + pp, would have + pp."},
+ {c:"Tenses",q:"By Friday, we ___ all the dashboards.",o:["will have migrated","migrate","are migrating","migrated"],x:"Finished before a future moment → future perfect."},
+ {c:"Tenses",q:"Have you finished the report ___?",o:["yet","already","since","ago"],x:"“Yet” at the end of questions and negatives with the present perfect."},
+ {c:"Tenses",q:"We had three incidents ___.",o:["last week","this week so far","ever","yet"],x:"Past simple needs a finished time: “last week”. With “this week”, say “We've had…”."},
+ {c:"Tenses",q:"She ___ in the infra team.",o:["works","work","is work","working"],x:"He / she / it + present simple → add -s."},
+ {c:"Tenses",q:"I'm presenting the postmortem on Friday. This sentence talks about…",o:["a fixed future arrangement","something happening now","a habit","a past action"],x:"Present continuous can describe arranged future plans (in your calendar)."},
+ {c:"Tenses",q:"The certificate ___ before anyone noticed.",o:["had expired","has expired","expires","is expiring"],x:"Earlier past action → past perfect."},
+ {c:"Tenses",q:"How long ___ you ___ on this ticket?",o:["have / been working","did / work","are / working","do / work"],x:"“How long” + continuing action → present perfect continuous."},
+ {c:"Tenses",q:"I ___ the logs two hours ago.",o:["checked","have checked","had check","am checking"],x:"“Ago” = finished time → past simple."},
 ];
 
 const SCENARIOS=[
@@ -815,6 +860,64 @@ const STORIES=[
   qs:[{q:"What does “to play devil's advocate” mean?",o:["To argue the opposite view to test an idea","To support the manager","To stay silent","To break the rules"]},
       {q:"What did the team finally decide?",o:["Extract billing first and evaluate after a quarter","Rewrite everything at once","Keep the monolith forever","Hire external consultants"]},
       {q:"“Microservices aren't a silver bullet” means they are…",o:["not a magic solution to every problem","very expensive","very dangerous","an old technology"]}]},
+];
+const TENSES=[
+ {id:"ps",n:"Present simple",lvl:"B1",use:["Facts and general truths","Habits and routines","Schedules and timetables"],
+  form:["I deploy / he deploys","I don't deploy / he doesn't deploy","Do you deploy? / Does he deploy?"],
+  ex:["We deploy every Tuesday.","The backup runs at 2 am.","Kubernetes restarts failed pods automatically."],
+  sig:"always, usually, often, every day, never",
+  mis:["He work in the infra team.","He works in the infra team.","Don't forget the -s with he / she / it."]},
+ {id:"pc",n:"Present continuous",lvl:"B1",use:["Actions happening now","Temporary situations","Future plans already arranged"],
+  form:["I'm working / she's working","I'm not working","Are you working?"],
+  ex:["I'm checking the logs right now.","We're migrating to a new cluster this month.","I'm meeting the vendor on Friday."],
+  sig:"now, right now, at the moment, this week, currently",
+  mis:["I work on the incident now.","I'm working on the incident now.","For something happening now, use be + -ing."]},
+ {id:"pas",n:"Past simple",lvl:"B1",use:["Finished actions at a specific time in the past","A sequence of past events"],
+  form:["I fixed / I went","I didn't fix / I didn't go","Did you fix? / Did you go?"],
+  ex:["I fixed the bug yesterday.","The server crashed at 3 am.","We rolled back, checked the logs and found the cause."],
+  sig:"yesterday, last week, in 2024, two hours ago, at 3 am",
+  mis:["I have deployed it yesterday.","I deployed it yesterday.","With a finished time (yesterday, ago, last…), never use the present perfect."]},
+ {id:"pac",n:"Past continuous",lvl:"B1",use:["An action in progress at a moment in the past","A longer action interrupted by a shorter one"],
+  form:["I was working / they were working","I wasn't working","Were you working?"],
+  ex:["I was deploying when the alert fired.","At 9 pm, we were still debugging.","While Tom was sleeping, the disk filled up."],
+  sig:"while, when, at that moment, at 9 pm yesterday",
+  mis:["I deployed when the alert was firing.","I was deploying when the alert fired.","The long action takes was/were + -ing; the short one is past simple."]},
+ {id:"pp",n:"Present perfect",lvl:"B2",use:["Past action with a result now","Experience (ever / never)","Unfinished time: today, this week","Recent news"],
+  form:["I have fixed / she has fixed","I haven't fixed yet","Have you fixed it?"],
+  ex:["I've fixed the bug, you can test it now.","Have you ever used Terraform?","We've had three incidents this week."],
+  sig:"already, yet, just, ever, never, so far, this week, today",
+  mis:["Did you already finish?","Have you finished yet? / Have you already finished?","Already / yet / ever usually go with the present perfect."]},
+ {id:"ppc",n:"Present perfect continuous",lvl:"B2",use:["An action that started in the past and continues now (with duration)","A recent activity with visible results"],
+  form:["I have been working / she has been working","I haven't been working","Have you been working?"],
+  ex:["I've been working here for three years.","We've been migrating since January.","You look tired. Have you been debugging all night?"],
+  sig:"for (+ duration), since (+ starting point), how long, all day",
+  mis:["I work here since three years.","I've been working here for three years.","« Depuis + durée » = have been + -ing + for."]},
+ {id:"pap",n:"Past perfect",lvl:"B2",use:["An action that happened before another past action"],
+  form:["I had finished","I hadn't finished","Had you finished?"],
+  ex:["When I arrived, the team had already rolled back.","The certificate had expired before anyone noticed.","I realised I had forgotten the backup."],
+  sig:"already, before, by the time, when, after",
+  mis:["When I arrived, they already left.","When I arrived, they had already left.","For « the earlier past », use had + past participle."]},
+ {id:"fut",n:"Future: will / going to / present continuous",lvl:"B1",use:["will: decisions made now, promises, predictions","going to: plans and intentions already decided","present continuous: fixed arrangements (calendar)"],
+  form:["I'll check / I'm going to check / I'm checking","I won't check / I'm not going to check","Will you check? / Are you going to check?"],
+  ex:["The pipeline failed? I'll look into it.","We're going to migrate to ArgoCD next quarter.","I'm presenting the postmortem on Friday at 10."],
+  sig:"tomorrow, next week, soon, in two days, on Friday",
+  mis:["I will to send the report.","I'll send the report.","Never « to » after will. Answer to a request: « I'll do it » (not « I do it »)."]},
+ {id:"fp",n:"Future perfect",lvl:"C1",use:["An action that will be finished before a moment in the future"],
+  form:["I will have finished","I won't have finished","Will you have finished?"],
+  ex:["By Friday, we'll have migrated all the dashboards.","By the time you read this, the deploy will have finished."],
+  sig:"by Friday, by the end of the month, by the time",
+  mis:["By Friday I finish the migration.","By Friday I'll have finished the migration.","« By + moment futur » → will have + past participle."]},
+ {id:"cond",n:"Conditionals (if…)",lvl:"B2",use:["Zero: general truth — if + present, present","First: real future — if + present, will","Second: imaginary — if + past, would","Third: imaginary past — if + had + pp, would have + pp"],
+  form:["If the disk fills up, the DB stops.","If it fails again, I'll roll back.","If I had more time, I would automate it. / If we had tested it, it wouldn't have failed."],
+  ex:["If you restart the pod, the error disappears.","If the build passes, we'll deploy tonight.","If we had monitored the disk, we would have seen it earlier."],
+  sig:"if, unless, as long as, in case",
+  mis:["If it will fail, I will roll back.","If it fails, I'll roll back.","Never « will » right after « if » (first conditional)."]},
+];
+const COMPARE=[
+ {t:"Past simple vs Present perfect",a:["Past simple: finished time → « I fixed it yesterday. »","Present perfect: no time, or time not finished → « I've fixed it. » / « I've fixed two bugs today. »"],k:"Question to ask: is the time period finished? Yes → past simple. No / not mentioned → present perfect."},
+ {t:"Present simple vs Present continuous",a:["Simple: habit → « I check the alerts every morning. »","Continuous: now / temporary → « I'm checking the alerts right now. »"],k:"Verbs like know, want, need, like are rarely continuous: « I know » not « I'm knowing »."},
+ {t:"Will vs Going to",a:["Will: decision now → « Wait, I'll help you. »","Going to: decided before → « I'm going to learn Rust this year. »"],k:"Answering a request in a meeting: « I'll do it. » is the natural reply."},
+ {t:"For vs Since",a:["For + duration → « for three years », « for two hours »","Since + starting point → « since 2022 », « since Monday »"],k:"Both usually go with the present perfect (continuous)."},
 ];
 const RES=[
  {k:"Podcasts",t:"6 Minute English",who:"BBC Learning English",lvl:"B1",th:"English",why:"Very short episodes on a current topic, with the key vocabulary explained."},
@@ -1039,7 +1142,7 @@ function renderDict(q){
 
 
 /* ================= LEVEL TEST ================= */
-const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Phrasal verbs":"B2","Idioms":"C1"};
+const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Tenses":"B2","Phrasal verbs":"B2","Idioms":"C1"};
 function buildLevelTest(){
   const out=[];
   ["B1","B2","C1"].forEach(L=>{
@@ -1135,6 +1238,25 @@ function renderStory(){
     if(Object.keys(sAns).length===st.qs.length){const sc=Object.values(sAns).filter(x=>x===0).length;const first=S.read[st.id]===undefined;S.read[st.id]=Math.max(S.read[st.id]||0,sc);addXP(first?15:5);save()}
     const y=window.scrollY;renderStory();window.scrollTo({top:y})});
   const nx=$("#stNext");if(nx)nx.onclick=()=>{const i=STORIES.indexOf(st);const nxt=st.book?(STORIES.find(x=>x.book===st.book&&x.ch===st.ch+1)||STORIES.find(x=>!x.book&&S.read[x.id]===undefined)||STORIES[0]):(STORIES.slice(i+1).find(x=>S.read[x.id]===undefined)||STORIES.find(x=>S.read[x.id]===undefined)||STORIES[(i+1)%STORIES.length]);storyOpen=nxt;sAns={};renderStory();window.scrollTo({top:0})};
+}
+
+
+/* ================= TENSES ================= */
+function renderTenses(){
+  const sp=t=>canSpeak?`<button class="icon sm" data-say="${esc(t)}" aria-label="Listen">🔊</button>`:"";
+  $("#tensesBox").innerHTML=`<button class="btn primary" id="tQuiz" style="width:100%;margin-bottom:14px">🎯 Practise tenses in the quiz</button>
+    ${TENSES.map((t,i)=>`<details class="tcard"${i===0?" open":""}><summary><span><b>${esc(t.n)}</b><br><span class="small">${esc(t.ex[0])}</span></span><span class="row" style="display:flex;gap:8px;align-items:center"><span class="tag ${t.lvl}">${t.lvl}</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg></span></summary>
+      <div class="tbody">
+        <div><h4>When to use it</h4><ul>${t.use.map(u=>`<li>${esc(u)}</li>`).join("")}</ul></div>
+        <div><h4>How to build it</h4><div class="tform"><span><b>+</b>${esc(t.form[0])}</span><span><b>−</b>${esc(t.form[1])}</span><span><b>?</b>${esc(t.form[2])}</span></div></div>
+        <div><h4>Examples</h4>${t.ex.map(e=>`<div class="tex"><span>${esc(e)}</span>${sp(e)}</div>`).join("")}</div>
+        <div><h4>Signal words</h4><span>${esc(t.sig)}</span></div>
+        <div class="tmis">⚠️ <span class="bad">${esc(t.mis[0])}</span><br>✅ <span class="good">${esc(t.mis[1])}</span><br><span class="small">${esc(t.mis[2])}</span></div>
+      </div></details>`).join("")}
+    <h2 class="sh">Which one? Quick comparisons</h2>
+    ${COMPARE.map(c=>`<div class="card" style="margin-bottom:10px"><b>${esc(c.t)}</b><ul style="margin:8px 0;padding-left:20px">${c.a.map(a=>`<li>${esc(a)}</li>`).join("")}</ul><p class="small" style="margin:0">💡 ${esc(c.k)}</p></div>`).join("")}`;
+  document.querySelectorAll("#tensesBox [data-say]").forEach(b=>b.onclick=e=>{e.preventDefault();speak(b.dataset.say)});
+  $("#tQuiz").onclick=()=>{qCat="Tenses";showView("quiz");buildQuiz()};
 }
 
 /* ================= TALK ================= */
@@ -1299,7 +1421,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
