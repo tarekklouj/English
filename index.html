@@ -200,7 +200,10 @@ textarea{min-height:170px;resize:vertical;font-size:17px;margin-top:12px}
 .tipcard{background:var(--blueSoft);border-radius:16px;padding:16px 18px;margin-bottom:14px;font-size:16px}
 
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.story p{margin:0 0 14px;font-size:18px;line-height:1.6}
+.gloss li{display:block!important}
+.lvrow{display:grid;grid-template-columns:44px 1fr 48px;gap:10px;align-items:center;margin:8px 0}
 nav button{border:none;background:none;padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:var(--muted)}
 nav button .ic{font-size:22px;line-height:1}
 nav button[aria-current="page"]{color:var(--ink);font-weight:700}
@@ -295,6 +298,12 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <button class="linkbtn" id="resetBtn">Reset my progress</button>
   </section>
 
+  <section id="v-read" hidden>
+    <h1>Read</h1>
+    <p class="sub">Short stories from work and daily life. Read or listen, then answer three questions.</p>
+    <div id="readBox"></div>
+  </section>
+
   <section id="v-listen" hidden>
     <h1>Listen</h1>
     <p class="sub">Podcasts, audiobooks and videos picked for your level and your job.</p>
@@ -309,6 +318,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
   <button data-v="quiz"><span class="ic">🎯</span>Quiz</button>
   <button data-v="talk"><span class="ic">💬</span>Talk</button>
   <button data-v="write"><span class="ic">✍️</span>Write</button>
+  <button data-v="read"><span class="ic">📖</span>Read</button>
   <button data-v="listen"><span class="ic">🎧</span>Listen</button>
 </div></nav>
 
@@ -685,6 +695,62 @@ const SCRIPT={
  "Afterwork drinks":[["Cheers! About two years now. I'm in the infrastructure team. And you?","I joined last spring, in marketing. Are you from Brussels originally?"],["Not originally, but I've lived here for a few years. I really like it, especially the food.","Same! Any favourite places?"],["There's a great little restaurant near Flagey, I'll send you the name. Another drink? It's my round.",""]],
  "Call your landlord":[["Hello Mr Peeters, it's your tenant from the second floor. I'm calling because the heating has been broken since Monday.","Oh dear. Have you checked the boiler pressure?"],["Yes, I checked it and it looks normal, but the radiators are still cold.","Alright, I'll call a technician. When are you available?"],["I'm home every day after 5 pm, and on Saturday morning. Could it be this week, please?",""]],
 };
+const STORIES=[
+ {id:"friday",t:"The Friday deploy",lvl:"B1",th:"DevOps",
+  text:["It was Friday afternoon, and Sam wanted to deploy a small change before the weekend. His lead, Priya, looked worried. “Are you sure? If something breaks, nobody will be here to fix it.”","Sam said the change was tiny: just a new environment variable. He pushed the button at 4:45 pm. Ten minutes later, the error rate started to climb. Customers could not log in. Sam's heart was racing.","He checked the logs and saw that the variable name had a typo. Instead of trying to fix it in production, he rolled back to the previous version. Within five minutes, everything was normal again.","On Monday, the team agreed on a new rule: no deployments after 3 pm on Fridays. Sam laughed and said, “Lesson learned.”"],
+  gl:[["to climb","to go up, to increase"],["his heart was racing","he was very nervous"],["lesson learned","I understand my mistake and won't repeat it"]],
+  qs:[{q:"Why was Priya worried?",o:["If something broke, nobody would be there to fix it.","The change was very big.","Sam was a new employee.","The servers were too old."]},
+      {q:"What caused the problem?",o:["A typo in a variable name","A database crash","A network outage","An expired certificate"]},
+      {q:"What rule did the team agree on?",o:["No deployments after 3 pm on Fridays","No deployments on Mondays","Only Priya can deploy","Always deploy at night"]}]},
+ {id:"coffee",t:"Small talk at the coffee machine",lvl:"B1",th:"Office",
+  text:["On Monday morning, Laura met Tom, a new colleague, at the coffee machine. “Hi, I don't think we've met. I'm Laura, from the data team.” Tom smiled. “Nice to meet you! I'm Tom. I joined the infrastructure team last week.”","Laura asked how he was settling in. Tom said everybody was friendly, but he was still learning the names of all the services. “Don't worry, it took me months,” Laura said.","They talked about the weekend. Tom had visited Ghent for the first time and loved the old town. Laura recommended a small café near the canal. Before leaving, she said, “If you need anything, just ping me on Slack.” Tom felt much more relaxed after their chat."],
+  gl:[["to settle in","to start feeling comfortable in a new place"],["to ping someone","to send someone a quick message"],["to recommend","to suggest something good"]],
+  qs:[{q:"Which team does Tom work in?",o:["Infrastructure","Data","Marketing","Security"]},
+      {q:"What did Tom do at the weekend?",o:["He visited Ghent.","He worked.","He moved house.","He was ill."]},
+      {q:"What does “ping me on Slack” mean?",o:["Send me a message on Slack.","Call me on my phone.","Test the network.","Ignore me."]}]},
+ {id:"heating",t:"The landlord and the heating",lvl:"B1",th:"Belgium",
+  text:["In November, Ahmed's heating stopped working. The radiators were cold, and the flat was only 15 degrees. He wrote an email to his landlord: “Dear Mr Peeters, the heating has not been working since Monday. Could you please send someone to repair it as soon as possible?”","Two days later, he still had no answer, so Ahmed called him. Mr Peeters apologised: he had been on holiday. He promised to send a technician on Thursday.","The technician found that the boiler pressure was too low and fixed it in twenty minutes. That evening, Ahmed made a hot tea and finally took off his jumper. He saved his landlord's phone number as a favourite, just in case."],
+  gl:[["boiler","the machine that heats water and radiators"],["to apologise","to say sorry"],["just in case","to be ready if something happens"]],
+  qs:[{q:"Why didn't the landlord answer at first?",o:["He was on holiday.","He was angry.","He didn't use email.","He had sold the flat."]},
+      {q:"What was the problem?",o:["The boiler pressure was too low.","A window was broken.","There was no electricity.","There was a water leak."]},
+      {q:"How long did the repair take?",o:["About twenty minutes","Two days","One hour","A week"]}]},
+ {id:"strike",t:"A strike day",lvl:"B1",th:"Belgium",
+  text:["On Tuesday, there was a national rail strike in Belgium. Sofia checked the SNCB app at 6 am: most trains were cancelled. She messaged her team: “Hi all, there's a rail strike today and my train is cancelled, so I'll work from home. I'm online as usual.”","Working from home was not always easy. Her neighbour was renovating his kitchen, and the drilling was loud. During a video call, a colleague said, “Sorry, you're breaking up.” Sofia moved to the bedroom, where the connection was better.","In the afternoon, she went for a short walk to clear her head. By the evening, she had finished all her tasks and felt surprisingly productive."],
+  gl:[["strike","when workers stop working to protest"],["you're breaking up","your voice is cutting out (bad connection)"],["to clear your head","to relax and think more clearly"]],
+  qs:[{q:"How did Sofia learn that trains were cancelled?",o:["From the SNCB app","On the radio","From her manager","From her neighbour"]},
+      {q:"Why did she move to the bedroom?",o:["The connection was better there.","She wanted to sleep.","Her manager asked her to.","The kitchen was cold."]},
+      {q:"What does “you're breaking up” mean in a call?",o:["Your voice is cutting out.","You are ending a relationship.","You are leaving the company.","You are speaking too loudly."]}]},
+ {id:"saving",t:"Saving for a holiday",lvl:"B1",th:"Money",
+  text:["Nadia wanted to go to Portugal next summer, but she always seemed to be broke before payday. She started tracking her expenses in an app.","After one month, she was shocked: she had spent almost 200 euros on takeaway food and 60 euros on subscriptions she never used. She cancelled two streaming services and decided to cook at home three times a week.","She also set up a direct debit of 150 euros to her savings account every payday. At first it was hard, but after a few months she didn't even notice the money leaving her account. By June, she had saved enough for her flights and a small apartment by the sea."],
+  gl:[["to be broke","to have no money"],["payday","the day you receive your salary"],["direct debit","an automatic payment from your account"]],
+  qs:[{q:"What shocked Nadia?",o:["How much she spent on takeaway food","Her high salary","The price of flights","Her rent"]},
+      {q:"What did she set up on payday?",o:["A direct debit to her savings account","A new credit card","A loan","A new streaming service"]},
+      {q:"What does “to be broke” mean?",o:["To have no money","To be ill","To be angry","To be tired"]}]},
+ {id:"postmortem",t:"The postmortem",lvl:"B2",th:"DevOps",
+  text:["After a two-hour outage, the team met for a blameless postmortem. Elena, the incident commander, reminded everyone that the goal was to learn, not to find someone to blame.","The timeline was clear: at 9:12, a certificate expired on the internal load balancer; at 9:20, alerts fired, but they went to an old email list nobody read. The on-call engineer only noticed at 10:30, when customers complained on social media.","The root cause was not the certificate itself, but the lack of automated renewal and the broken alert routing. The team agreed on three action items: automate certificate renewal, route alerts to the on-call phone, and check all expiry dates every month. Everyone left feeling that the system, not a person, had failed."],
+  gl:[["blameless","without blaming or punishing anyone"],["to fire (an alert)","to be triggered"],["action item","a task someone agrees to do after a meeting"]],
+  qs:[{q:"What was the real root cause?",o:["No automated renewal and broken alert routing","A hacker attack","The on-call engineer was asleep","Customers used social media"]},
+      {q:"How did the team first find out about the outage?",o:["Customers complained on social media.","An alert rang on the on-call phone.","Elena checked the logs.","A monthly check found it."]},
+      {q:"What is a “blameless” postmortem?",o:["A review focused on learning, not on punishing people","A meeting without a manager","A secret meeting","A meeting about the budget"]}]},
+ {id:"deadline",t:"Negotiating a deadline",lvl:"B2",th:"Work",
+  text:["Marc's manager wanted the new monitoring platform to be ready in two weeks. Marc knew this was unrealistic. Instead of simply saying no, he prepared some data.","In their one-to-one, he explained that migrating 300 dashboards and testing the alerts would take at least five weeks. “I see where you're coming from,” his manager said, “but the audit is in three weeks.”","Marc suggested a compromise: they could migrate the critical dashboards and alerts first, in time for the audit, and move the rest afterwards. His manager thought about it for a moment and agreed. Marc left the meeting relieved: he had pushed back without damaging the relationship."],
+  gl:[["unrealistic","not possible in practice"],["compromise","a solution where both sides accept part of what they want"],["to push back","to disagree politely"]],
+  qs:[{q:"Why did Marc prepare data?",o:["To show that the deadline was unrealistic","To impress the auditors","To ask for a pay rise","To change teams"]},
+      {q:"What compromise did Marc suggest?",o:["Migrate the critical parts first and the rest later","Cancel the audit","Hire more people","Work every weekend"]},
+      {q:"What does “to push back” mean here?",o:["To disagree politely","To move a meeting earlier","To quit the job","To agree immediately"]}]},
+ {id:"interview",t:"The job interview",lvl:"B2",th:"Career",
+  text:["Karim had an interview for a senior DevOps role at an international company. The interviewer, Laura, asked him to describe a difficult production issue. Karim used the STAR method.","The situation: a payment API went down during peak hours. His task: restore the service quickly as the on-call engineer. The actions: he checked the metrics, noticed that database connections were maxed out, and rolled back a recent change. The result: the service was back in twenty minutes, and he added an alert to catch the problem earlier next time.","Laura nodded. “Great example. What would you do differently?” Karim said he would push for more load testing before releases. A week later, he received an offer."],
+  gl:[["peak hours","the busiest time of the day"],["maxed out","at the maximum limit"],["to push for","to strongly ask for something"]],
+  qs:[{q:"Which method did Karim use to answer?",o:["STAR","SMART","Agile","Kanban"]},
+      {q:"What did he notice in the metrics?",o:["Database connections were maxed out.","The CPU was idle.","The disk was full.","The network was down."]},
+      {q:"What would he do differently?",o:["Push for more load testing before releases","Never be on-call again","Use a different database","Deploy more slowly"]}]},
+ {id:"debate",t:"The architecture debate",lvl:"C1",th:"Architecture",
+  text:["The team was split. Half wanted to break the monolith into microservices; the other half argued it would create more problems than it solved.","Julien, a senior engineer, played devil's advocate: “Microservices aren't a silver bullet. We'd be trading one big problem for many small, distributed ones.” Aisha countered that deployments currently took hours and that a single bug could bring everything down.","After a heated but respectful discussion, they found common ground: rather than a big-bang rewrite, they would carve out the most volatile component, billing, as a first service and evaluate the results after a quarter. Everyone agreed that the decision should be driven by data, not by hype."],
+  gl:[["to play devil's advocate","to argue the opposite view to test an idea"],["not a silver bullet","not a magic solution to every problem"],["to find common ground","to find points everyone agrees on"]],
+  qs:[{q:"What does “to play devil's advocate” mean?",o:["To argue the opposite view to test an idea","To support the manager","To stay silent","To break the rules"]},
+      {q:"What did the team finally decide?",o:["Extract billing first and evaluate after a quarter","Rewrite everything at once","Keep the monolith forever","Hire external consultants"]},
+      {q:"“Microservices aren't a silver bullet” means they are…",o:["not a magic solution to every problem","very expensive","very dangerous","an old technology"]}]},
+];
 const RES=[
  {k:"Podcasts",t:"6 Minute English",who:"BBC Learning English",lvl:"B1",th:"English",why:"Very short episodes on a current topic, with the key vocabulary explained."},
  {k:"Podcasts",t:"The English We Speak",who:"BBC Learning English",lvl:"B1",th:"English",why:"One everyday expression explained in three minutes."},
@@ -723,7 +789,7 @@ const RES=[
 const KEY="opsenglish:v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},srs:{},xp:0,dxp:{},goal:50},load());
+const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},srs:{},xp:0,dxp:{},goal:50,read:{},tests:[]},load());S.read=S.read||{};S.tests=S.tests||[];
 S.heard=S.heard||{};S.srs=S.srs||{};S.dxp=S.dxp||{};S.goal=S.goal||50;S.xp=S.xp||0;S.links=S.links||{};
 const DAY=864e5;
 if(!S.srsMigrated){Object.keys(S.known).forEach(w=>{if(!S.srs[w])S.srs[w]={ivl:3,ease:2.5,due:Date.now()+3*DAY}});Object.keys(S.review).forEach(w=>{S.srs[w]={ivl:0,ease:2.3,due:Date.now()}});S.srsMigrated=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -858,14 +924,15 @@ $("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assig
 /* ================= QUIZ ================= */
 let qCat="All",qset=[],qi=0,qScore=0;
 function buildQuiz(){
-  qset=qCat==="Dictation"
+  qset=qCat==="Level"?buildLevelTest():qCat==="Dictation"
     ?shuffle(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e))).slice(0,10).map(e=>({dict:true,e}))
     :shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
-  chips($("#quizCats"),[{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
+  chips($("#quizCats"),[{v:"Level",label:"🎓 Level test"},{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
   renderQ();
 }
 function renderQ(){
   $("#quizBar").style.width=(qi/qset.length*100)+"%";
+  if(qi>=qset.length&&qCat==="Level"){showLevelResult();return}
   if(qi>=qset.length){
     const msg=qScore===qset.length?"Perfect score. Nothing to add.":qScore>=qset.length*.7?"Well done. Read the explanations for the ones you missed.":"Try another round: repetition is what works.";
     $("#quizCard").innerHTML=`<p class="big">${qScore}/${qset.length}</p><p>${msg}</p><div class="btns one"><button class="btn primary" id="again">New round</button></div>`;
@@ -874,11 +941,11 @@ function renderQ(){
   const q=qset[qi];
   if(q.dict){renderDict(q);return}
   const order=shuffle(q.o.map((t,i)=>({t,i})));
-  $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${esc(q.c)}</span></div>
+  $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${esc(q.lv?"Level test · "+q.lv:q.c)}</span></div>
     <p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p>
     <div class="opts">${order.map(o=>`<button class="opt" data-i="${o.i}">${esc(o.t)}</button>`).join("")}</div><div id="qx"></div>`;
   $("#quizCard").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-    const ok=+b.dataset.i===0;
+    const ok=+b.dataset.i===0;q.ok=ok;
     $("#quizCard").querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===0)x.classList.add("right")});
     if(!ok)b.classList.add("wrong");
     if(ok){qScore++;addXP(5)}S.quizRight+=ok?1:0;S.quizTotal++;save();markActive();
@@ -903,6 +970,62 @@ function renderDict(q){
     $("#qx").innerHTML=`<div class="explain">${ok?"✅ Well heard!":"❌ Almost. The red words were missed or wrong."}<div style="margin-top:8px">${r.html}</div><div class="small" style="margin-top:8px">${esc(q.e)}</div></div><div class="btns one"><button class="btn primary" id="qn">${qi+1<qset.length?"Next sentence":"See my score"}</button></div>`;
     $("#qn").onclick=()=>{qi++;renderQ()};$("#qn").focus();
   };
+}
+
+
+/* ================= LEVEL TEST ================= */
+const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Phrasal verbs":"B2","Idioms":"C1"};
+function buildLevelTest(){
+  const out=[];
+  ["B1","B2","C1"].forEach(L=>{
+    const pool=shuffle(VOCAB.filter(v=>v.lvl===L));
+    pool.slice(0,7).forEach(v=>{const dis=shuffle(VOCAB.filter(x=>x.lvl===L&&x.w!==v.w&&x.d!==v.d)).slice(0,3).map(x=>x.d);
+      out.push({lv:L,c:L,q:`What does “${v.w}” mean?`,o:[v.d,...dis],x:`“${v.w}”: ${v.d} Example: ${v.e}`})});
+    shuffle(QUIZ.filter(q=>QLV[q.c]===L)).slice(0,3).forEach(q=>out.push({...q,lv:L}));
+  });
+  return out;
+}
+function levelFrom(sc){return sc.B1>=.7?(sc.B2>=.7?(sc.C1>=.7?"C1":"B2"):"B1"):"A2"}
+function showLevelResult(){
+  const sc={};["B1","B2","C1"].forEach(L=>{const qs=qset.filter(q=>q.lv===L);sc[L]=qs.length?qs.filter(q=>q.ok).length/qs.length:0});
+  const lvl=levelFrom(sc),prev=S.tests[S.tests.length-1];
+  S.tests.push({d:today(),lvl,s:sc});addXP(20);save();
+  const next=new Date(Date.now()+30*DAY).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  const desc={A2:"You understand simple everyday English. Focus on B1 words and the basics.",B1:"You handle everyday situations at work. Next step: phrasal verbs and B2 vocabulary.",B2:"You communicate comfortably at work. Next step: idioms and nuance (C1).",C1:"Excellent! You use advanced, natural English. Keep it alive with podcasts and stories."};
+  $("#quizBar").style.width="100%";
+  $("#quizCard").innerHTML=`<p class="small" style="margin:0">Your estimated level</p><p class="big" style="margin:4px 0">${lvl}</p><p>${desc[lvl]}</p>
+    ${prev?`<p class="small">Last test (${esc(prev.d)}): <b>${prev.lvl}</b>${prev.lvl!==lvl?(["A2","B1","B2","C1"].indexOf(lvl)>["A2","B1","B2","C1"].indexOf(prev.lvl)?" → 🎉 you moved up!":" → keep practising, you'll get it back."):" → stable."}</p>`:""}
+    ${["B1","B2","C1"].map(L=>`<div class="lvrow"><span class="tag ${L}">${L}</span><div class="progress" style="margin:0"><i style="width:${Math.round(sc[L]*100)}%"></i></div><b>${Math.round(sc[L]*100)}%</b></div>`).join("")}
+    <p class="small">Take it again around ${next} to measure your progress.</p>
+    <div class="btns one"><button class="btn primary" id="again">Back to quiz</button></div>`;
+  $("#again").onclick=()=>{qCat="All";buildQuiz()};
+}
+
+/* ================= READ ================= */
+let storyOpen=null,sAns={};
+function renderRead(){
+  if(storyOpen){renderStory();return}
+  $("#readBox").innerHTML=`<div class="res">${STORIES.map(st=>{const r=S.read[st.id];return `<button class="ritem" data-st="${st.id}" style="text-align:left;cursor:pointer;width:100%">
+    <div class="rico" aria-hidden="true">${r!==undefined?"✅":"📖"}</div>
+    <div><p class="rtitle">${esc(st.t)}</p><div class="rtags" style="margin:6px 0 0"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span>${r!==undefined?`<span class="tag cat">${r}/3</span>`:""}</div></div></button>`}).join("")}</div>`;
+  document.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{storyOpen=STORIES.find(x=>x.id===b.dataset.st);sAns={};renderStory();window.scrollTo({top:0})});
+}
+function renderStory(){
+  const st=storyOpen,done=Object.keys(sAns).length===st.qs.length;
+  if(!st._ord)st._ord=st.qs.map(q=>shuffle(q.o.map((t,i)=>({t,i}))));
+  $("#readBox").innerHTML=`<button class="sbtn" id="stBack">← All stories</button>
+    <div class="card story" style="margin-top:12px"><div class="fhead"><div class="tags"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span></div>${canSpeak?`<span style="display:flex;gap:6px"><button class="icon" id="stPlay" aria-label="Listen to the story">🔊</button><button class="icon" id="stSlow" aria-label="Listen slowly">🐢</button></span>`:""}</div>
+      <h2 style="margin:0 0 12px;font-size:24px">${esc(st.t)}</h2>${st.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+    <h2 class="sh">Key words</h2><div class="card"><ul class="vlist gloss">${st.gl.map(([w,m])=>`<li><b>${esc(w)}</b> <span class="small">: ${esc(m)}</span></li>`).join("")}</ul></div>
+    <h2 class="sh">Questions</h2>
+    ${st.qs.map((q,qi)=>`<div class="card" style="margin-bottom:10px"><p class="q" style="font-size:19px">${qi+1}. ${esc(q.q)}</p><div class="opts">${st._ord[qi].map(o=>{const a=sAns[qi];const cls=a===undefined?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-q="${qi}" data-i="${o.i}" ${a!==undefined?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div></div>`).join("")}
+    ${done?`<div class="card" style="text-align:center"><p class="big">${Object.values(sAns).filter(x=>x===0).length}/3</p><p>${Object.values(sAns).filter(x=>x===0).length===3?"Perfect understanding!":"Read the story again and check the key words."}</p><div class="btns one"><button class="btn primary" id="stNext">Next story</button></div></div>`:""}`;
+  $("#stBack").onclick=()=>{storyOpen=null;renderRead()};
+  const pl=$("#stPlay");if(pl){pl.onclick=()=>speak(st.text.join(" "));$("#stSlow").onclick=()=>speak(st.text.join(" "),true)}
+  document.querySelectorAll("#readBox .opt").forEach(b=>b.onclick=()=>{const qi=+b.dataset.q;if(sAns[qi]!==undefined)return;sAns[qi]=+b.dataset.i;
+    if(Object.keys(sAns).length===st.qs.length){const sc=Object.values(sAns).filter(x=>x===0).length;const first=S.read[st.id]===undefined;S.read[st.id]=Math.max(S.read[st.id]||0,sc);addXP(first?15:5);save()}
+    const y=window.scrollY;renderStory();window.scrollTo({top:y})});
+  const nx=$("#stNext");if(nx)nx.onclick=()=>{const i=STORIES.indexOf(st);const nxt=STORIES.slice(i+1).find(x=>S.read[x.id]===undefined)||STORIES.find(x=>S.read[x.id]===undefined)||STORIES[(i+1)%STORIES.length];storyOpen=nxt;sAns={};renderStory();window.scrollTo({top:0})};
 }
 
 /* ================= TALK ================= */
@@ -1067,7 +1190,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="read")renderRead();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
@@ -1087,6 +1210,8 @@ function renderStats(){
     <div class="card stat"><div class="n">🎯 ${acc}%</div><div class="l">Quiz accuracy · ${S.quizTotal} answers</div></div></div>
     <div class="card" style="margin-top:10px"><b>This week</b><div class="chart">${days.map((d,i)=>`<div class="col"><span class="v">${vals[i]||""}</span><div class="bar ${vals[i]>=S.goal?"met":""}" style="height:${Math.max(3,vals[i]/mx*90)}px"></div><span class="d">${d.lab}</span></div>`).join("")}</div></div>
     <div class="card" style="margin-top:10px"><b>Last 5 weeks</b><div class="heat">${heat}</div><p class="small" style="margin:8px 0 0">Green: goal reached · yellow: some practice</p></div>
+    <div class="card" style="margin-top:10px"><b>Level tests</b>${S.tests.length?`<ul class="vlist">${S.tests.slice(-6).reverse().map(t=>`<li style="display:flex;justify-content:space-between"><span>${esc(t.d)}</span><span class="tag ${t.lvl==="A2"?"B1":t.lvl}">${t.lvl}</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">No test yet. Quiz → 🎓 Level test (about 10 minutes).</p>`}</div>
+    <div class="card" style="margin-top:10px"><b>Stories read</b><p class="small" style="margin:6px 0 0">${Object.keys(S.read).length} of ${STORIES.length}</p></div>
     <div class="card" style="margin-top:10px"><b>Words by level</b>${lv}</div>
     <div class="card" style="margin-top:10px"><b>Hardest words</b>${hard.length?`<ul class="vlist hard">${hard.map(v=>`<li><span>${esc(v.w)}</span><span class="small">missed ${S.srs[v.w].lapses}×</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">Nothing yet. Words you mark “Again” will show up here.</p>`}</div>`;
 }
