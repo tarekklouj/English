@@ -101,6 +101,7 @@ h1{font-size:30px;line-height:1.15;margin:18px 0 6px;letter-spacing:-.01em}
 .tag.B1{background:var(--greenSoft);color:var(--green)}
 .tag.B2{background:var(--blueSoft);color:var(--blue)}
 .tag.C1{background:var(--violetSoft);color:var(--violet)}
+.tag.C2{background:var(--amberSoft);color:var(--amber)}
 .tag.cat{background:var(--soft);color:var(--muted)}
 .word{font-size:34px;line-height:1.15;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
 .hint{color:var(--muted);margin-top:auto}
@@ -353,7 +354,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 
 <script>
 /* ================= DATA ================= */
-const LVL={"Incidents":"B2","Infra":"B2","Projects":"B2","Meetings":"B2","Communication":"B2","Office chat":"B1","Going out":"B1","Home":"B1","Health":"B1","Shopping":"B1","Getting around":"B1","Admin":"B1","Idioms":"C1","Advanced verbs":"C1","Cloud & DevOps":"B2","Security":"B2","Emails":"B2","Calls":"B2","Opinions":"B2","Everyday verbs":"B1","Money":"B1","False friends":"B2"};
+const LVL={"Incidents":"B2","Infra":"B2","Projects":"B2","Meetings":"B2","Communication":"B2","Office chat":"B1","Going out":"B1","Home":"B1","Health":"B1","Shopping":"B1","Getting around":"B1","Admin":"B1","Idioms":"C1","Advanced verbs":"C1","Cloud & DevOps":"B2","Security":"B2","Emails":"B2","Calls":"B2","Opinions":"B2","Everyday verbs":"B1","Money":"B1","False friends":"B2","Describing trends":"B2","Negotiation":"B2","Business":"B2","Feelings & character":"B2","Leadership":"C1","Debate":"C1","Nuance & hedging":"C1","Formal writing":"C1","Sophisticated verbs":"C2","Advanced idioms":"C2","Precise adjectives":"C2"};
 const V=(c,list)=>list.map(([w,d,e])=>({w,c,d,e,lvl:LVL[c]}));
 const VOCAB=[
  ...V("Incidents",[
@@ -614,6 +615,140 @@ const VOCAB=[
   ["once in a blue moon","Very rarely.","That alert fires once in a blue moon."],
   ["to hit the nail on the head","To describe exactly the right thing.","You hit the nail on the head: it's the DNS."],
  ]),
+ ...V("Describing trends",[
+  ["to soar","To rise very quickly to a high level.","Cloud costs soared after we enabled verbose logging."],
+  ["to plummet","To fall very quickly.","Response times plummeted after we added the cache."],
+  ["to level off","To stop rising or falling and stay stable.","Traffic levelled off after the morning peak."],
+  ["to fluctuate","To change up and down often.","Latency fluctuates between 80 and 200 ms."],
+  ["a steady increase","A regular, continuous rise.","We've seen a steady increase in sign-ups since June."],
+  ["a sharp drop","A sudden, big fall.","There was a sharp drop in errors after the fix."],
+  ["to peak","To reach the highest point.","Usage peaks every Monday at 9 am."],
+  ["year-on-year","Compared with the same period last year.","Revenue is up 12% year-on-year."],
+  ["on average","Typically, as a mean value.","On average, a deploy takes seven minutes."],
+  ["to double","To become twice as big.","Our storage needs doubled in a year."],
+ ]),
+ ...V("Negotiation",[
+  ["to meet someone halfway","To compromise equally.","If you can extend the deadline, we'll meet you halfway on scope."],
+  ["a deal-breaker","Something that makes an agreement impossible.","No SSO support is a deal-breaker for us."],
+  ["to make a concession","To give up something to reach agreement.","The vendor made a concession on the price."],
+  ["leverage","Power or advantage in a negotiation.","Having a second offer gives you leverage."],
+  ["a counter-offer","A different offer made in reply.","They came back with a counter-offer."],
+  ["non-negotiable","Cannot be changed or discussed.","Data encryption is non-negotiable."],
+  ["a win-win","Good for both sides.","Remote Fridays turned out to be a win-win."],
+  ["the bottom line","The most important fact; the final cost.","The bottom line is that we can't afford downtime."],
+  ["to drive a hard bargain","To negotiate firmly for a good deal.","Our procurement team drives a hard bargain."],
+  ["to reach an agreement","To finally agree.","We reached an agreement after three calls."],
+ ]),
+ ...V("Business",[
+  ["stakeholder","A person affected by or interested in a project.","We need to keep all stakeholders informed."],
+  ["to onboard","To help a new person or client start.","It takes two weeks to onboard a new engineer."],
+  ["deliverable","A concrete result you must deliver.","The main deliverable is a working staging environment."],
+  ["milestone","An important step in a project.","Migrating the database is our next milestone."],
+  ["to streamline","To make a process simpler and more efficient.","We streamlined the release process from ten steps to three."],
+  ["cost-effective","Giving good value for the money spent.","Spot instances are more cost-effective for batch jobs."],
+  ["headcount","The number of employees.","We can't increase headcount this year."],
+  ["to outsource","To pay an external company to do work.","We outsourced the night support."],
+  ["return on investment (ROI)","The benefit compared with the cost.","Automation had a huge return on investment."],
+  ["key performance indicator (KPI)","A measurable value showing success.","Uptime is our main KPI."],
+ ]),
+ ...V("Feelings & character",[
+  ["reliable","Someone you can trust to do things.","Mei is incredibly reliable during incidents."],
+  ["outspoken","Saying opinions openly and directly.","He's outspoken, but his feedback is useful."],
+  ["laid-back","Relaxed and calm.","Our team lead is very laid-back."],
+  ["down-to-earth","Practical and simple, not arrogant.","Despite being the CTO, she's very down-to-earth."],
+  ["overwhelmed","Feeling there is too much to handle.","I felt overwhelmed during my first on-call week."],
+  ["to lose your temper","To suddenly become angry.","He lost his temper when the deploy failed again."],
+  ["thick-skinned","Not easily hurt by criticism.","You need to be thick-skinned in code reviews."],
+  ["stubborn","Refusing to change your mind.","Don't be stubborn, try the other approach."],
+  ["upbeat","Positive and cheerful.","She stayed upbeat even after the outage."],
+  ["to be over the moon","To be extremely happy.","I was over the moon when I passed the CKA."],
+ ]),
+ ...V("Leadership",[
+  ["to empower","To give someone the confidence and authority to act.","Good leads empower their team to make decisions."],
+  ["to delegate","To give a task to someone else.","Learn to delegate, you can't do everything."],
+  ["accountability","Being responsible for results.","Blameless doesn't mean no accountability."],
+  ["to lead by example","To show others how to behave by doing it yourself.","She leads by example: she writes tests first."],
+  ["buy-in","Agreement and support from others.","We need buy-in from the security team."],
+  ["to set the tone","To establish the mood or standard.","The first meeting sets the tone for the project."],
+  ["to foster","To encourage something to develop.","We want to foster a culture of learning."],
+  ["psychological safety","Feeling safe to speak up without fear.","Psychological safety makes people report problems early."],
+  ["to mentor","To guide a less experienced person.","I mentor two junior engineers."],
+  ["to rally the team","To bring people together to act.","He rallied the team during the outage."],
+ ]),
+ ...V("Debate",[
+  ["to concede","To admit something is true, often reluctantly.","I concede that the old system was faster."],
+  ["a compelling argument","A very convincing reason.","She made a compelling argument for moving to Postgres."],
+  ["to play down","To make something seem less important.","Don't play down the security risk."],
+  ["to back up a claim","To support a statement with evidence.","Can you back up that claim with data?"],
+  ["a counterargument","An argument against another argument.","The main counterargument is the migration cost."],
+  ["to raise a valid point","To mention something reasonable.","You raise a valid point about latency."],
+  ["to weigh the pros and cons","To compare advantages and disadvantages.","Let's weigh the pros and cons before deciding."],
+  ["by the same token","For the same reason; similarly.","Automation saves time; by the same token, it reduces errors."],
+  ["to dismiss","To refuse to consider something seriously.","Don't dismiss the idea too quickly."],
+  ["to reconcile","To make two different ideas fit together.","How do we reconcile speed with stability?"],
+ ]),
+ ...V("Nuance & hedging",[
+  ["arguably","It could be said (with good reasons).","It's arguably the most important service we run."],
+  ["to some extent","Partly, not completely.","I agree to some extent, but cost matters too."],
+  ["it's worth noting that","An important point to mention.","It's worth noting that the issue only affects old clients."],
+  ["broadly speaking","In general, without details.","Broadly speaking, the migration went well."],
+  ["by and large","Mostly, in general.","By and large, users are happy with the new UI."],
+  ["it remains to be seen","We don't know yet.","It remains to be seen whether the fix holds under load."],
+  ["presumably","Probably, based on what we know.","Presumably the cron job failed silently."],
+  ["not necessarily","Not always true.","More servers don't necessarily mean better performance."],
+  ["if anything","Used to suggest the opposite may be true.","The new version isn't slower; if anything, it's faster."],
+  ["all things considered","After thinking about everything.","All things considered, the vendor is the safer choice."],
+  ["as far as I can tell","Based on what I know or see.","As far as I can tell, the logs are clean."],
+ ]),
+ ...V("Formal writing",[
+  ["with regard to","Concerning, about.","With regard to your request, access has been granted."],
+  ["in light of","Because of, considering.","In light of the recent outage, we are reviewing our process."],
+  ["nevertheless","However, despite this.","The test passed. Nevertheless, we will monitor closely."],
+  ["consequently","As a result.","The certificate expired; consequently, the API was unreachable."],
+  ["prior to","Before.","Please back up your data prior to the upgrade."],
+  ["subsequently","Afterwards, later.","The issue was subsequently resolved."],
+  ["in accordance with","Following a rule or agreement.","Data is stored in accordance with GDPR."],
+  ["to outline","To describe the main points.","This document outlines the migration plan."],
+  ["to address an issue","To deal with a problem.","We will address this issue in the next release."],
+  ["to reiterate","To repeat for emphasis.","I'd like to reiterate that production access is restricted."],
+  ["whereby","By which; according to which.","We introduced a process whereby every change is reviewed."],
+ ]),
+ ...V("Sophisticated verbs",[
+  ["to exacerbate","To make a bad situation worse.","Restarting all pods at once exacerbated the outage."],
+  ["to undermine","To weaken gradually.","Constant pages undermine the team's morale."],
+  ["to alleviate","To make a problem less severe.","Caching alleviated the load on the database."],
+  ["to circumvent","To find a way around a rule or obstacle.","Never circumvent the approval process."],
+  ["to corroborate","To confirm with evidence.","The metrics corroborate the customer reports."],
+  ["to scrutinise","To examine very carefully.","Auditors scrutinised every access log."],
+  ["to jeopardise","To put at risk.","Skipping tests could jeopardise the release."],
+  ["to bolster","To strengthen or support.","The new hires bolstered the on-call rotation."],
+  ["to discern","To notice or understand something not obvious.","It was hard to discern a pattern in the errors."],
+  ["to curtail","To reduce or limit.","We curtailed non-essential spending."],
+ ]),
+ ...V("Advanced idioms",[
+  ["a double-edged sword","Something with both good and bad effects.","Auto-scaling is a double-edged sword: great uptime, scary bills."],
+  ["to open a can of worms","To create a complicated new problem.","Changing the auth system now would open a can of worms."],
+  ["the tip of the iceberg","A small visible part of a bigger problem.","These errors are just the tip of the iceberg."],
+  ["to move the goalposts","To change the rules or targets unfairly.","The client keeps moving the goalposts."],
+  ["a moot point","A question that no longer matters.","Which tool is cheaper is a moot point now; both are approved."],
+  ["to bite the bullet","To do something unpleasant but necessary.","We bit the bullet and rewrote the deploy scripts."],
+  ["to read between the lines","To understand the hidden meaning.","Reading between the lines, the budget is cut."],
+  ["to steal someone's thunder","To take attention or credit from someone.","He stole my thunder by announcing it first."],
+  ["to go down a rabbit hole","To get lost in a complex topic.","I went down a rabbit hole of kernel tuning."],
+  ["a Pyrrhic victory","A win that costs too much.","We met the deadline, but burnout made it a Pyrrhic victory."],
+ ]),
+ ...V("Precise adjectives",[
+  ["ubiquitous","Found everywhere.","Containers are now ubiquitous."],
+  ["pragmatic","Practical and realistic.","Let's take a pragmatic approach and fix the worst cases first."],
+  ["meticulous","Very careful and precise.","Her runbooks are meticulous."],
+  ["cumbersome","Slow and complicated to use.","The old deployment process was cumbersome."],
+  ["arbitrary","Chosen without a clear reason.","The 30-second timeout seems arbitrary."],
+  ["inherent","Existing as a natural part of something.","There's an inherent risk in every migration."],
+  ["ambiguous","Having more than one possible meaning.","The requirement is ambiguous, let's clarify it."],
+  ["seamless","Smooth, without interruption.","The failover was seamless for users."],
+  ["robust","Strong and reliable.","We need a more robust backup strategy."],
+  ["ephemeral","Lasting a very short time.","CI runners are ephemeral: they're destroyed after each job."],
+ ]),
 ];
 
 const QUIZ=[
@@ -687,6 +822,42 @@ const QUIZ=[
  {c:"Tenses",q:"The certificate ___ before anyone noticed.",o:["had expired","has expired","expires","is expiring"],x:"Earlier past action → past perfect."},
  {c:"Tenses",q:"How long ___ you ___ on this ticket?",o:["have / been working","did / work","are / working","do / work"],x:"“How long” + continuing action → present perfect continuous."},
  {c:"Tenses",q:"I ___ the logs two hours ago.",o:["checked","have checked","had check","am checking"],x:"“Ago” = finished time → past simple."},
+ {c:"Collocations",q:"We need to ___ a decision before Friday.",o:["make","do","take part","have done"],x:"“Make a decision” (UK also “take a decision”). Not “do a decision”."},
+ {c:"Collocations",q:"Can you ___ me a favour and review this PR?",o:["do","make","give","take"],x:"“Do someone a favour”."},
+ {c:"Collocations",q:"The new process will ___ a lot of time.",o:["save","win","gain back","spare off"],x:"“Save time”. “Gagner du temps” = save time."},
+ {c:"Collocations",q:"We ___ a risk by skipping the tests.",o:["took","made","did","gave"],x:"“Take a risk”."},
+ {c:"Collocations",q:"Let's ___ a look at the logs.",o:["have","make","do","put"],x:"“Have / take a look at”."},
+ {c:"Collocations",q:"She ___ a great job on the migration.",o:["did","made","took","had"],x:"“Do a good job”."},
+ {c:"Collocations",q:"I'd like to ___ a question about the budget.",o:["ask","make","do","pose up"],x:"“Ask a question” (formal: “raise a question”)."},
+ {c:"Collocations",q:"We ___ progress this week, but we're not done.",o:["made","did","took","got done"],x:"“Make progress”."},
+ {c:"Advanced grammar",q:"___ have I seen such a fast migration.",o:["Never","Ever","Not","No"],x:"Inversion after a negative adverb: “Never have I seen…” (formal emphasis)."},
+ {c:"Advanced grammar",q:"Hardly ___ the deploy started when the alerts fired.",o:["had","has","did","was"],x:"“Hardly had + subject + pp… when…” (inversion)."},
+ {c:"Advanced grammar",q:"I wish I ___ the backup before the upgrade.",o:["had checked","checked","have checked","would check"],x:"Regret about the past → wish + past perfect."},
+ {c:"Advanced grammar",q:"It's high time we ___ this legacy system.",o:["replaced","replace","will replace","have replaced"],x:"“It's high time + subject + past simple”."},
+ {c:"Advanced grammar",q:"If I had accepted that job, I ___ in London now.",o:["would be living","would have lived","will live","lived"],x:"Mixed conditional: past condition → present result (would + verb)."},
+ {c:"Advanced grammar",q:"The vulnerability is said ___ thousands of servers.",o:["to have affected","to affect yesterday","that it affected","having affected"],x:"Passive reporting: “is said to have + pp” for a past action."},
+ {c:"Advanced grammar",q:"___ we need is a better alerting strategy.",o:["What","That","Which","It"],x:"Cleft sentence for emphasis: “What we need is…”."},
+ {c:"Advanced grammar",q:"I'd rather you ___ prod directly.",o:["didn't touch","don't touch","won't touch","not touch"],x:"“Would rather + someone + past simple” for present/future preference."},
+ {c:"Advanced grammar",q:"You ___ tell the client before they find out.",o:["had better","would better","had rather","should to"],x:"“Had better + base verb” = strong advice."},
+ {c:"Advanced grammar",q:"Not only ___ the release late, but it was also buggy.",o:["was","did","had","is"],x:"Inversion after “Not only”: “Not only was it late, but…”."},
+ {c:"Advanced grammar",q:"The auditor insisted that every change ___ documented.",o:["be","is","was being","will be"],x:"Subjunctive after insist / suggest / recommend that: base form “be”."},
+ {c:"Advanced grammar",q:"Had we known about the bug, we ___ released.",o:["wouldn't have","won't have","didn't","wouldn't"],x:"Inverted third conditional: “Had we known…” = If we had known."},
+ {c:"Nuance",q:"Which sentence is the most diplomatic in a meeting?",o:["I'm not entirely sure that approach will scale.","That approach won't scale.","Your approach is wrong.","No way that scales."],x:"Hedging (“not entirely sure”) softens disagreement."},
+ {c:"Nuance",q:"Which is the most formal way to start an email to an auditor?",o:["Further to our meeting, please find the requested documents attached.","Hey, here are the docs.","As I said, attached.","Docs attached, cheers."],x:"“Further to…” and “please find… attached” are formal."},
+ {c:"Nuance",q:"“It remains to be seen whether the fix will hold.” The speaker is…",o:["uncertain","confident","angry","certain it failed"],x:"“It remains to be seen” = we don't know yet."},
+ {c:"Nuance",q:"“The results are, by and large, positive.” This means:",o:["Mostly positive","Completely positive","Not positive","Very negative"],x:"“By and large” = generally, mostly."},
+ {c:"Nuance",q:"Choose the sentence that concedes a point before disagreeing:",o:["Granted, it's cheaper, but it's less reliable.","It's cheaper and reliable.","It's not cheaper.","It's cheap, so it's fine."],x:"“Granted, …, but…” concedes then contrasts."},
+ {c:"Nuance",q:"“Restarting everything would only exacerbate the problem.” This means it would…",o:["make it worse","solve it","hide it","delay it"],x:"Exacerbate = make worse."},
+ {c:"Nuance",q:"“The client keeps moving the goalposts.” This means the client…",o:["keeps changing the targets","plays football","is very happy","pays late"],x:"Move the goalposts = change the rules or objectives unfairly."},
+ {c:"Nuance",q:"Which word best replaces “very careful and precise”?",o:["meticulous","cumbersome","arbitrary","ephemeral"],x:"Meticulous = very careful and precise."},
+ {c:"Nuance",q:"“These errors are just the tip of the iceberg.” The speaker thinks…",o:["the real problem is much bigger","the errors are unimportant","the problem is solved","it's about the weather"],x:"Tip of the iceberg = small visible part of a big problem."},
+ {c:"Nuance",q:"Which is the most natural way to soften a request?",o:["Would you mind taking a look when you have a moment?","Look at this now.","You must look at this.","Check it, please, quickly."],x:"“Would you mind + -ing” and “when you have a moment” are polite softeners."},
+ {c:"Phrasal verbs",q:"We need to phase ___ the old API by June.",o:["out","off","down","away"],x:"“Phase out” = gradually stop using."},
+ {c:"Phrasal verbs",q:"Can you fill me ___ on what happened at the meeting?",o:["in","up","out","on"],x:"“Fill someone in” = give them the information."},
+ {c:"Phrasal verbs",q:"The project fell ___ because of budget cuts.",o:["through","down","off","out"],x:"“Fall through” = fail to happen."},
+ {c:"Phrasal verbs",q:"Let's not rule ___ the network yet.",o:["out","off","over","away"],x:"“Rule out” = exclude."},
+ {c:"Idioms",q:"“We bit the bullet and rewrote it.” This means they…",o:["did something difficult but necessary","made a mistake","gave up","got hurt"],x:"Bite the bullet = accept something unpleasant and do it."},
+ {c:"Idioms",q:"“It's a double-edged sword.” This means it…",o:["has both advantages and disadvantages","is dangerous only","is very sharp","is useless"],x:"A double-edged sword has good and bad sides."},
 ];
 
 const SCENARIOS=[
@@ -704,6 +875,18 @@ const SCENARIOS=[
  {t:"Train strike",p:"There's a rail strike and your train is cancelled. Message your team to say you'll work from home.",h:"Short and clear: situation, impact, solution."},
  {t:"Email to your landlord",p:"Your heating has been broken for two days. Email your landlord to ask for a repair.",h:"Since when, the impact, a clear request, when you're available."},
  {t:"Book a doctor's appointment",p:"Write what you would say on the phone to book an appointment with a GP because you've had a fever for three days.",h:"I'd like to book… / I've had… since…"},
+ {t:"Escalate to another team",p:"The database team owns a failing replica, but they haven't responded for an hour. Write a polite but firm escalation message to their manager.",h:"Context, impact, what you've tried, clear request, deadline."},
+ {t:"Explain a trade-off to stakeholders",p:"Explain to non-technical stakeholders why you recommend a slower but safer release schedule.",h:"Risk vs speed, concrete example, recommendation."},
+ {t:"Give constructive feedback",p:"A colleague's pull requests are often too large and hard to review. Write them kind, constructive feedback.",h:"Positive first, specific issue, impact, suggestion, offer help."},
+ {t:"Apologise for a production mistake",p:"Your change caused 20 minutes of downtime. Write a short message to the team taking responsibility.",h:"Own it, explain briefly, what you fixed, what you'll do to prevent it."},
+ {t:"Propose a new tool",p:"Write an email to your manager proposing to adopt a new tool (e.g. ArgoCD) for deployments.",h:"Problem today, benefits, cost/effort, small pilot proposal."},
+ {t:"Decline extra work politely",p:"Your manager asks you to take on another project, but you are already at full capacity. Reply politely.",h:"Thank, explain workload, offer options (priorities, later date)."},
+ {t:"Summarise a meeting",p:"Write a short summary of a meeting about a cloud migration, with decisions and action items.",h:"Decisions, owners, deadlines, open questions."},
+ {t:"Ask for a salary review",p:"Write a message to your manager asking for a meeting to discuss a salary review.",h:"Professional tone, achievements, request a meeting, no ultimatum."},
+ {t:"Write a change request",p:"Write a change request for the change advisory board: upgrading the Kubernetes cluster from 1.29 to 1.30 on Saturday night.",h:"Description, risk, rollback plan, impact, timing."},
+ {t:"LinkedIn summary",p:"Write a short LinkedIn “About” section presenting yourself as a DevOps engineer.",h:"Who you are, key skills, achievements, what you're looking for."},
+ {t:"Complain about a wrong bill",p:"Your internet provider charged you twice this month. Write an email asking for a refund.",h:"Account details, the problem, evidence, clear request."},
+ {t:"Respond to a customer complaint",p:"A customer complains that your service was down during their product launch. Write an empathetic reply.",h:"Empathy, apology, what happened, what you're doing, compensation if any."},
 ];
 
 const TALKS=[
@@ -733,6 +916,18 @@ const MODEL={
  "Train strike":"Hi team, there's a rail strike today and my train has been cancelled, so I'll be working from home. I'm online as usual and can join all meetings on Teams.",
  "Email to your landlord":"Dear Mr Peeters, the heating in my flat hasn't been working since Monday, and it's getting very cold. Could you please send someone to repair it as soon as possible? I'm available every day after 5 pm and on Saturday mornings. Thank you in advance. Best regards,",
  "Book a doctor's appointment":"Hello, I'd like to book an appointment with the doctor, please. I've had a fever for three days and a bad cough. Is there anything available today or tomorrow?",
+ "Escalate to another team":"Hi Sarah, I'm escalating an issue with the orders replica, which your team owns. Since 14:10 it has been lagging by more than 30 minutes, which affects reporting for all customers. We've checked the network and disk on our side, and everything looks fine. I posted in #db-support an hour ago but haven't had a response yet. Could someone from your team take a look within the next 30 minutes? Happy to jump on a call. Thanks!",
+ "Explain a trade-off to stakeholders":"We could release every day, but each release carries a small risk of breaking something for customers. Last quarter, two quick releases caused outages during business hours. I recommend releasing twice a week, after full testing. It's slightly slower, but it reduces the risk of downtime significantly, and the team can react better if something goes wrong.",
+ "Give constructive feedback":"Hi Alex, first of all, your code quality is really good, and I learn a lot from your solutions. One thing that would help me: your recent pull requests have been quite large, sometimes over 1,000 lines, which makes them hard to review properly. Would you be open to splitting them into smaller PRs? I'm happy to pair on it next time if that helps.",
+ "Apologise for a production mistake":"Hi team, the 20-minute outage this morning was caused by my configuration change. I missed a typo in the load balancer settings. I rolled it back at 10:25 and everything has been stable since. I'm sorry for the disruption. To prevent this, I'll add a validation step to the pipeline and share the details in the postmortem on Friday.",
+ "Propose a new tool":"Hi Elena, I'd like to propose adopting ArgoCD for our deployments. Today, deployments are manual and take about 30 minutes each, with a risk of human error. ArgoCD would let us deploy automatically from Git, with easy rollbacks and full visibility. It's open source, so there's no licence cost. I suggest a two-week pilot on the staging environment. Could we discuss it this week?",
+ "Decline extra work politely":"Thanks for thinking of me for this project, I appreciate it. At the moment, I'm fully committed to the migration and the on-call rotation, so I'm worried I couldn't give it the attention it deserves. Would it be possible to start it after the migration in November, or could we look together at which current tasks could be deprioritised?",
+ "Summarise a meeting":"Summary – Cloud migration sync (12 March). Decisions: we will migrate the staging environment first, starting next Monday; production will follow in April. Action items: Tom to prepare the Terraform modules by Friday; Mei to update the runbooks by 20 March; I'll book a rollback rehearsal with the DB team. Open question: do we need extra budget for the parallel run? To be confirmed with finance.",
+ "Ask for a salary review":"Hi Daniel, I'd like to schedule some time with you to discuss my compensation. Over the past year, I've led the monitoring migration, reduced our incident response time, and taken on mentoring two new team members. I'd appreciate the opportunity to talk about how my role has evolved and whether a salary review would be possible. Would sometime next week work for you?",
+ "Write a change request":"Change: upgrade the production Kubernetes cluster from 1.29 to 1.30. When: Saturday 22:00–00:00. Impact: no expected downtime; nodes are upgraded one by one with a rolling update. Risk: medium (API deprecations), mitigated by a successful upgrade in staging last week. Rollback plan: restore the control plane from the snapshot taken before the change and roll nodes back to the previous image. Owner: Platform team.",
+ "LinkedIn summary":"DevOps engineer with a passion for automation, reliability and clean infrastructure. I work with Linux, Kubernetes, Terraform, Ansible and CI/CD pipelines, and I enjoy turning manual processes into simple, automated workflows. Recently, I helped migrate our monitoring stack and reduced incident response time. I'm always happy to connect with people who care about building reliable systems.",
+ "Complain about a wrong bill":"Dear Sir or Madam, I am writing about my account number [NUMBER]. My October invoice shows the monthly subscription charged twice, on 3 and 5 October, for a total of [AMOUNT]. Please find attached a copy of my bank statement. Could you please refund the duplicate payment and confirm once it has been processed? Thank you in advance. Kind regards,",
+ "Respond to a customer complaint":"Dear Ms Laurent, I'm truly sorry that our service was unavailable during your product launch. I understand how important that day was for you. The outage was caused by a database failure, and our team restored service within 40 minutes. We've since added extra safeguards to prevent this from happening again. As a gesture of goodwill, we've credited one month of service to your account. Please don't hesitate to contact me directly.",
 };
 const SCRIPT={
  "Coffee machine chat":[["Yeah, really good, thanks! I went to the coast with some friends. How about you?","Nice! I mostly stayed home, it rained all Saturday. Anything big on your plate this week?"],["Quite a lot, actually. We're migrating the monitoring stack, so it's going to be busy.","Sounds intense. Let me know if you need data for the dashboards. Lunch later?"],["Sure, sounds good. Let's grab something at noon.",""]],
@@ -860,6 +1055,30 @@ const STORIES=[
   qs:[{q:"What does “to play devil's advocate” mean?",o:["To argue the opposite view to test an idea","To support the manager","To stay silent","To break the rules"]},
       {q:"What did the team finally decide?",o:["Extract billing first and evaluate after a quarter","Rewrite everything at once","Keep the monolith forever","Hire external consultants"]},
       {q:"“Microservices aren't a silver bullet” means they are…",o:["not a magic solution to every problem","very expensive","very dangerous","an old technology"]}]},
+ {id:"lg4",long:true,t:"Vendor lock-in",lvl:"C1",th:"Negotiation",
+  text:["For five years, Northwind had relied on a single monitoring vendor. The contract renewal arrived on a Monday, with a 40 percent price increase and a polite note about “continued investment in innovation”.","Hana, the infrastructure manager, read it twice and called a meeting. “We have two options,” she said. “Either we accept it, or we create some leverage.” Nobody wanted to migrate three hundred dashboards, but everyone agreed that accepting without discussion would set a dangerous precedent.","Over the next three weeks, the team ran a quiet proof of concept with an open-source stack. It wasn't perfect: the alerting was cumbersome and the dashboards looked less polished. Nevertheless, it covered roughly 80 percent of their needs at a fraction of the cost.","At the negotiation call, the vendor's account manager opened with the usual phrases about partnership and value. Hana listened, then laid out the facts calmly. “We value the relationship, and we'd rather not migrate. That said, we've validated an alternative, and at this price the business case for staying simply doesn't hold up.”","There was a long pause. The account manager asked for a day to “explore some flexibility”. The counter-offer came the next morning: a 5 percent increase, a three-year price lock, and free training.","Some engineers wanted to migrate anyway, out of principle. Hana disagreed. “The goal was never to punish them. It was to make sure we weren't negotiating with our hands tied.” They signed the contract but kept the open-source stack running for one non-critical team, just to keep the option alive.","Months later, a junior engineer asked Hana what the lesson was. She thought for a moment. “Never walk into a negotiation without an alternative. You don't have to use it. You just have to have it.”"],
+  gl:[["leverage","power that helps you get a better deal"],["to set a precedent","to create an example others will follow later"],["with your hands tied","without the freedom to act"]],
+  qs:[{q:"Why did the team build a proof of concept?",o:["To create leverage in the negotiation","Because they had already decided to migrate","Because the vendor asked them to","To train junior engineers"]},
+      {q:"What did the vendor finally offer?",o:["5% increase, a three-year price lock and free training","No increase at all","A 40% discount","Free licences forever"]},
+      {q:"What is Hana's main lesson?",o:["Always have an alternative before negotiating","Always change vendors","Open-source is always better","Never sign long contracts"]}]},
+ {id:"lg5",long:true,t:"The quiet engineer",lvl:"C1",th:"Leadership",
+  text:["Ravi rarely spoke in meetings. In retrospectives he nodded, typed notes, and left as soon as the call ended. His manager, Claire, had assumed he simply had nothing to add, until she read one of his pull request descriptions. It was meticulous: a clear explanation of the problem, three alternatives, the trade-offs of each, and a recommendation backed up by benchmarks.","Curious, she scheduled a one-to-one. “Your written work is outstanding,” she said. “But I almost never hear your opinion in meetings. Is there a reason?”","Ravi hesitated. “Honestly, the meetings move very fast. By the time I've formulated my thought in English, the topic has changed. And the last time I disagreed with someone senior, he dismissed it in front of everyone. I decided it wasn't worth it.”","Claire felt a pang of guilt. She remembered that meeting, and she hadn't intervened. “That shouldn't have happened, and I should have said something. I'm sorry.”","Over the following weeks, she made a few small changes. Agendas were shared a day in advance, so people could prepare. Every design discussion started with five minutes of silent writing in a shared document, before anyone spoke. And she made a point of explicitly inviting quieter voices: “Ravi, you looked into this last week. What's your take?”","The effect was striking. Ravi's written comments were often the most insightful in the document, and once he knew he would be asked, he came to meetings prepared. Two other engineers, both non-native speakers, started contributing far more as well.","Six months later, Ravi led the design review for the new caching layer. At the end, a senior architect, the same person who had once dismissed him, said, “That's one of the most thorough proposals I've seen.” Ravi smiled, but Claire knew the real achievement wasn't the compliment. It was that the room had finally been built for everyone to speak."],
+  gl:[["to dismiss","to reject an idea without considering it"],["a pang of guilt","a sudden feeling of guilt"],["What's your take?","what's your opinion?"]],
+  qs:[{q:"Why did Ravi rarely speak in meetings?",o:["Meetings moved fast and he had once been dismissed","He had no ideas","He didn't like his team","He was always late"]},
+      {q:"Which change did Claire introduce?",o:["Five minutes of silent writing before discussion","Longer meetings","Only written meetings, no speaking","Meetings in French"]},
+      {q:"What was the real achievement, according to Claire?",o:["Creating a space where everyone could speak","The architect's compliment","Ravi's promotion","Finishing the caching layer"]}]},
+ {id:"lg6",long:true,t:"The audit",lvl:"C2",th:"Compliance",
+  text:["The email arrived on a Thursday afternoon, couched in the measured language that only auditors seem to master: “Further to our preliminary review, we would be grateful if you could furnish evidence that all privileged access to production systems is subject to periodic recertification.”","Tom read it aloud to the team and translated it into plain English. “They want proof that someone regularly checks who has admin access, and removes people who shouldn't have it.” There was an uncomfortable silence. Such checks had been discussed at length, but never formally implemented.","Panicking would have been easy. Instead, the team adopted a pragmatic approach. Rather than fabricating a process retroactively, which would have jeopardised their credibility, they decided to be transparent about the gap and demonstrate a credible remediation plan.","Within a week, they had exported every privileged account, cross-referenced it with HR records, and discovered, somewhat embarrassingly, four accounts belonging to people who had left the company. These were revoked immediately. They then automated a quarterly review whereby each manager would receive a list of their team's access rights and be required to confirm or revoke each one.","Tom drafted the reply with considerable care. “In light of your request, we acknowledge that, prior to this review, recertification was performed on an ad hoc basis. We have subsequently implemented a formal quarterly process, the first cycle of which was completed on 14 March. Supporting evidence is attached, notwithstanding a small number of legacy accounts, which have since been revoked.”","The auditor's response was brief: “Thank you for your candour. The remediation appears adequate. We will verify its effectiveness at the next cycle.”","Afterwards, the head of security remarked that the finding had, paradoxically, strengthened their position. “Auditors don't expect perfection,” she said. “They expect honesty, evidence, and a process that doesn't depend on someone remembering.”"],
+  gl:[["to furnish evidence","(formal) to provide proof"],["ad hoc","done only when needed, without a fixed plan"],["candour","honesty and openness"]],
+  qs:[{q:"What did the auditor actually want?",o:["Proof that admin access is regularly reviewed","A new firewall","The list of all employees","A cheaper vendor"]},
+      {q:"Why didn't the team invent a past process?",o:["It would have damaged their credibility","They didn't have time","The auditor already knew","It was too expensive"]},
+      {q:"According to the head of security, what do auditors expect?",o:["Honesty, evidence and a reliable process","Perfection","Long reports","No findings at all"]}]},
+ {id:"lg7",long:true,t:"Ghosts in the logs",lvl:"C2",th:"Mystery",
+  text:["Every night at exactly 3:33 am, the payment service logged a single, cryptic error: connection reset by peer. It never caused an outage, never affected customers, and never appeared at any other time. For months, it was dismissed as noise. Then Lea, newly arrived from a bank in Luxembourg, decided she couldn't let it go.","“An error that happens at the same minute every night isn't random,” she argued. “Something is scheduled.” Her colleagues humoured her. One suggested, only half-joking, that the data centre was haunted.","She began by scrutinising every cron job, every backup and every batch process. None ran at 3:33. She widened the search to the network team, who corroborated that no maintenance was scheduled. It was beginning to look like a ghost story after all.","The breakthrough came from an unlikely source: the electricity bill. Leafing through an old facilities report out of sheer curiosity, Lea noticed that the building's cooling system ran a nightly self-test at 3:30. During those few minutes, a power-saving feature briefly throttled a network switch in the same rack as the payment servers.","The connection resets were the symptom; the switch was the culprit; the air conditioning was the root cause. The discovery was met with a mixture of disbelief and delight. Nobody had ever considered that a cooling system could exacerbate a software issue.","The fix was almost anticlimactic: the facilities team disabled the power-saving mode on that switch. The error vanished. But the episode had a lasting effect on the team's culture. “Noise” became a word people used far more cautiously.","When asked how she had solved it, Lea shrugged. “I didn't. I just refused to accept that something regular could be meaningless. The system was telling us a story. We simply hadn't been listening.”"],
+  gl:[["to humour someone","to accept their idea politely without really believing it"],["to corroborate","to confirm with evidence"],["anticlimactic","disappointing because it's less exciting than expected"]],
+  qs:[{q:"Why did Lea think the error wasn't random?",o:["It happened at exactly the same minute every night.","Customers complained.","It caused outages.","Her manager told her."]},
+      {q:"What was the root cause?",o:["The cooling system's nightly self-test throttling a switch","A cron job","A hacker","A database backup"]},
+      {q:"What lasting effect did the story have on the team?",o:["They became careful about calling errors “noise”.","They moved to a new data centre.","They stopped logging errors.","They fired the facilities team."]}]}
 ];
 const TENSES=[
  {id:"ps",n:"Present simple",lvl:"B1",use:["Facts and general truths","Habits and routines","Schedules and timetables"],
@@ -1015,7 +1234,7 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
 let vCat="Due",deck=[],vi=0,flipped=false,practice=false;
 const isDue=v=>S.srs[v.w]&&S.srs[v.w].due<=Date.now();
 const learned=()=>VOCAB.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;
-function catPool(){if(vCat==="Due"||vCat==="All")return VOCAB;if(vCat==="C1")return VOCAB.filter(v=>v.lvl==="C1");return VOCAB.filter(v=>v.c===vCat)}
+function catPool(){if(vCat==="Due"||vCat==="All")return VOCAB;if(vCat==="C1"||vCat==="C2")return VOCAB.filter(v=>v.lvl===vCat);return VOCAB.filter(v=>v.c===vCat)}
 function renderToday(){
   const dx=S.dxp[today()]||0,due=VOCAB.filter(isDue).length,pct=Math.min(100,dx/S.goal*100);
   $("#today").innerHTML=`<div class="trow"><b>${dx>=S.goal?"🎉 Daily goal reached!":"Today"}</b><button class="sbtn" id="goalBtn" aria-label="Change daily goal">Goal: ${S.goal} XP</button></div>
@@ -1026,7 +1245,7 @@ function renderToday(){
 }
 function buildDeck(){
   const due=VOCAB.filter(isDue).length;
-  const items=[{v:"Due",label:due?`Review (${due})`:"Review",cls:"rev"},{v:"All"},{v:"C1",label:"Advanced (C1)"},...[...new Set(VOCAB.map(v=>v.c))].map(c=>({v:c}))];
+  const items=[{v:"Due",label:due?`Review (${due})`:"Review",cls:"rev"},{v:"All"},{v:"C1",label:"Advanced (C1)"},{v:"C2",label:"Expert (C2)"},...[...new Set(VOCAB.map(v=>v.c))].map(c=>({v:c}))];
   chips($("#vocabCats"),items,vCat,c=>{vCat=c;practice=false;buildDeck()});
   const p=catPool(),d=shuffle(p.filter(isDue)),fresh=shuffle(p.filter(v=>!S.srs[v.w]));
   if(vCat==="Due"&&!practice)deck=[...d,...fresh.slice(0,10)];
@@ -1142,28 +1361,28 @@ function renderDict(q){
 
 
 /* ================= LEVEL TEST ================= */
-const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Tenses":"B2","Phrasal verbs":"B2","Idioms":"C1"};
+const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Tenses":"B2","Phrasal verbs":"B2","Collocations":"B2","Idioms":"C1","Advanced grammar":"C1","Nuance":"C2"};
 function buildLevelTest(){
   const out=[];
-  ["B1","B2","C1"].forEach(L=>{
+  ["B1","B2","C1","C2"].forEach(L=>{
     const pool=shuffle(VOCAB.filter(v=>v.lvl===L));
-    pool.slice(0,7).forEach(v=>{const dis=shuffle(VOCAB.filter(x=>x.lvl===L&&x.w!==v.w&&x.d!==v.d)).slice(0,3).map(x=>x.d);
+    pool.slice(0,8).forEach(v=>{const dis=shuffle(VOCAB.filter(x=>x.lvl===L&&x.w!==v.w&&x.d!==v.d)).slice(0,3).map(x=>x.d);
       out.push({lv:L,c:L,q:`What does “${v.w}” mean?`,o:[v.d,...dis],x:`“${v.w}”: ${v.d} Example: ${v.e}`})});
-    shuffle(QUIZ.filter(q=>QLV[q.c]===L)).slice(0,3).forEach(q=>out.push({...q,lv:L}));
+    shuffle(QUIZ.filter(q=>QLV[q.c]===L)).slice(0,4).forEach(q=>out.push({...q,lv:L}));
   });
   return out;
 }
-function levelFrom(sc){return sc.B1>=.7?(sc.B2>=.7?(sc.C1>=.7?"C1":"B2"):"B1"):"A2"}
+function levelFrom(sc){return sc.B1>=.7?(sc.B2>=.7?(sc.C1>=.7?(sc.C2>=.7?"C2":"C1"):"B2"):"B1"):"A2"}
 function showLevelResult(){
-  const sc={};["B1","B2","C1"].forEach(L=>{const qs=qset.filter(q=>q.lv===L);sc[L]=qs.length?qs.filter(q=>q.ok).length/qs.length:0});
+  const sc={};["B1","B2","C1","C2"].forEach(L=>{const qs=qset.filter(q=>q.lv===L);sc[L]=qs.length?qs.filter(q=>q.ok).length/qs.length:0});
   const lvl=levelFrom(sc),prev=S.tests[S.tests.length-1];
   S.tests.push({d:today(),lvl,s:sc});addXP(20);save();
   const next=new Date(Date.now()+30*DAY).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
-  const desc={A2:"You understand simple everyday English. Focus on B1 words and the basics.",B1:"You handle everyday situations at work. Next step: phrasal verbs and B2 vocabulary.",B2:"You communicate comfortably at work. Next step: idioms and nuance (C1).",C1:"Excellent! You use advanced, natural English. Keep it alive with podcasts and stories."};
+  const desc={A2:"You understand simple everyday English. Focus on B1 words and the basics.",B1:"You handle everyday situations at work. Next step: tenses, phrasal verbs and B2 vocabulary.",B2:"You communicate comfortably at work. Next step: nuance, hedging and C1 vocabulary.",C1:"You use advanced, natural English. Next step: C2 idioms, formal writing and precise vocabulary.",C2:"Outstanding! Near-native mastery. Keep it alive with long stories, podcasts and debates."};
   $("#quizBar").style.width="100%";
   $("#quizCard").innerHTML=`<p class="small" style="margin:0">Your estimated level</p><p class="big" style="margin:4px 0">${lvl}</p><p>${desc[lvl]}</p>
-    ${prev?`<p class="small">Last test (${esc(prev.d)}): <b>${prev.lvl}</b>${prev.lvl!==lvl?(["A2","B1","B2","C1"].indexOf(lvl)>["A2","B1","B2","C1"].indexOf(prev.lvl)?" → 🎉 you moved up!":" → keep practising, you'll get it back."):" → stable."}</p>`:""}
-    ${["B1","B2","C1"].map(L=>`<div class="lvrow"><span class="tag ${L}">${L}</span><div class="progress" style="margin:0"><i style="width:${Math.round(sc[L]*100)}%"></i></div><b>${Math.round(sc[L]*100)}%</b></div>`).join("")}
+    ${prev?`<p class="small">Last test (${esc(prev.d)}): <b>${prev.lvl}</b>${prev.lvl!==lvl?(["A2","B1","B2","C1","C2"].indexOf(lvl)>["A2","B1","B2","C1","C2"].indexOf(prev.lvl)?" → 🎉 you moved up!":" → keep practising, you'll get it back."):" → stable."}</p>`:""}
+    ${["B1","B2","C1","C2"].map(L=>`<div class="lvrow"><span class="tag ${L}">${L}</span><div class="progress" style="margin:0"><i style="width:${Math.round(sc[L]*100)}%"></i></div><b>${Math.round(sc[L]*100)}%</b></div>`).join("")}
     <p class="small">Take it again around ${next} to measure your progress.</p>
     <div class="btns one"><button class="btn primary" id="again">Back to quiz</button></div>`;
   $("#again").onclick=()=>{qCat="All";buildQuiz()};
@@ -1431,7 +1650,7 @@ function renderStats(){
   const days=[...Array(7)].map((_,i)=>{const d=new Date(Date.now()-(6-i)*DAY);return {k:dkey(d),lab:d.toLocaleDateString("en-GB",{weekday:"short"}).slice(0,2)}});
   const vals=days.map(d=>S.dxp[d.k]||0),mx=Math.max(S.goal,...vals),week=vals.reduce((a,b)=>a+b,0);
   const heat=[...Array(35)].map((_,i)=>{const k=dkey(new Date(Date.now()-(34-i)*DAY)),x=S.dxp[k]||0;return `<i class="${x>=S.goal?"l3":x>=S.goal/2?"l2":x>0?"l1":""}" title="${k}: ${x} XP"></i>`}).join("");
-  const lv=["B1","B2","C1"].map(l=>{const all=VOCAB.filter(v=>v.lvl===l),n=all.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;return `<div class="lvbar"><div class="top"><span class="tag ${l}">${l}</span><span>${n}/${all.length}</span></div><div class="progress" style="margin:0"><i style="width:${n/all.length*100}%"></i></div></div>`}).join("");
+  const lv=["B1","B2","C1","C2"].map(l=>{const all=VOCAB.filter(v=>v.lvl===l),n=all.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;return `<div class="lvbar"><div class="top"><span class="tag ${l}">${l}</span><span>${n}/${all.length}</span></div><div class="progress" style="margin:0"><i style="width:${n/all.length*100}%"></i></div></div>`}).join("");
   const hard=VOCAB.filter(v=>S.srs[v.w]&&S.srs[v.w].lapses).sort((a,b)=>S.srs[b.w].lapses-S.srs[a.w].lapses).slice(0,5);
   const acc=S.quizTotal?Math.round(S.quizRight/S.quizTotal*100):0;
   $("#stats").innerHTML=`<div class="sgrid">
