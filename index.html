@@ -44,6 +44,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:8px;pad
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand span{color:var(--blue)}
 .pills{display:flex;gap:6px;align-items:center}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheetx{background:var(--panel);width:100%;max-width:620px;max-height:92%;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
 .lvbtn{border:none;border-radius:999px;padding:4px 11px 4px 5px;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#6B46C1,#2C58C9);color:#fff;font-weight:800;font-size:14px;box-shadow:0 3px 10px rgba(76,70,200,.35)}
 .lvbtn .em{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:15px}
 .lvhero{border-radius:22px;padding:24px 20px;color:#fff;background:linear-gradient(135deg,#6B46C1,#2C58C9);text-align:center;margin-top:8px}
@@ -319,7 +321,10 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
       <p class="small" id="remNote" style="margin:10px 0 0"></p>
     </div>
 
-    <h2 class="sh">Sync between devices</h2>
+    <h2 class="sh">Automatic sync</h2>
+    <div class="card" id="autoSync"></div>
+
+    <h2 class="sh">Manual sync (code)</h2>
     <div class="card">
       <p style="margin:0 0 12px">Copy your progress code on one device, then paste it on the other. Both progressions are merged, nothing is lost.</p>
       <div class="btns" style="margin-top:0"><button class="btn primary" id="syncCopy">Copy my code</button><button class="btn" id="syncShow">Paste a code</button></div>
@@ -2125,7 +2130,7 @@ const RES=[
 /* ================= STATE ================= */
 const KEY="opsenglish:v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let save=function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const S=Object.assign({known:{},review:{},quizRight:0,quizTotal:0,coach:0,days:[],heard:{},srs:{},xp:0,dxp:{},goal:50,read:{},tests:[]},load());S.read=S.read||{};S.tests=S.tests||[];
 S.heard=S.heard||{};S.srs=S.srs||{};S.dxp=S.dxp||{};S.goal=S.goal||50;S.xp=S.xp||0;S.links=S.links||{};
 const DAY=864e5;
@@ -2661,7 +2666,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me","level"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="level"&&!LT.on)renderLevelHome();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me","level"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me"){renderStats();renderSyncCard()}if(v==="level"&&!LT.on)renderLevelHome();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
@@ -2726,6 +2731,91 @@ $("#syncShow").onclick=()=>{$("#syncBox").hidden=false;$("#syncIn").value="";$("
 $("#syncImport").onclick=()=>{try{mergeCode($("#syncIn").value);$("#syncBox").hidden=true;$("#syncNote").textContent="✅ Progress merged."}catch(e){$("#syncNote").textContent="This code isn't valid. Copy it again from your other device."}};
 // offline / install
 if("serviceWorker" in navigator&&/github\.io$/.test(location.hostname)){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+
+/* ================= AUTO SYNC (GitHub Gist, chiffré) ================= */
+const GS={file:"opsenglish-sync.json",key:null,busy:false,lastHash:"",status:"off",when:0,err:""};
+const SKEY="opsenglish:sync";
+const u8b64=u=>{let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+const b64u8=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+function stable(o){if(Array.isArray(o))return "["+o.map(stable).join(",")+"]";if(o&&typeof o==="object")return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+stable(o[k])).join(",")+"}";return JSON.stringify(o)}
+function hashStr(s){let h1=0x811c9dc5,h2=0x01000193;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,0x01000193);h2=Math.imul(h2^c,0x5bd1e995)}return (h1>>>0).toString(16)+(h2>>>0).toString(16)}
+function syncCfg(){try{return JSON.parse(localStorage.getItem(SKEY))||null}catch(e){return null}}
+function setCfg(c){try{c?localStorage.setItem(SKEY,JSON.stringify(c)):localStorage.removeItem(SKEY)}catch(e){}}
+function exportObj(){return JSON.parse(decodeURIComponent(escape(atob(exportCode().slice(4)))))}
+const localHash=()=>hashStr(stable(exportObj()));
+async function gh(path,opt={}){
+  const c=syncCfg();const r=await fetch("https://api.github.com"+path,{...opt,headers:{"Authorization":"Bearer "+c.token,"Accept":"application/vnd.github+json","Content-Type":"application/json"}});
+  if(r.status===401)throw new Error("token");if(r.status===403||r.status===404)throw new Error("perm");if(!r.ok)throw new Error("http"+r.status);return r.json();
+}
+async function loadKey(){const c=syncCfg();if(!c||!c.k)return null;GS.key=await crypto.subtle.importKey("raw",b64u8(c.k),"AES-GCM",false,["encrypt","decrypt"]);return GS.key}
+async function deriveRaw(pass,salt){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveBits"]);return new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,256))}
+async function sealSync(text){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},GS.key,new TextEncoder().encode(text)));return {iv:u8b64(iv),ct:u8b64(ct)}}
+async function openSync(p){return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64u8(p.iv)},GS.key,b64u8(p.ct)))}
+async function readGist(id){const g=await gh("/gists/"+id);const f=g.files[GS.file];if(!f)return null;let txt=f.content;if(f.truncated&&f.raw_url)txt=await (await fetch(f.raw_url)).text();return JSON.parse(txt)}
+function setStatus(st,err){GS.status=st;GS.err=err||"";if(st==="ok")GS.when=Date.now();const el=$("#gsStatus");if(el)el.innerHTML=statusHTML()}
+function statusHTML(){if(!syncCfg())return "Off";if(GS.status==="busy")return "⏳ Syncing…";if(GS.status==="err")return `⚠️ ${esc(GS.err)}`;if(GS.when){const s=Math.round((Date.now()-GS.when)/1000);return `✅ Synced ${s<60?s+" s":Math.round(s/60)+" min"} ago`}return "✅ On"}
+const errText=e=>e.message==="token"?"Token invalid or expired":e.message==="perm"?"Token has no Gist permission":/Failed to fetch|NetworkError|Load failed/i.test(e.message)?"No connection (sync works on the GitHub version)":"Sync error, will retry";
+async function syncPush(force){
+  const c=syncCfg();if(!c||!GS.key||GS.busy)return;const h=localHash();if(!force&&h===GS.lastHash)return;
+  GS.busy=true;setStatus("busy");
+  try{const p={app:"opsenglish",v:1,at:Date.now(),h,salt:c.salt,...await sealSync(exportCode())};
+    await gh("/gists/"+c.id,{method:"PATCH",body:JSON.stringify({files:{[GS.file]:{content:JSON.stringify(p)}}})});GS.lastHash=h;setStatus("ok")}
+  catch(e){setStatus("err",errText(e))}finally{GS.busy=false}
+}
+async function syncPull(){
+  const c=syncCfg();if(!c||GS.busy)return;if(!GS.key)await loadKey();if(!GS.key)return;
+  GS.busy=true;setStatus("busy");let needPush=false;
+  try{const p=await readGist(c.id);
+    if(p&&p.ct&&p.h!==GS.lastHash){const code=await openSync(p);mergeCode(code);GS.lastHash=p.h;needPush=localHash()!==p.h}
+    else if(!p||!p.ct)needPush=true;
+    setStatus("ok")}
+  catch(e){setStatus("err",e.name==="OperationError"?"Wrong sync password on this device":errText(e))}
+  finally{GS.busy=false}
+  if(needPush)return syncPush(true);
+}
+let pushT=null;const _save=save;save=function(){_save();if(syncCfg()&&GS.key){clearTimeout(pushT);pushT=setTimeout(()=>syncPush(false),3000)}};
+async function enableSync(token,pass){
+  const tmp={token};setCfg(tmp);
+  const list=await gh("/gists?per_page=100");let g=list.find(x=>x.files&&x.files[GS.file]);let salt,id;
+  if(g){id=g.id;const p=await readGist(id);salt=p&&p.salt?b64u8(p.salt):crypto.getRandomValues(new Uint8Array(16))}
+  else{salt=crypto.getRandomValues(new Uint8Array(16))}
+  const raw=await deriveRaw(pass,salt);GS.key=await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["encrypt","decrypt"]);
+  if(g){const p=await readGist(id);if(p&&p.ct){try{await openSync(p)}catch(e){setCfg(null);GS.key=null;throw new Error("pass")}}}
+  else{const created=await gh("/gists",{method:"POST",body:JSON.stringify({description:"OpsEnglish sync (encrypted)",public:false,files:{[GS.file]:{content:"{}"}}})});id=created.id}
+  setCfg({token,id,salt:u8b64(salt),k:u8b64(raw)});GS.lastHash="";await syncPull();
+}
+function openSyncSetup(){
+  const sh=document.createElement("div");sh.className="ovl";sh.innerHTML=`<div class="sheetx" role="dialog" aria-modal="true">
+    <h2 style="margin:0 0 6px">Automatic sync</h2>
+    <p class="small" style="margin:0 0 12px">Your progress is encrypted on this device, then stored in a private Gist on your GitHub account. Use the <b>same token and password</b> on all your devices.</p>
+    <ol class="small" style="padding-left:20px;margin:0 0 12px"><li>GitHub → Settings → Developer settings → Fine-grained tokens → <b>Generate new token</b></li><li>Account permissions → <b>Gists: Read and write</b> (nothing else)</li><li>Copy the token and paste it below</li></ol>
+    <div class="field"><label class="lbl" for="gsTok">GitHub token</label><input class="input" id="gsTok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+    <div class="field"><label class="lbl" for="gsPw">Sync password (8+ characters)</label><input class="input" id="gsPw" type="password" autocomplete="new-password"></div>
+    <p class="small" id="gsErr" style="color:var(--err);min-height:20px"></p>
+    <button class="btn primary" id="gsGo" style="width:100%">Turn on sync</button>
+    <button class="btn" id="gsCancel" style="width:100%;margin-top:10px">Cancel</button></div>`;
+  document.body.appendChild(sh);
+  $("#gsCancel").onclick=()=>sh.remove();sh.addEventListener("click",e=>{if(e.target===sh)sh.remove()});
+  $("#gsGo").onclick=async()=>{const t=$("#gsTok").value.trim(),p=$("#gsPw").value;
+    if(!t)return $("#gsErr").textContent="Paste your token.";if(p.length<8)return $("#gsErr").textContent="The password needs 8 characters or more.";
+    $("#gsGo").disabled=true;$("#gsGo").textContent="Connecting…";
+    try{await enableSync(t,p);sh.remove();renderSyncCard()}
+    catch(e){setCfg(null);$("#gsErr").textContent=e.message==="pass"?"This password doesn't match the one used on your other device.":errText(e);$("#gsGo").disabled=false;$("#gsGo").textContent="Turn on sync"}};
+}
+function renderSyncCard(){
+  const box=$("#autoSync");if(!box)return;const on=!!syncCfg();
+  box.innerHTML=on?`<div class="between"><b>Status</b><span id="gsStatus">${statusHTML()}</span></div>
+      <p class="small" style="margin:8px 0 12px">Your progress syncs automatically between your devices, encrypted.</p>
+      <div class="btns" style="margin-top:0"><button class="btn primary" id="gsNow">Sync now</button><button class="btn" id="gsOff">Turn off</button></div>`
+    :`<p style="margin:0 0 12px">Sync your progress automatically between iPhone, iPad and computer. Encrypted, private, free.</p><button class="btn primary" id="gsOn" style="width:100%">Set up automatic sync</button>`;
+  const a=$("#gsOn");if(a)a.onclick=openSyncSetup;
+  const n=$("#gsNow");if(n)n.onclick=async()=>{await syncPull();await syncPush(true)};
+  const o=$("#gsOff");if(o)o.onclick=()=>{if(confirm("Turn off automatic sync on this device? Your progress stays here.")){setCfg(null);GS.key=null;GS.lastHash="";renderSyncCard()}};
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&syncCfg())syncPull()});
+setInterval(()=>{if(!document.hidden&&syncCfg())syncPull()},45000);
+setInterval(()=>{const el=$("#gsStatus");if(el)el.innerHTML=statusHTML()},10000);
+if(syncCfg())setTimeout(syncPull,800);
 
 applyMode();getSample().then(sm=>{OFF=!sm;applyMode()});
 buildDeck();buildQuiz();startTalk();renderScen();renderRes();renderHeader();
