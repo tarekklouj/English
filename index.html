@@ -39,10 +39,23 @@ a{color:inherit}
 button:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 [hidden]{display:none!important}
 
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0 4px;flex-wrap:wrap}
+.pill{padding:4px 9px!important;font-size:14px!important}
 .brand{font-weight:700;font-size:22px;letter-spacing:-.01em}
 .brand span{color:var(--blue)}
 .pills{display:flex;gap:6px;align-items:center}
+.lvbtn{border:none;border-radius:999px;padding:4px 11px 4px 5px;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#6B46C1,#2C58C9);color:#fff;font-weight:800;font-size:14px;box-shadow:0 3px 10px rgba(76,70,200,.35)}
+.lvbtn .em{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:15px}
+.lvhero{border-radius:22px;padding:24px 20px;color:#fff;background:linear-gradient(135deg,#6B46C1,#2C58C9);text-align:center;margin-top:8px}
+.lvhero .badge{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.5);display:grid;place-items:center;font-size:36px;font-weight:800}
+.lvhero h1{color:#fff;margin:4px 0 6px}
+.lvhero p{margin:0 0 6px;opacity:.95}
+.lvhero .btn{background:#fff;color:#2C3A8C;border:none;margin-top:14px;width:100%}
+.lvfacts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.lvfacts span{background:rgba(255,255,255,.18);border-radius:999px;padding:4px 10px;font-size:14px;font-weight:700}
+.lvhist{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:12px}
+.lvhist div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-size:12px;color:var(--muted)}
+.lvhist i{display:block;width:100%;max-width:28px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#6B46C1,#2C58C9)}
 .gear{border:1px solid var(--line);background:var(--panel);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;font-size:16px}
 h2.sh{font-size:21px;margin:26px 0 10px}
 .field{display:grid;gap:6px;margin-bottom:14px}
@@ -236,7 +249,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
 <main>
   <header>
     <div class="brand">Ops<span>English</span></div>
-    <div class="pills"><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pGoal">⚡ 0</span><button class="gear" id="meBtn" aria-label="Progress and settings">📊</button></div>
+    <div class="pills"><button class="lvbtn" id="lvBtn" aria-label="Level test"><span class="em">🎓</span><span id="lvBadge">Test</span></button><span class="pill" id="pStreak">🔥 0 d</span><span class="pill" id="pGoal">⚡ 0</span><button class="gear" id="meBtn" aria-label="Progress and settings">📊</button></div>
   </header>
 
   <section id="v-words">
@@ -332,6 +345,8 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <p class="sub">When to use each tense, how to build it, with work examples and the classic mistakes of French speakers.</p>
     <div id="tensesBox"></div>
   </section>
+
+  <section id="v-level" hidden><div id="levelBox"></div></section>
 
   <section id="v-listen" hidden>
     <h1>Listen</h1>
@@ -2119,7 +2134,7 @@ function addXP(n){S.xp+=n;S.dxp[today()]=(S.dxp[today()]||0)+n;save();markActive
 const today=()=>new Date().toISOString().slice(0,10);
 function markActive(){if(!S.days.includes(today())){S.days.push(today());save()}renderHeader()}
 function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(today()))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
-function renderHeader(){const dx=S.dxp[today()]||0;$("#pStreak").textContent=`🔥 ${streak()} d`;$("#pGoal").textContent=dx>=S.goal?`✅ ${dx} XP`:`⚡ ${dx}/${S.goal}`;if(typeof renderToday==="function"&&$("#today"))renderToday()}
+function renderHeader(){if(typeof updateLvBadge==="function")updateLvBadge();const dx=S.dxp[today()]||0;$("#pStreak").textContent=`🔥 ${streak()} d`;$("#pGoal").textContent=dx>=S.goal?`✅ ${dx} XP`:`⚡ ${dx}/${S.goal}`;if(typeof renderToday==="function"&&$("#today"))renderToday()}
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -2255,7 +2270,7 @@ function buildQuiz(){
   qset=qCat==="Level"?buildLevelTest():qCat==="Dictation"
     ?shuffle(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e))).slice(0,10).map(e=>({dict:true,e}))
     :shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
-  chips($("#quizCats"),[{v:"Level",label:"🎓 Level test"},{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
+  chips($("#quizCats"),[{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
   renderQ();
 }
 function renderQ(){
@@ -2333,6 +2348,51 @@ function buildLevelTest(){
   return out;
 }
 let LEVEL_BANK_SIZE=0;
+/* ================= LEVEL VIEW ================= */
+let LT={qs:[],i:0,on:false,ans:null};
+const LV_ORDER=["A2","B1","B2","C1","C2"];
+function updateLvBadge(){const l=S.tests&&S.tests.length?S.tests[S.tests.length-1].lvl:null;const b=$("#lvBadge");if(b)b.textContent=l||"Test"}
+function renderLevelHome(){
+  const last=S.tests[S.tests.length-1],bank=levelBank(),size=Object.values(bank).reduce((a,b)=>a+b.length,0);
+  const next=last?new Date(Date.parse(last.d)+30*DAY):null,due=!next||next<=new Date();
+  const hist=S.tests.slice(-8);
+  $("#levelBox").innerHTML=`<div class="lvhero"><div class="badge">${last?last.lvl:"?"}</div>
+      <h1>${last?"Your level: "+last.lvl:"Find your level"}</h1>
+      <p>${last?`Last test: ${new Date(last.d).toLocaleDateString("en-GB",{day:"numeric",month:"long"})}`:"A quick test to know where you stand, from B1 to C2."}</p>
+      <div class="lvfacts"><span>40 questions</span><span>~12 min</span><span>B1 → C2</span><span>${size} in the bank</span></div>
+      <button class="btn" id="lvStart">${last?"Take the test again":"Start the test"}</button>
+      ${last&&!due?`<p class="small" style="color:#fff;opacity:.85;margin-top:10px">Recommended next test: ${next.toLocaleDateString("en-GB",{day:"numeric",month:"long"})}</p>`:""}</div>
+    ${hist.length?`<h2 class="sh">Your progress</h2><div class="card"><div class="lvhist">${hist.map(t=>`<div><b style="color:var(--ink)">${t.lvl}</b><i style="height:${(LV_ORDER.indexOf(t.lvl)+1)*16}px"></i><span>${new Date(t.d).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span></div>`).join("")}</div></div>`:""}
+    <h2 class="sh">How it works</h2>
+    <div class="card"><ul class="vlist"><li>10 random questions per level (B1, B2, C1, C2): vocabulary, grammar and nuance.</li><li>Every test is different: questions come from a bank of ${size}.</li><li>You reach a level when you get at least 70% at that level and the levels below.</li><li>Take it once a month to see your progress.</li></ul></div>`;
+  $("#lvStart").onclick=()=>{LT={qs:buildLevelTest(),i:0,on:true,ans:null};renderLevelQ();window.scrollTo({top:0})};
+}
+function renderLevelQ(){
+  if(LT.i>=LT.qs.length){finishLevel();return}
+  const q=LT.qs[LT.i];if(!q._o)q._o=shuffle(q.o.map((t,i)=>({t,i})));
+  const a=LT.ans;
+  $("#levelBox").innerHTML=`<div class="between" style="margin:6px 0 10px"><button class="sbtn" id="lvQuit">✕ Quit</button><span class="small">Question ${LT.i+1} of ${LT.qs.length} · <span class="tag ${q.lv}">${q.lv}</span></span></div>
+    <div class="progress"><i style="width:${LT.i/LT.qs.length*100}%;background:linear-gradient(90deg,#6B46C1,#2C58C9)"></i></div>
+    <div class="card"><p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p>
+      <div class="opts">${q._o.map(o=>{const cls=a===null?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-i="${o.i}" ${a!==null?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div>
+      ${a!==null?`<div class="explain">${a===0?"✅ ":"❌ "}${esc(q.x||"")}</div><div class="btns one"><button class="btn primary" id="lvNext">${LT.i+1<LT.qs.length?"Next question":"See my level"}</button></div>`:""}</div>`;
+  $("#lvQuit").onclick=()=>{if(confirm("Quit the test? Your answers won't be saved.")){LT.on=false;renderLevelHome()}};
+  document.querySelectorAll("#levelBox .opt").forEach(b=>b.onclick=()=>{LT.ans=+b.dataset.i;q.ok=LT.ans===0;renderLevelQ()});
+  const n=$("#lvNext");if(n){n.onclick=()=>{LT.i++;LT.ans=null;renderLevelQ();window.scrollTo({top:0})};n.focus()}
+}
+function finishLevel(){
+  const qs=LT.qs,sc={};["B1","B2","C1","C2"].forEach(L=>{const x=qs.filter(q=>q.lv===L);sc[L]=x.length?x.filter(q=>q.ok).length/x.length:0});
+  const lvl=levelFrom(sc),prev=S.tests[S.tests.length-1];
+  S.tests.push({d:today(),lvl,s:sc});addXP(20);save();LT.on=false;updateLvBadge();
+  const desc={A2:"You understand simple everyday English. Focus on B1 words and the basics.",B1:"You handle everyday situations. Next step: tenses, phrasal verbs and B2 vocabulary.",B2:"You communicate comfortably at work. Next step: nuance, hedging and C1 vocabulary.",C1:"You use advanced, natural English. Next step: C2 idioms, formal writing and precise vocabulary.",C2:"Outstanding! Near-native mastery. Keep it alive with long stories, podcasts and debates."};
+  const move=prev?(LV_ORDER.indexOf(lvl)>LV_ORDER.indexOf(prev.lvl)?"🎉 You moved up from "+prev.lvl+"!":lvl===prev.lvl?"Stable since your last test.":"A bit lower than last time ("+prev.lvl+"). Keep practising!"):"";
+  $("#levelBox").innerHTML=`<div class="lvhero"><p style="margin:0">Your estimated level</p><div class="badge" style="margin-top:10px">${lvl}</div><p>${desc[lvl]}</p>${move?`<p><b>${move}</b></p>`:""}</div>
+    <div class="card" style="margin-top:12px">${["B1","B2","C1","C2"].map(L=>`<div class="lvrow"><span class="tag ${L}">${L}</span><div class="progress" style="margin:0"><i style="width:${Math.round(sc[L]*100)}%"></i></div><b>${Math.round(sc[L]*100)}%</b></div>`).join("")}
+    <p class="small" style="margin:10px 0 0">${qs.filter(q=>q.ok).length} / ${qs.length} correct · +20 XP</p></div>
+    <div class="btns one"><button class="btn primary" id="lvHome">Done</button></div>`;
+  $("#lvHome").onclick=renderLevelHome;
+}
+$("#lvBtn").onclick=()=>showView("level");
 function levelFrom(sc){return sc.B1>=.7?(sc.B2>=.7?(sc.C1>=.7?(sc.C2>=.7?"C2":"C1"):"B2"):"B1"):"A2"}
 function showLevelResult(){
   const sc={};["B1","B2","C1","C2"].forEach(L=>{const qs=qset.filter(q=>q.lv===L);sc[L]=qs.length?qs.filter(q=>q.ok).length/qs.length:0});
@@ -2601,7 +2661,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me","level"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me")renderStats();if(v==="level"&&!LT.on)renderLevelHome();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
@@ -2621,7 +2681,7 @@ function renderStats(){
     <div class="card stat"><div class="n">🎯 ${acc}%</div><div class="l">Quiz accuracy · ${S.quizTotal} answers</div></div></div>
     <div class="card" style="margin-top:10px"><b>This week</b><div class="chart">${days.map((d,i)=>`<div class="col"><span class="v">${vals[i]||""}</span><div class="bar ${vals[i]>=S.goal?"met":""}" style="height:${Math.max(3,vals[i]/mx*90)}px"></div><span class="d">${d.lab}</span></div>`).join("")}</div></div>
     <div class="card" style="margin-top:10px"><b>Last 5 weeks</b><div class="heat">${heat}</div><p class="small" style="margin:8px 0 0">Green: goal reached · yellow: some practice</p></div>
-    <div class="card" style="margin-top:10px"><b>Level tests</b>${S.tests.length?`<ul class="vlist">${S.tests.slice(-6).reverse().map(t=>`<li style="display:flex;justify-content:space-between"><span>${esc(t.d)}</span><span class="tag ${t.lvl==="A2"?"B1":t.lvl}">${t.lvl}</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">No test yet. Quiz → 🎓 Level test (about 10 minutes).</p>`}</div>
+    <div class="card" style="margin-top:10px"><b>Level tests</b>${S.tests.length?`<ul class="vlist">${S.tests.slice(-6).reverse().map(t=>`<li style="display:flex;justify-content:space-between"><span>${esc(t.d)}</span><span class="tag ${t.lvl==="A2"?"B1":t.lvl}">${t.lvl}</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">No test yet. Tap 🎓 at the top of the app (about 12 minutes).</p>`}</div>
     <div class="card" style="margin-top:10px"><b>Stories read</b><p class="small" style="margin:6px 0 0">${Object.keys(S.read).length} of ${STORIES.length}</p></div>
     <div class="card" style="margin-top:10px"><b>Words by level</b>${lv}</div>
     <div class="card" style="margin-top:10px"><b>Hardest words</b>${hard.length?`<ul class="vlist hard">${hard.map(v=>`<li><span>${esc(v.w)}</span><span class="small">missed ${S.srs[v.w].lapses}×</span></li>`).join("")}</ul>`:`<p class="small" style="margin:8px 0 0">Nothing yet. Words you mark “Again” will show up here.</p>`}</div>`;
