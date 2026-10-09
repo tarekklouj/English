@@ -2484,7 +2484,7 @@ let storyOpen=null,sAns={};
 const mins=st=>Math.max(1,Math.round(st.text.join(" ").split(/\s+/).length/130));
 function storyCard(st){const r=S.read[st.id];return `<div class="ritem">
     <div class="rico" aria-hidden="true">${r!==undefined?"✅":st.book?"📕":st.long?"📜":"📖"}</div>
-    <div><p class="rtitle">${st.book?`Chapter ${st.ch} · `:""}${esc(st.t)}</p><div class="rtags" style="margin:6px 0 0"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">⏱ ${mins(st)} min</span>${st.book?"":`<span class="tag cat">${esc(st.th)}</span>`}${r!==undefined?`<span class="tag cat">${r}/3</span>`:""}</div>
+    <div><p class="rtitle">${st.book?`Chapter ${st.ch} · `:""}${esc(st.t)}</p><div class="rtags" style="margin:6px 0 0"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">⏱ ${mins(st)} min</span>${st.book?"":`<span class="tag cat">${esc(st.th)}</span>`}${r!==undefined?`<span class="tag cat">${r}/${(S.readN&&S.readN[st.id])||3}</span>`:""}</div>
     <div class="ractions rlisten"><button class="sbtn play" data-st="${st.id}">📖 Read</button>${canSpeak?`<button class="sbtn" data-listen="${st.id}" aria-pressed="false">▶ Listen</button>`:""}</div></div></div>`}
 const BOOKS={
  "The Brussels Shift":{e:"📕",lvl:"B1 → B2",bg:"var(--violetSoft)",fg:"var(--violet)",d:"Yasmin, a French-speaking DevOps engineer, moves to Brussels to work in an English-speaking team. One year, one notebook, one phrase at a time."},
@@ -2539,29 +2539,108 @@ function renderRead(){
   document.querySelectorAll("[data-listen]").forEach(b=>b.onclick=()=>{const st=STORIES.find(x=>x.id===b.dataset.listen);if(PLAYER.id===st.id&&PLAYER.state!=="idle")stopStory();else playStory(st,0,false)});
   updatePlayer();
 }
+/* ================= STORY EXTRAS (generated from each text) ================= */
+const IRR={become:["became","become"],begin:["began","begun"],break:["broke","broken"],bring:["brought","brought"],build:["built","built"],buy:["bought","bought"],catch:["caught","caught"],choose:["chose","chosen"],come:["came","come"],do:["did","done"],draw:["drew","drawn"],drink:["drank","drunk"],drive:["drove","driven"],eat:["ate","eaten"],fall:["fell","fallen"],feel:["felt","felt"],fight:["fought","fought"],find:["found","found"],fly:["flew","flown"],forget:["forgot","forgotten"],get:["got","got"],give:["gave","given"],go:["went","gone"],grow:["grew","grown"],hear:["heard","heard"],hide:["hid","hidden"],hold:["held","held"],keep:["kept","kept"],know:["knew","known"],lead:["led","led"],leave:["left","left"],lend:["lent","lent"],lose:["lost","lost"],make:["made","made"],mean:["meant","meant"],meet:["met","met"],pay:["paid","paid"],ride:["rode","ridden"],ring:["rang","rung"],rise:["rose","risen"],run:["ran","run"],say:["said","said"],see:["saw","seen"],sell:["sold","sold"],send:["sent","sent"],shake:["shook","shaken"],show:["showed","shown"],sing:["sang","sung"],sit:["sat","sat"],sleep:["slept","slept"],speak:["spoke","spoken"],spend:["spent","spent"],stand:["stood","stood"],steal:["stole","stolen"],swim:["swam","swum"],take:["took","taken"],teach:["taught","taught"],tell:["told","told"],think:["thought","thought"],throw:["threw","thrown"],understand:["understood","understood"],wake:["woke","woken"],wear:["wore","worn"],win:["won","won"],write:["wrote","written"]};
+const REG="ask call work play start open close decide try want need look walk talk help finish explain notice realise arrive move change wait watch learn use stay check order offer agree answer travel cook clean laugh smile pass plan stop carry cry happen remember enjoy love like invite visit return turn push pull climb wash fix miss listen paint post share join create follow believe hope prepare admit suggest accept refuse discover rent book repair reply apologise organise complain deliver describe improve include manage mention present promise protect reach record reduce remove replace report save serve solve test thank train trust wonder worry count add attend collect compare continue deploy migrate restart revoke dream imagine invent kill expect seem appear end receive pick drop shout knock rush jump fill dance study celebrate" .split(" ");
+const DBL=new Set(["stop","plan","admit","travel","drop","regret","commit","cancel","shop","chat"]);
+const VB={};const FORM={};
+(function(){
+  const sForm=b=>/(s|sh|ch|x|z|o)$/.test(b)?b+"es":/[^aeiou]y$/.test(b)?b.slice(0,-1)+"ies":b+"s";
+  const ingForm=b=>b==="be"?"being":/ie$/.test(b)?b.slice(0,-2)+"ying":DBL.has(b)?b+b.slice(-1)+"ing":/[^e]e$/.test(b)?b.slice(0,-1)+"ing":b+"ing";
+  const regPast=b=>/e$/.test(b)?b+"d":/[^aeiou]y$/.test(b)?b.slice(0,-1)+"ied":DBL.has(b)?b+b.slice(-1)+"ed":b+"ed";
+  const add=(b,past,pp)=>{VB[b]={b,past,pp,ing:ingForm(b),s:sForm(b)};FORM[past]=FORM[past]||{b,t:"past"};FORM["pp:"+pp]={b};FORM["ing:"+VB[b].ing]={b};FORM["base:"+b]={b}};
+  Object.entries(IRR).forEach(([b,[p,pp]])=>add(b,p,pp));
+  REG.forEach(b=>{if(b&&!VB[b])add(b,regPast(b),regPast(b))});
+})();
+function seeded(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);h^=h>>>16;return (h>>>0)/4294967296}}
+const sshuffle=(a,r)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const PLURAL=new Set(["i","you","we","they"]);
+const NOSUBJ=new Set(["the","a","an","his","her","my","their","our","its","this","that","to","be","been","being","had","has","have","was","were","is","are","am","will","would","could","should","not","never","just","already","very"]);
+function cap(orig,rep){return /^[A-Z]/.test(orig)?rep.charAt(0).toUpperCase()+rep.slice(1):rep}
+const TEXP={
+  past:"Past simple: a finished action in the story's past. The story is told in the past, so present, future or present perfect forms don't fit.",
+  pastc:"Past continuous (was/were + -ing): an action in progress at that moment in the story.",
+  pastp:"Past perfect (had + past participle): an action that happened before another past moment in the story.",
+  fut:"Future with will: a decision, promise or prediction made at that moment.",
+  pp:"Present perfect (has/have + past participle): connects the past with now, here signalled by words like already, yet, just, ever, never, since or for."
+};
+function tenseItems(st,r){
+  const sents=st.text.join(" ").split(/(?<=[.!?”])\s+/);const found={past:[],pastc:[],pastp:[],fut:[],pp:[]};
+  sents.forEach(sent=>{
+    if(sent.length>220||sent.split(/\s+/).length<6||!/^[“"A-Z]/.test(sent))return;
+    const toks=[...sent.matchAll(/[A-Za-z']+/g)].map(m=>({w:m[0],i:m.index}));
+    toks.forEach((t,k)=>{
+      const w=t.w.toLowerCase(),prev=k?toks[k-1].w.toLowerCase():"",nx=toks[k+1]?toks[k+1].w.toLowerCase():"";
+      const prevO=k?toks[k-1].w:"";const plural=PLURAL.has(prev)||(/s$/.test(prev)&&!/^[A-Z]/.test(prevO)&&!/(ss|is|us|'s)$/.test(prev));
+      if(t.i<2)return;
+      if(w==="had"&&FORM["pp:"+nx]&&!NOSUBJ.has(prev)||w==="had"&&FORM["pp:"+nx]&&/^[a-z]+$/.test(prev)&&!["had","has","have","to"].includes(prev)){
+        const v=VB[FORM["pp:"+nx].b];if(v)found.pastp.push({sent,start:t.i,len:toks[k+1].i+toks[k+1].w.length-t.i,v,pl:false,kind:"pastp"});return}
+      if((w==="was"||w==="were")&&FORM["ing:"+nx]){const v=VB[FORM["ing:"+nx].b];found.pastc.push({sent,start:t.i,len:toks[k+1].i+toks[k+1].w.length-t.i,v,pl:w==="were",kind:"pastc"});return}
+      if(w==="will"&&FORM["base:"+nx]&&nx!=="be"){const v=VB[nx];found.fut.push({sent,start:t.i,len:toks[k+1].i+toks[k+1].w.length-t.i,v,pl:false,kind:"fut"});return}
+      if((w==="has"||w==="have")&&FORM["pp:"+nx]&&!["would","could","should","might","must","to"].includes(prev)&&/\b(already|yet|just|ever|never|since|for)\b/i.test(sent)){const v=VB[FORM["pp:"+nx].b];found.pp.push({sent,start:t.i,len:toks[k+1].i+toks[k+1].w.length-t.i,v,pl:w==="have",kind:"pp"});return}
+      if(FORM[w]&&FORM[w].t==="past"&&!NOSUBJ.has(prev)&&w!=="had"){const v=VB[FORM[w].b];if(v&&v.past!==v.b)found.past.push({sent,start:t.i,len:t.w.length,v,pl:plural,kind:"past"})}
+    });
+  });
+  const opts=it=>{const v=it.v,pl=it.pl,has=pl?"have":"has",was=pl?"were":"was",pres=pl?v.b:v.s;
+    switch(it.kind){
+      case "past":return [v.past,pres,"will "+v.b,has+" "+v.pp];
+      case "pastc":return [was+" "+v.ing,(pl?"are ":"is ")+v.ing,has+" "+v.pp,"will "+v.b];
+      case "pastp":return ["had "+v.pp,"has "+v.pp,v.s,"will have "+v.pp];
+      case "fut":return ["will "+v.b,v.past,"had "+v.pp,"has "+v.pp];
+      case "pp":return [has+" "+v.pp,"had "+v.pp,"will "+v.b,pres];}};
+  const order=["pastp","pastc","pp","fut","past"],out=[],used=new Set();
+  for(const kind of order){for(const it of sshuffle(found[kind],r)){if(out.length>=3)break;if(used.has(it.sent))continue;used.add(it.sent);out.push(it);if(kind!=="past")break}}
+  while(out.length<3){const extra=sshuffle(found.past,r).find(it=>!out.includes(it)&&!used.has(it.sent+it.start));if(!extra)break;used.add(extra.sent+extra.start);out.push(extra)}
+  return out.slice(0,3).map(it=>{const orig=it.sent.substr(it.start,it.len);const o=opts(it);const q=it.sent.slice(0,it.start)+"___ ("+it.v.b+")"+it.sent.slice(it.start+it.len);
+    return {sec:"Tenses",q,o:[cap(orig,o[0]),...o.slice(1).map(x=>x)],x:TEXP[it.kind]+` In the story: “${orig}”.`}});
+}
+const STOPW=new Set("about after again also because before being between could during every first great their there these thing think those through under until where which while would other another always never really little still since without people around something nothing anything everyone someone".split(" "));
+function moreItems(st,r){
+  const out=[];const allGl=STORIES.flatMap(x=>x.gl.map(g=>g[1]));
+  sshuffle(st.gl,r).slice(0,2).forEach(([w,m])=>{const dis=sshuffle(allGl.filter(x=>x!==m),r).slice(0,3);out.push({sec:"Words",q:`In the story, “${w}” means…`,o:[m,...dis],x:`“${w}”: ${m}.`})});
+  const words=[...new Set(st.text.join(" ").match(/\b[a-z]{5,}\b/g)||[])].filter(w=>!STOPW.has(w));
+  const sents=sshuffle(st.text.join(" ").split(/(?<=[.!?”])\s+/).filter(s=>s.split(" ").length>=7&&s.split(" ").length<=28),r);
+  for(const sent of sents){if(out.length>=3)break;
+    const cand=sshuffle((sent.match(/\b[a-z]{5,}\b/g)||[]).filter(w=>!STOPW.has(w)&&sent.split(new RegExp("\\b"+w+"\\b")).length===2),r)[0];if(!cand)continue;
+    const dis=sshuffle(words.filter(w=>w!==cand&&Math.abs(w.length-cand.length)<=3&&!new RegExp("\\b"+w+"\\b").test(sent)),r).slice(0,3);if(dis.length<3)continue;
+    out.push({sec:"Words",q:"Complete the sentence from the story: “"+sent.replace(new RegExp("\\b"+cand+"\\b"),"___")+"”",o:[cand,...dis],x:`The story says: “${sent}”`});
+  }
+  return out.slice(0,3);
+}
+function storyQuestions(st){
+  if(st._allq)return st._allq;const r=seeded(st.id);
+  const base=st.qs.map(q=>({...q,sec:"Comprehension"}));
+  st._allq=[...base,...moreItems(st,r),...tenseItems(st,r)];
+  st._ord=st._allq.map(q=>sshuffle(q.o.map((t,i)=>({t,i})),r));
+  return st._allq;
+}
+
 function renderStory(){
-  const st=storyOpen,done=Object.keys(sAns).length===st.qs.length;
-  if(!st._ord)st._ord=st.qs.map(q=>shuffle(q.o.map((t,i)=>({t,i}))));
+  const st=storyOpen,QS=storyQuestions(st),n=QS.length,done=Object.keys(sAns).length===n;
+  const score=Object.values(sAns).filter(x=>x===0).length;
+  const SECT={Comprehension:"Comprehension",Words:"Words from the story",Tenses:"Tenses in the story"};
+  let qhtml="",lastSec="";
+  QS.forEach((q,qi)=>{if(q.sec!==lastSec){lastSec=q.sec;qhtml+=`<h2 class="sh">${SECT[q.sec]}${q.sec==="Tenses"?` <span class="small" style="font-weight:400">· choose the correct form</span>`:""}</h2>`}
+    const a=sAns[qi];
+    qhtml+=`<div class="card" style="margin-bottom:10px"><p class="q" style="font-size:19px">${qi+1}. ${esc(q.q).replace(/___/g,"<b>_____</b>")}</p><div class="opts">${st._ord[qi].map(o=>{const cls=a===undefined?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-q="${qi}" data-i="${o.i}" ${a!==undefined?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div>${a!==undefined&&q.x?`<div class="explain">${a===0?"✅ ":"❌ "}${esc(q.x)}</div>`:""}</div>`});
   $("#readBox").innerHTML=`<button class="sbtn" id="stBack">← All stories</button>
     <div class="card story" style="margin-top:12px"><div class="fhead"><div class="tags"><span class="tag ${st.lvl}">${st.lvl}</span><span class="tag cat">${esc(st.th)}</span></div>${canSpeak?`<span style="display:flex;gap:6px"><button class="icon" id="stPlay" aria-label="Listen to the story">🔊</button><button class="icon" id="stSlow" aria-label="Listen slowly">🐢</button></span>`:""}</div>
       ${st.book?`<p class="small" style="margin:0;font-weight:700;color:var(--violet)">${esc(st.book)} · Chapter ${st.ch}</p>`:""}<h2 style="margin:0 0 8px;font-size:24px">${esc(st.t)}</h2>
       ${canSpeak?`<div class="player"><button class="btn primary" id="plMain">▶ Listen</button><button class="btn" id="plSlow">🐢 Slowly</button><button class="btn" id="plStop" disabled>⏹ Stop</button></div><p class="small" style="cursor:default;font-size:14px;margin:0 0 12px">Tip: tap a paragraph to listen from there.</p>`:""}
       ${st.text.map((p,i)=>`<p data-p="${i}">${esc(p)}</p>`).join("")}</div>
     <h2 class="sh">Key words</h2><div class="card"><ul class="vlist gloss">${st.gl.map(([w,m])=>`<li><b>${esc(w)}</b> <span class="small">: ${esc(m)}</span></li>`).join("")}</ul></div>
-    <h2 class="sh">Questions</h2>
-    ${st.qs.map((q,qi)=>`<div class="card" style="margin-bottom:10px"><p class="q" style="font-size:19px">${qi+1}. ${esc(q.q)}</p><div class="opts">${st._ord[qi].map(o=>{const a=sAns[qi];const cls=a===undefined?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-q="${qi}" data-i="${o.i}" ${a!==undefined?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div></div>`).join("")}
-    ${done?`<div class="card" style="text-align:center"><p class="big">${Object.values(sAns).filter(x=>x===0).length}/3</p><p>${Object.values(sAns).filter(x=>x===0).length===3?"Perfect understanding!":"Read the story again and check the key words."}</p><div class="btns one"><button class="btn primary" id="stNext">${st.book&&STORIES.some(x=>x.book===st.book&&x.ch===st.ch+1)?`Next chapter →`:"🎲 Another unread text"}</button></div></div>`:""}`;
+    ${qhtml}
+    ${done?`<div class="card" style="text-align:center"><p class="big">${score}/${n}</p><p>${score===n?"Perfect! Comprehension, vocabulary and tenses all correct.":score>=n*.7?"Well done. Check the explanations of the ones you missed.":"Read the text again, then try another one."}</p><div class="btns one"><button class="btn primary" id="stNext">${st.book&&STORIES.some(x=>x.book===st.book&&x.ch===st.ch+1)?`Next chapter →`:"🎲 Another unread text"}</button></div></div>`:`<p class="small" style="text-align:center">${Object.keys(sAns).length} of ${n} answered</p>`}`;
   $("#stBack").onclick=()=>{storyOpen=null;renderRead()};
   const pl=$("#stPlay");if(pl){pl.onclick=()=>playStory(st,0,false);$("#stSlow").onclick=()=>playStory(st,0,true)}
   const pm=$("#plMain");if(pm){pm.onclick=()=>{if(PLAYER.id===st.id&&PLAYER.state!=="idle")pauseStory();else playStory(st,0,false)};$("#plSlow").onclick=()=>playStory(st,PLAYER.id===st.id&&PLAYER.state!=="idle"?PLAYER.i:0,true);$("#plStop").onclick=stopStory}
   if(canSpeak)document.querySelectorAll(".story p[data-p]").forEach(p=>p.onclick=()=>playStory(st,+p.dataset.p,PLAYER.slow));
   updatePlayer();
   document.querySelectorAll("#readBox .opt").forEach(b=>b.onclick=()=>{const qi=+b.dataset.q;if(sAns[qi]!==undefined)return;sAns[qi]=+b.dataset.i;
-    if(Object.keys(sAns).length===st.qs.length){const sc=Object.values(sAns).filter(x=>x===0).length;const first=S.read[st.id]===undefined;S.read[st.id]=Math.max(S.read[st.id]||0,sc);addXP(first?15:5);save()}
+    if(Object.keys(sAns).length===n){const sc=Object.values(sAns).filter(x=>x===0).length;const first=S.read[st.id]===undefined;S.readN=S.readN||{};S.read[st.id]=Math.max(first?0:S.read[st.id],sc);S.readN[st.id]=n;addXP(first?20:5);save()}
     const y=window.scrollY;renderStory();window.scrollTo({top:y})});
   const nx=$("#stNext");if(nx)nx.onclick=()=>{const nxt=st.book?(STORIES.find(x=>x.book===st.book&&x.ch===st.ch+1)||randomUnread(st.id)):randomUnread(st.id);openStory(nxt||STORIES[Math.floor(Math.random()*STORIES.length)])};
 }
-
 
 /* ================= TENSES ================= */
 function renderTenses(){
@@ -2788,7 +2867,7 @@ $("#remBtn").onclick=()=>{
   $("#remNote").textContent="Open the file and tap “Add to Calendar”. You'll get a notification every day at "+$("#remTime").value+".";
 };
 // sync
-function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
+function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read,readN:S.readN||{}};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
 function mergeCode(code){
   const d=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^OE1:/,"")))));if(!d||d.v!==1)throw new Error("bad");
   Object.entries(d.srs||{}).forEach(([w,c])=>{const m=S.srs[w];if(!m||(c.t||0)>(m.t||0))S.srs[w]=c});
@@ -2799,7 +2878,7 @@ function mergeCode(code){
   S.tests=S.tests||[];S.read=S.read||{};
   (d.tests||[]).forEach(t=>{if(!S.tests.some(x=>x.d===t.d&&x.lvl===t.lvl&&JSON.stringify(x.s)===JSON.stringify(t.s)))S.tests.push(t)});
   S.tests.sort((a,b)=>a.d.localeCompare(b.d));
-  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});
+  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});S.readN=S.readN||{};Object.entries(d.readN||{}).forEach(([k,v])=>{S.readN[k]=Math.max(S.readN[k]||0,v)});
   Object.entries(S.srs).forEach(([w,c])=>{if(c.ivl>=1){S.known[w]=1;delete S.review[w]}else{S.review[w]=1;delete S.known[w]}});
   save();renderHeader();buildDeck();renderRes();renderStats();
 }
