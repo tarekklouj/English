@@ -257,6 +257,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
   <section id="v-words">
     <h1>Words &amp; phrases</h1>
     <p class="sub">Smart review: cards come back just before you forget them.</p>
+    <div class="card" id="sesCard" style="margin-bottom:12px;background:var(--greenSoft)"></div>
     <div class="card todaycard" id="today"></div>
     <div class="chips" id="vocabCats"></div>
     <div class="meta"><span id="vocabCount"></span><span id="vocabKnown"></span></div>
@@ -351,6 +352,7 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:700}
     <div id="tensesBox"></div>
   </section>
 
+  <section id="v-session" hidden><div id="sesBox"></div></section>
   <section id="v-level" hidden><div id="levelBox"></div></section>
 
   <section id="v-listen" hidden>
@@ -2232,7 +2234,7 @@ let vCat="Due",deck=[],vi=0,flipped=false,practice=false;
 const isDue=v=>S.srs[v.w]&&S.srs[v.w].due<=Date.now();
 const learned=()=>VOCAB.filter(v=>S.srs[v.w]&&S.srs[v.w].ivl>=1).length;
 function catPool(){if(vCat==="Due"||vCat==="All")return VOCAB;if(["B1","B2","C1","C2"].includes(vCat))return VOCAB.filter(v=>v.lvl===vCat);return VOCAB.filter(v=>v.c===vCat)}
-function renderToday(){
+function renderToday(){if(typeof renderSessionCard==="function")renderSessionCard();
   const dx=S.dxp[today()]||0,due=VOCAB.filter(isDue).length,pct=Math.min(100,dx/S.goal*100);
   $("#today").innerHTML=`<div class="trow"><b>${dx>=S.goal?"🎉 Daily goal reached!":"Today"}</b><button class="sbtn" id="goalBtn" aria-label="Change daily goal">Goal: ${S.goal} XP</button></div>
     <div class="progress goal ${dx>=S.goal?"done":""}"><i style="width:${pct}%"></i></div>
@@ -2395,6 +2397,71 @@ function buildLevelTest(){
   return out;
 }
 let LEVEL_BANK_SIZE=0;
+/* ================= DAILY SESSION (10 min) ================= */
+let SES={steps:[],i:0,ans:null,flipped:false,res:[],on:false};
+function srsApply(v,g){const c=Object.assign({ivl:0,ease:2.5},S.srs[v.w]),pv=preview(v);
+  if(g===0){c.ivl=0;c.ease=Math.max(1.3,c.ease-.2);c.due=Date.now()+60e3;S.review[v.w]=1;delete S.known[v.w];c.lapses=(c.lapses||0)+1}
+  else{c.ivl=g===1?pv.good:pv.easy;if(g===2)c.ease+=.15;c.due=Date.now()+c.ivl*DAY;S.known[v.w]=1;delete S.review[v.w]}
+  c.t=Date.now();S.srs[v.w]=c;addXP(2)}
+function buildSession(){
+  const due=shuffle(VOCAB.filter(isDue)),fresh=shuffle(VOCAB.filter(v=>!S.srs[v.w]));
+  const cards=[...due,...fresh].slice(0,5);
+  const lv=S.tests&&S.tests.length?S.tests[S.tests.length-1].lvl:"B1",order=["A2","B1","B2","C1","C2"],maxI=Math.max(1,order.indexOf(lv)+1);
+  const okLvl=q=>{const L=q.lv||QLV[q.c];return !L||order.indexOf(L)<=maxI};
+  const quiz=shuffle(QUIZ.filter(q=>okLvl(q))).slice(0,3);
+  const dict=shuffle(VOCAB.filter(v=>v.e.length<90&&!/[—“]/.test(v.e)&&order.indexOf(v.lvl)<=maxI))[0];
+  const say=shuffle(VOCAB.filter(v=>v.e.length<80&&order.indexOf(v.lvl)<=maxI))[0];
+  return [...cards.map(v=>({type:"card",v})),...quiz.map(q=>({type:"quiz",q,o:shuffle(q.o.map((t,i)=>({t,i})))})),{type:"dict",e:dict.e},{type:"say",e:say.e}];
+}
+function renderSessionCard(){
+  const done=S.sess&&S.sess[today()],box=$("#sesCard");if(!box)return;
+  box.innerHTML=done?`<div class="between"><b>✅ Today's session done</b><button class="sbtn" id="sesGo">Do another</button></div><p class="small" style="margin:6px 0 0">Great job. Come back tomorrow to keep your streak.</p>`
+    :`<div class="between" style="align-items:flex-start"><div><b style="font-size:18px">▶ Today's session</b><p class="small" style="margin:4px 0 0">10 minutes: 5 cards, 3 quiz questions, 1 dictation, 1 phrase to say.</p></div><span style="font-size:26px">⏱</span></div><button class="btn primary" id="sesGo" style="width:100%;margin-top:12px">Start</button>`;
+  $("#sesGo").onclick=()=>{SES={steps:buildSession(),i:0,ans:null,flipped:false,res:[],on:true};showView("session");renderSession()};
+}
+function sesNext(ok){SES.res.push(!!ok);SES.i++;SES.ans=null;SES.flipped=false;renderSession();window.scrollTo({top:0})}
+function renderSession(){
+  const box=$("#sesBox"),st=SES.steps[SES.i],n=SES.steps.length;
+  if(!st){finishSession();return}
+  const kind={card:"🗂️ Words",quiz:"🎯 Quiz",dict:"🎧 Dictation",say:"🎤 Say it"}[st.type];
+  let body="";
+  if(st.type==="card"){const v=st.v;
+    body=`<div class="card flash"><div class="fhead"><div class="tags"><span class="tag ${v.lvl}">${v.lvl}</span><span class="tag cat">${esc(v.c)}</span></div>${canSpeak?`<button class="icon" id="sSay">🔊</button>`:""}</div><p class="word">${esc(v.w)}</p>
+      ${SES.flipped?`<p class="def">${esc(v.d)}</p><div class="ex"><span>${esc(v.e)}</span></div>`:`<p class="hint">Do you know what it means?</p>`}</div>
+      ${SES.flipped?`<div class="btns three"><button class="btn no" data-r="0">Again</button><button class="btn ok" data-r="1">Good</button><button class="btn easy" data-r="2">Easy</button></div>`:`<div class="btns one"><button class="btn primary" id="sFlip">Show answer</button></div>`}`}
+  else if(st.type==="quiz"){const q=st.q,a=SES.ans;
+    body=`<div class="card"><p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p><div class="opts">${st.o.map(o=>{const cls=a===null?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-i="${o.i}" ${a!==null?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div>
+      ${a!==null?`<div class="explain">${a===0?"✅ ":"❌ "}${esc(q.x||"")}</div><div class="btns one"><button class="btn primary" id="sNext">Continue</button></div>`:""}</div>`}
+  else if(st.type==="dict"){
+    body=`<div class="card"><p class="q">Listen and type what you hear.</p>${canSpeak?`<div class="tools"><button class="btn primary" id="dPlay">🔊 Play</button><button class="btn" id="dSlow">🐢 Slowly</button></div>`:`<p class="small">Audio isn't available here. Read and copy: <b>${esc(st.e)}</b></p>`}
+      <textarea class="dictin" id="dIn" placeholder="Type the sentence…" ${SES.ans!==null?"disabled":""}></textarea>
+      ${SES.ans===null?`<div class="btns one"><button class="btn primary" id="dCheck">Check</button></div>`:`<div class="explain">${SES.ans.ok?"✅ Well heard!":"❌ Almost. Red words were missed."}<div style="margin-top:8px">${SES.ans.html}</div><div class="small" style="margin-top:8px">${esc(st.e)}</div></div><div class="btns one"><button class="btn primary" id="sNext">Continue</button></div>`}</div>`}
+  else if(st.type==="say"){
+    body=`<div class="card"><p class="q">Read this sentence out loud.</p><div class="ex" style="font-style:normal;font-size:19px"><span>${esc(st.e)}</span>${canSpeak?`<button class="icon" id="sSay">🔊</button>`:""}</div>
+      ${SR?`<div class="tools" style="margin-top:12px"><button class="btn primary" id="sMic">🎤 Speak</button></div>`:`<p class="small">Microphone not available here: listen, repeat out loud twice, then continue.</p>`}
+      <div class="pron" id="sPron">${SES.ans?SES.ans.html:""}</div>
+      <div class="btns one"><button class="btn ${SES.ans||!SR?"primary":""}" id="sNext">${SES.ans||!SR?"Continue":"Skip"}</button></div></div>`}
+  box.innerHTML=`<div class="between" style="margin:6px 0 10px"><button class="sbtn" id="sQuit">✕ Quit</button><span class="small">${kind} · ${SES.i+1} of ${n}</span></div>
+    <div class="progress"><i style="width:${SES.i/n*100}%;background:linear-gradient(90deg,#1D8357,#2C58C9)"></i></div>${body}`;
+  $("#sQuit").onclick=()=>{if(confirm("Quit today's session?")){SES.on=false;showView("words")}};
+  const sy=$("#sSay");if(sy)sy.onclick=()=>speak(st.type==="card"?st.v.w:st.e);
+  const fl=$("#sFlip");if(fl)fl.onclick=()=>{SES.flipped=true;renderSession()};
+  document.querySelectorAll("#sesBox [data-r]").forEach(b=>b.onclick=()=>{const g=+b.dataset.r;srsApply(st.v,g);sesNext(g>0)});
+  document.querySelectorAll("#sesBox .opt").forEach(b=>b.onclick=()=>{SES.ans=+b.dataset.i;if(SES.ans===0)addXP(5);renderSession()});
+  const dp=$("#dPlay");if(dp){dp.onclick=()=>speak(st.e);$("#dSlow").onclick=()=>speak(st.e,true)}
+  const dc=$("#dCheck");if(dc)dc.onclick=()=>{const got=$("#dIn").value.trim();if(!got)return $("#dIn").focus();const r=compare(st.e,got);SES.ans={ok:r.score>=.9,html:r.html};if(SES.ans.ok)addXP(5);renderSession()};
+  const mi=$("#sMic");if(mi){let rec=null,heard="";mi.onclick=()=>{if(rec){rec.stop();return}
+    try{rec=listen(t=>{heard=t;$("#sPron").innerHTML=`<span class="small">Listening… ${esc(t)}</span>`},()=>{rec=null;mi.textContent="🎤 Speak";if(!heard)return;const r=compare(st.e,heard),pct=Math.round(r.score*100);SES.ans={ok:pct>=85,html:`<div>${r.html}</div><p class="small" style="margin:6px 0 0">${pct>=85?"🎯 Great pronunciation!":pct>=60?"👍 Close. Listen and try again.":"🔁 Try again more slowly."} (${pct}%)</p>`};if(pct>=85)addXP(3);renderSession()},e=>{$("#sPron").innerHTML=`<span class="small">${e==="no-speech"?"I didn't hear anything.":MIC_ERR}</span>`});mi.textContent="⏹ Stop"}catch(e){$("#sPron").innerHTML=`<span class="small">${MIC_ERR}</span>`}}}
+  const nx=$("#sNext");if(nx)nx.onclick=()=>{const ok=st.type==="quiz"?SES.ans===0:st.type==="dict"?SES.ans&&SES.ans.ok:st.type==="say"?(SES.ans?SES.ans.ok:true):true;sesNext(ok)};
+}
+function finishSession(){
+  SES.on=false;S.sess=S.sess||{};const first=!S.sess[today()];S.sess[today()]=1;if(first)addXP(15);save();
+  const ok=SES.res.filter(Boolean).length,n=SES.res.length;
+  $("#sesBox").innerHTML=`<div class="lvhero" style="background:linear-gradient(135deg,#1D8357,#2C58C9)"><div class="badge">✅</div><h1>Session complete!</h1><p>${ok} / ${n} correct${first?" · +15 bonus XP":""}</p><p>🔥 Streak: ${streak()} day${streak()>1?"s":""}</p></div>
+    <div class="btns one"><button class="btn primary" id="sesDone">Back to Words</button></div>`;
+  $("#sesDone").onclick=()=>{showView("words");renderSessionCard()};
+}
+
 /* ================= LEVEL VIEW ================= */
 let LT={qs:[],i:0,on:false,ans:null};
 const LV_ORDER=["A2","B1","B2","C1","C2"];
@@ -2822,7 +2889,7 @@ function renderRes(){
 }
 
 /* ================= PROGRESS / SETTINGS ================= */
-function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me","level"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me"){renderStats();renderSyncCard()}if(v==="level"&&!LT.on)renderLevelHome();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
+function showView(v){document.querySelectorAll("nav button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")});["words","quiz","talk","write","read","tenses","listen","me","level","session"].forEach(k=>$("#v-"+k).hidden=k!==v);if(v==="me"){renderStats();renderSyncCard()}if(v==="level"&&!LT.on)renderLevelHome();if(v==="tenses")renderTenses();if(v==="read")renderRead();else if(typeof PLAYER!=="undefined"&&PLAYER.state!=="idle")stopStory();window.scrollTo({top:0})}
 $("#meBtn").onclick=()=>showView("me");
 const dkey=d=>d.toISOString().slice(0,10);
 function wotd(){return VOCAB[(Math.floor(Date.now()/DAY)*37)%VOCAB.length]}
@@ -2867,7 +2934,7 @@ $("#remBtn").onclick=()=>{
   $("#remNote").textContent="Open the file and tap “Add to Calendar”. You'll get a notification every day at "+$("#remTime").value+".";
 };
 // sync
-function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read,readN:S.readN||{}};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
+function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read,readN:S.readN||{},sess:S.sess||{}};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
 function mergeCode(code){
   const d=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^OE1:/,"")))));if(!d||d.v!==1)throw new Error("bad");
   Object.entries(d.srs||{}).forEach(([w,c])=>{const m=S.srs[w];if(!m||(c.t||0)>(m.t||0))S.srs[w]=c});
@@ -2878,7 +2945,7 @@ function mergeCode(code){
   S.tests=S.tests||[];S.read=S.read||{};
   (d.tests||[]).forEach(t=>{if(!S.tests.some(x=>x.d===t.d&&x.lvl===t.lvl&&JSON.stringify(x.s)===JSON.stringify(t.s)))S.tests.push(t)});
   S.tests.sort((a,b)=>a.d.localeCompare(b.d));
-  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});S.readN=S.readN||{};Object.entries(d.readN||{}).forEach(([k,v])=>{S.readN[k]=Math.max(S.readN[k]||0,v)});
+  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});S.sess=Object.assign(S.sess||{},d.sess||{});S.readN=S.readN||{};Object.entries(d.readN||{}).forEach(([k,v])=>{S.readN[k]=Math.max(S.readN[k]||0,v)});
   Object.entries(S.srs).forEach(([w,c])=>{if(c.ivl>=1){S.known[w]=1;delete S.review[w]}else{S.review[w]=1;delete S.known[w]}});
   save();renderHeader();buildDeck();renderRes();renderStats();
 }
