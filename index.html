@@ -2673,7 +2673,7 @@ function buildDeck(){
   ts.onchange=()=>{vCat=ts.value||"All";practice=false;buildDeck()};
   const p=catPool(),d=shuffle(p.filter(isDue)),fresh=shuffle(p.filter(v=>!S.srs[v.w]));
   if(vCat==="Due"&&!practice)deck=[...d,...fresh.slice(0,10)];
-  else deck=[...d,...fresh,...shuffle(p.filter(v=>S.srs[v.w]&&!isDue(v)))];
+  else deck=[...d,...fresh,...p.filter(v=>S.srs[v.w]&&!isDue(v)).sort((a,b)=>(S.srs[a.w].t||0)-(S.srs[b.w].t||0))];
   vi=0;flipped=false;renderCard();
 }
 function fmtIvl(d){return d<1?"<1 min":d<30?`${d} d`:`${Math.round(d/30)} mo`}
@@ -2736,8 +2736,8 @@ $("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assig
 let qCat="All",qset=[],qi=0,qScore=0;
 function buildQuiz(){
   qset=qCat==="Level"?buildLevelTest():qCat==="Dictation"
-    ?shuffle(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e))).slice(0,10).map(e=>({dict:true,e}))
-    :shuffle(QUIZ.filter(q=>qCat==="All"||q.c===qCat)).slice(0,10);qi=0;qScore=0;
+    ?pickFresh(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e)).map(e=>({dict:true,e})),10)
+    :pickFresh(QUIZ.filter(q=>qCat==="All"||q.c===qCat),10);qi=0;qScore=0;
   chips($("#quizCats"),[{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
   renderQ();
 }
@@ -2745,18 +2745,20 @@ function renderQ(){
   $("#quizBar").style.width=(qi/qset.length*100)+"%";
   if(qi>=qset.length&&qCat==="Level"){showLevelResult();return}
   if(qi>=qset.length){
+    const pool=qCat==="Dictation"?VOCAB.filter(v=>v.e.length<85&&!/[—“]/.test(v.e)).map(v=>({dict:true,e:v.e})):QUIZ.filter(q=>qCat==="All"||q.c===qCat);
+    const seenTxt=`You've seen ${seenCount(pool)} of ${pool.length} questions in this category. New ones come first.`;
     const msg=qScore===qset.length?"Perfect score. Nothing to add.":qScore>=qset.length*.7?"Well done. Read the explanations for the ones you missed.":"Try another round: repetition is what works.";
-    $("#quizCard").innerHTML=`<p class="big">${qScore}/${qset.length}</p><p>${msg}</p><div class="btns one"><button class="btn primary" id="again">New round</button></div>`;
+    $("#quizCard").innerHTML=`<p class="big">${qScore}/${qset.length}</p><p>${msg}</p><p class="small">${seenTxt}</p><div class="btns one"><button class="btn primary" id="again">New round</button></div>`;
     $("#again").onclick=buildQuiz;return;
   }
   const q=qset[qi];
   if(q.dict){renderDict(q);return}
   const order=shuffle(q.o.map((t,i)=>({t,i})));
-  $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${esc(q.lv?"Level test · "+q.lv:q.c)}</span></div>
+  $("#quizCard").innerHTML=`<div class="meta"><span>Question ${qi+1} of ${qset.length}</span><span>${isNewQ(q)?"🆕 New · ":"🔁 Review · "}${esc(q.lv?"Level test · "+q.lv:q.c)}</span></div>
     <p class="q">${esc(q.q).replace(/___/g,"<b>_____</b>")}</p>
     <div class="opts">${order.map(o=>`<button class="opt" data-i="${o.i}">${esc(o.t)}</button>`).join("")}</div><div id="qx"></div>`;
   $("#quizCard").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-    const ok=+b.dataset.i===0;q.ok=ok;
+    const ok=+b.dataset.i===0;q.ok=ok;markSeen(q,ok);
     $("#quizCard").querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===0)x.classList.add("right")});
     if(!ok)b.classList.add("wrong");
     if(ok){qScore++;addXP(5)}S.quizRight+=ok?1:0;S.quizTotal++;save();markActive();
@@ -2775,7 +2777,7 @@ function renderDict(q){
   $("#dPlay").onclick=()=>speak(q.e);$("#dSlow").onclick=()=>speak(q.e,true);
   $("#dCheck").onclick=()=>{
     const got=$("#dIn").value.trim();if(!got){$("#dIn").focus();return}
-    const r=compare(q.e,got),ok=r.score>=.9;
+    const r=compare(q.e,got),ok=r.score>=.9;markSeen(q,ok);
     if(ok){qScore++;addXP(5)}S.quizRight+=ok?1:0;S.quizTotal++;save();
     $("#dCheck").disabled=true;$("#dIn").disabled=true;
     $("#qx").innerHTML=`<div class="explain">${ok?"✅ Well heard!":"❌ Almost. The red words were missed or wrong."}<div style="margin-top:8px">${r.html}</div><div class="small" style="margin-top:8px">${esc(q.e)}</div></div><div class="btns one"><button class="btn primary" id="qn">${qi+1<qset.length?"Next sentence":"See my score"}</button></div>`;
@@ -2800,6 +2802,22 @@ function renderDict(q){
   QUIZ.push(...gen);
 })();
 
+/* ================= ANTI-REPETITION MEMORY ================= */
+function qhash(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)}return (h>>>0).toString(36)}
+function qid(q){return q.dict||q.say?"d:"+qhash(q.e):q.mean?"m:"+q.mean.w:"q:"+qhash(q.c+"|"+q.q+"|"+q.o[0])}
+function markSeen(q,ok){S.qs=S.qs||{};const id=qid(q),p=S.qs[id]||{};S.qs[id]={t:Date.now(),ok:!!ok,n:(p.n||0)+1}}
+const isNewQ=q=>!(S.qs&&S.qs[qid(q)]);
+/* priorité : jamais vu → raté il y a plus d'un jour → vu le plus anciennement → vu ces 3 derniers jours */
+function pickFresh(list,n){
+  const now=Date.now(),seen=S.qs||{};
+  const scored=list.map(q=>{const h=seen[qid(q)];let p,k;
+    if(!h){p=0;k=Math.random()}else if(!h.ok&&now-h.t>864e5){p=1;k=h.t}else if(now-h.t>3*864e5){p=2;k=h.t}else{p=3;k=h.t}
+    return {q,p,k}});
+  scored.sort((a,b)=>a.p-b.p||a.k-b.k);
+  return shuffle(scored.slice(0,n).map(x=>x.q));
+}
+function seenCount(list){const s2=S.qs||{};return list.filter(q=>s2[qid(q)]).length}
+
 /* ================= LEVEL TEST ================= */
 const QLV={"Prepositions":"B1","Common mistakes":"B1","Everyday English":"B1","Travel":"B1","Restaurant":"B1","Café":"B1","Train":"B1","Daily life":"B1","Tenses":"B2","Grammar":"B2","Phrasal verbs":"B2","Collocations":"B2","Idioms":"C1","Advanced grammar":"C1","Nuance":"C2"};
 function meaningQ(v){const dis=shuffle(VOCAB.filter(x=>x.lvl===v.lvl&&x.w!==v.w&&x.d!==v.d)).slice(0,3).map(x=>x.d);return {lv:v.lvl,c:v.lvl,q:`What does “${v.w}” mean?`,o:[v.d,...dis],x:`“${v.w}”: ${v.d} Example: ${v.e}`}}
@@ -2812,7 +2830,7 @@ function levelBank(){
 }
 function buildLevelTest(){
   const bank=levelBank(),out=[];LEVEL_BANK_SIZE=Object.values(bank).reduce((a,b)=>a+b.length,0);
-  ["B1","B2","C1","C2"].forEach(L=>{shuffle(bank[L]).slice(0,10).forEach(it=>out.push(it.mean?meaningQ(it.mean):it))});
+  ["B1","B2","C1","C2"].forEach(L=>{pickFresh(bank[L],10).forEach(it=>{const q=it.mean?meaningQ(it.mean):it;q._src=it;out.push(q)})});
   return out;
 }
 let LEVEL_BANK_SIZE=0;
@@ -2827,9 +2845,9 @@ function buildSession(){
   const cards=[...due,...fresh].slice(0,5);
   const lv=S.tests&&S.tests.length?S.tests[S.tests.length-1].lvl:"B1",order=["A2","B1","B2","C1","C2"],maxI=Math.max(1,order.indexOf(lv)+1);
   const okLvl=q=>{const L=q.lv||QLV[q.c];return !L||order.indexOf(L)<=maxI};
-  const quiz=shuffle(QUIZ.filter(q=>okLvl(q))).slice(0,3);
-  const dict=shuffle(VOCAB.filter(v=>v.e.length<90&&!/[—“]/.test(v.e)&&order.indexOf(v.lvl)<=maxI))[0];
-  const say=shuffle(VOCAB.filter(v=>v.e.length<80&&order.indexOf(v.lvl)<=maxI))[0];
+  const quiz=pickFresh(QUIZ.filter(q=>okLvl(q)),3);
+  const dict=pickFresh(VOCAB.filter(v=>v.e.length<90&&!/[—“]/.test(v.e)&&order.indexOf(v.lvl)<=maxI).map(v=>({dict:true,e:v.e})),1)[0];
+  const say=pickFresh(VOCAB.filter(v=>v.e.length<80&&order.indexOf(v.lvl)<=maxI).map(v=>({say:true,e:v.e})),1)[0];
   return [...cards.map(v=>({type:"card",v})),...quiz.map(q=>({type:"quiz",q,o:shuffle(q.o.map((t,i)=>({t,i})))})),{type:"dict",e:dict.e},{type:"say",e:say.e}];
 }
 function renderSessionCard(){
@@ -2866,12 +2884,12 @@ function renderSession(){
   const sy=$("#sSay");if(sy)sy.onclick=()=>speak(st.type==="card"?st.v.w:st.e);
   const fl=$("#sFlip");if(fl)fl.onclick=()=>{SES.flipped=true;renderSession()};
   document.querySelectorAll("#sesBox [data-r]").forEach(b=>b.onclick=()=>{const g=+b.dataset.r;srsApply(st.v,g);sesNext(g>0)});
-  document.querySelectorAll("#sesBox .opt").forEach(b=>b.onclick=()=>{SES.ans=+b.dataset.i;if(SES.ans===0)addXP(5);renderSession()});
+  document.querySelectorAll("#sesBox .opt").forEach(b=>b.onclick=()=>{SES.ans=+b.dataset.i;markSeen(st.q,SES.ans===0);if(SES.ans===0)addXP(5);renderSession()});
   const dp=$("#dPlay");if(dp){dp.onclick=()=>speak(st.e);$("#dSlow").onclick=()=>speak(st.e,true)}
-  const dc=$("#dCheck");if(dc)dc.onclick=()=>{const got=$("#dIn").value.trim();if(!got)return $("#dIn").focus();const r=compare(st.e,got);SES.ans={ok:r.score>=.9,html:r.html};if(SES.ans.ok)addXP(5);renderSession()};
+  const dc=$("#dCheck");if(dc)dc.onclick=()=>{const got=$("#dIn").value.trim();if(!got)return $("#dIn").focus();const r=compare(st.e,got);SES.ans={ok:r.score>=.9,html:r.html};markSeen({dict:true,e:st.e},SES.ans.ok);if(SES.ans.ok)addXP(5);renderSession()};
   const mi=$("#sMic");if(mi){let rec=null,heard="";mi.onclick=()=>{if(rec){rec.stop();return}
     try{rec=listen(t=>{heard=t;$("#sPron").innerHTML=`<span class="small">Listening… ${esc(t)}</span>`},()=>{rec=null;mi.textContent="🎤 Speak";if(!heard)return;const r=compare(st.e,heard),pct=Math.round(r.score*100);SES.ans={ok:pct>=85,html:`<div>${r.html}</div><p class="small" style="margin:6px 0 0">${pct>=85?"🎯 Great pronunciation!":pct>=60?"👍 Close. Listen and try again.":"🔁 Try again more slowly."} (${pct}%)</p>`};if(pct>=85)addXP(3);renderSession()},e=>{$("#sPron").innerHTML=`<span class="small">${e==="no-speech"?"I didn't hear anything.":MIC_ERR}</span>`});mi.textContent="⏹ Stop"}catch(e){$("#sPron").innerHTML=`<span class="small">${MIC_ERR}</span>`}}}
-  const nx=$("#sNext");if(nx)nx.onclick=()=>{const ok=st.type==="quiz"?SES.ans===0:st.type==="dict"?SES.ans&&SES.ans.ok:st.type==="say"?(SES.ans?SES.ans.ok:true):true;sesNext(ok)};
+  const nx=$("#sNext");if(nx)nx.onclick=()=>{if(st.type==="say")markSeen({say:true,e:st.e},true);const ok=st.type==="quiz"?SES.ans===0:st.type==="dict"?SES.ans&&SES.ans.ok:st.type==="say"?(SES.ans?SES.ans.ok:true):true;sesNext(ok)};
 }
 function finishSession(){
   SES.on=false;S.sess=S.sess||{};const first=!S.sess[today()];S.sess[today()]=1;if(first)addXP(15);save();
@@ -2910,7 +2928,7 @@ function renderLevelQ(){
       <div class="opts">${q._o.map(o=>{const cls=a===null?"":o.i===0?"right":a===o.i?"wrong":"";return `<button class="opt ${cls}" data-i="${o.i}" ${a!==null?"disabled":""}>${esc(o.t)}</button>`}).join("")}</div>
       ${a!==null?`<div class="explain">${a===0?"✅ ":"❌ "}${esc(q.x||"")}</div><div class="btns one"><button class="btn primary" id="lvNext">${LT.i+1<LT.qs.length?"Next question":"See my level"}</button></div>`:""}</div>`;
   $("#lvQuit").onclick=()=>{if(confirm("Quit the test? Your answers won't be saved.")){LT.on=false;renderLevelHome()}};
-  document.querySelectorAll("#levelBox .opt").forEach(b=>b.onclick=()=>{LT.ans=+b.dataset.i;q.ok=LT.ans===0;renderLevelQ()});
+  document.querySelectorAll("#levelBox .opt").forEach(b=>b.onclick=()=>{LT.ans=+b.dataset.i;q.ok=LT.ans===0;markSeen(q._src||q,q.ok);renderLevelQ()});
   const n=$("#lvNext");if(n){n.onclick=()=>{LT.i++;LT.ans=null;renderLevelQ();window.scrollTo({top:0})};n.focus()}
 }
 function finishLevel(){
@@ -3353,7 +3371,7 @@ $("#remBtn").onclick=()=>{
   $("#remNote").textContent="Open the file and tap “Add to Calendar”. You'll get a notification every day at "+$("#remTime").value+".";
 };
 // sync
-function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read,readN:S.readN||{},sess:S.sess||{}};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
+function exportCode(){const d={v:1,srs:S.srs,dxp:S.dxp,days:S.days,xp:S.xp,heard:S.heard,links:S.links,quizRight:S.quizRight,quizTotal:S.quizTotal,coach:S.coach,goal:S.goal,tests:S.tests,read:S.read,readN:S.readN||{},sess:S.sess||{},qs:S.qs||{}};return "OE1:"+btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
 function mergeCode(code){
   const d=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^OE1:/,"")))));if(!d||d.v!==1)throw new Error("bad");
   Object.entries(d.srs||{}).forEach(([w,c])=>{const m=S.srs[w];if(!m||(c.t||0)>(m.t||0))S.srs[w]=c});
@@ -3364,7 +3382,7 @@ function mergeCode(code){
   S.tests=S.tests||[];S.read=S.read||{};
   (d.tests||[]).forEach(t=>{if(!S.tests.some(x=>x.d===t.d&&x.lvl===t.lvl&&JSON.stringify(x.s)===JSON.stringify(t.s)))S.tests.push(t)});
   S.tests.sort((a,b)=>a.d.localeCompare(b.d));
-  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});S.sess=Object.assign(S.sess||{},d.sess||{});S.readN=S.readN||{};Object.entries(d.readN||{}).forEach(([k,v])=>{S.readN[k]=Math.max(S.readN[k]||0,v)});
+  Object.entries(d.read||{}).forEach(([k,v])=>{S.read[k]=Math.max(S.read[k]||0,v)});S.sess=Object.assign(S.sess||{},d.sess||{});S.qs=S.qs||{};Object.entries(d.qs||{}).forEach(([k,v])=>{if(!S.qs[k]||(v.t||0)>(S.qs[k].t||0))S.qs[k]=v});S.readN=S.readN||{};Object.entries(d.readN||{}).forEach(([k,v])=>{S.readN[k]=Math.max(S.readN[k]||0,v)});
   Object.entries(S.srs).forEach(([w,c])=>{if(c.ivl>=1){S.known[w]=1;delete S.review[w]}else{S.review[w]=1;delete S.known[w]}});
   save();renderHeader();buildDeck();renderRes();renderStats();
 }
