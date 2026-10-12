@@ -2556,6 +2556,19 @@ const COMPARE=[
  {t:"Will vs Going to",a:["Will: decision now → « Wait, I'll help you. »","Going to: decided before → « I'm going to learn Rust this year. »"],k:"Answering a request in a meeting: « I'll do it. » is the natural reply."},
  {t:"For vs Since",a:["For + duration → « for three years », « for two hours »","Since + starting point → « since 2022 », « since Monday »"],k:"Both usually go with the present perfect (continuous)."},
 ];
+const SENTENCES=[
+ ["B1","Could you tell me where the nearest station is?"],["B1","I'd like a return ticket to Ghent, please."],["B1","What time does the next train leave?"],["B1","Excuse me, is this seat free?"],["B1","Can I pay by card?"],["B1","I'm just looking, thanks."],["B1","Do you have this in a smaller size?"],["B1","Could we have the bill, please?"],["B1","I'd like to book a table for two at eight."],["B1","Is there a vegetarian option?"],
+ ["B1","Two flat whites to take away, please."],["B1","How long does it take to get there?"],["B1","I'm sorry, I didn't catch your name."],["B1","Nice to meet you. I work in the infrastructure team."],["B1","How was your weekend?"],["B1","It's been a long day, I'm exhausted."],["B1","I'm running a bit late, sorry."],["B1","Let's grab a coffee after the meeting."],["B1","Can you help me with this, please?"],["B1","Thanks a lot, I really appreciate it."],
+ ["B1","I've got a headache and a sore throat."],["B1","I'd like to make an appointment with the doctor."],["B1","Where can I buy a phone charger?"],["B1","The heating isn't working in my flat."],["B1","Could you speak a bit more slowly, please?"],["B1","What does this word mean?"],["B1","I don't understand. Could you explain it again?"],["B1","See you tomorrow, have a nice evening."],["B1","Let me know if you need anything."],["B1","It's raining again, take an umbrella."],
+ ["B1","My train was cancelled because of the strike."],["B1","We usually go to the coast in summer."],["B1","I'm learning English to work with my team."],["B1","Can I leave a message for her?"],["B1","The meeting has been moved to Thursday."],["B1","I'll call you back in five minutes."],["B1","Sorry, the line is busy."],["B1","I forgot my password again."],["B1","What would you recommend?"],["B1","Is breakfast included in the price?"],
+ ["B2","I'm afraid I won't be able to make it to the meeting."],["B2","Would it be possible to postpone the deadline until Friday?"],["B2","I'm not sure I agree with that approach."],["B2","That's a fair point, but we need to consider the cost."],["B2","Let's take a step back and look at the bigger picture."],["B2","Could you walk me through the deployment process?"],["B2","I'll look into it and get back to you by the end of the day."],["B2","We've identified the root cause and deployed a fix."],["B2","The issue only affects a small number of users."],["B2","I want to flag a potential risk with the migration."],
+ ["B2","Just a quick heads-up: the VPN will be down tonight."],["B2","We need to prioritise the security updates this sprint."],["B2","Can we circle back to this after the demo?"],["B2","I'd like to propose a different solution."],["B2","Thanks for bringing this to my attention."],["B2","Let's keep each other in the loop."],["B2","I've been working on this ticket since Monday."],["B2","The service was restored after twenty minutes."],["B2","We should have tested it more carefully."],["B2","If we automate this, we'll save hours every week."],
+ ["B2","I'm currently looking for new opportunities."],["B2","In my previous role, I was responsible for the CI pipelines."],["B2","One of my strengths is staying calm under pressure."],["B2","I'd describe myself as a team player."],["B2","Could you tell me more about the team structure?"],["B2","The rent includes heating but not electricity."],["B2","I'd like to cancel my subscription, please."],["B2","I was charged twice for the same order."],["B2","Could you send me a confirmation by email?"],["B2","I've been living in Brussels for three years."],
+ ["B2","It took me a while to get used to the weather."],["B2","I wish I had started learning English earlier."],["B2","If I were you, I'd talk to the manager directly."],["B2","By the time we arrived, the film had already started."],["B2","She's been on call all week, so she's tired."],["B2","The project is behind schedule, but we're catching up."],["B2","We're on track to finish by the end of the month."],["B2","I'd rather work from home on Fridays."],["B2","There's no point in rushing the release."],["B2","It's worth checking the logs before restarting."],
+ ["C1","With all due respect, I don't think the data supports that conclusion."],["C1","It remains to be seen whether the fix will hold under heavy load."],["C1","Had we known about the issue earlier, we could have avoided the outage."],["C1","Not only did the release fail, but it also corrupted the cache."],["C1","I'd like to reiterate that production access is strictly limited."],["C1","Broadly speaking, the migration went better than expected."],["C1","We need to strike a balance between speed and stability."],["C1","The proposal, while ambitious, seems somewhat unrealistic."],["C1","In light of recent events, we are reviewing our procedures."],["C1","It's worth noting that the issue only occurs under specific conditions."],
+ ["C1","Should you have any questions, please don't hesitate to contact me."],["C1","The findings are, by and large, consistent with our expectations."],["C1","We cannot rule out the possibility of a hardware failure."],["C1","I'm inclined to agree, although I have a few reservations."],["C1","Let's not jump to conclusions before we have all the facts."],["C1","Our main priority is to minimise disruption for customers."],["C1","The decision was made in accordance with company policy."],["C1","Under no circumstances should passwords be shared by email."],["C1","Little did we know that the problem had started months earlier."],["C1","What matters most is how we respond, not who is to blame."],
+ ["C2","The ramifications of this decision will be felt for years to come."],["C2","His argument, though eloquent, was ultimately unconvincing."],["C2","The outage exacerbated an already tense situation with the client."],["C2","Her meticulous attention to detail is second to none."],["C2","The ubiquity of cloud services has transformed how we build software."],["C2","It would be disingenuous to claim that we were fully prepared."],["C2","The board was reluctant to endorse such a radical overhaul."],["C2","Notwithstanding these challenges, the project was a resounding success."],["C2","The data, albeit incomplete, points to a clear trend."],["C2","We must reconcile short-term pressure with long-term resilience."],
+];
 const RES=[
  {k:"Podcasts",t:"6 Minute English",who:"BBC Learning English",lvl:"B1",th:"English",why:"Very short episodes on a current topic, with the key vocabulary explained."},
  {k:"Podcasts",t:"The English We Speak",who:"BBC Learning English",lvl:"B1",th:"English",why:"One everyday expression explained in three minutes."},
@@ -2736,7 +2749,7 @@ $("#resetBtn").onclick=()=>{if(confirm("Erase all your progress?")){Object.assig
 let qCat="All",qset=[],qi=0,qScore=0;
 function buildQuiz(){
   qset=qCat==="Level"?buildLevelTest():qCat==="Dictation"
-    ?pickFresh(VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e)).map(e=>({dict:true,e})),10)
+    ?pickFresh([...VOCAB.map(v=>v.e).filter(e=>e.length<85&&!/[—“]/.test(e)),...SENTENCES.map(x=>x[1]).filter(e=>e.length<110)].map(e=>({dict:true,e})),10)
     :pickFresh(QUIZ.filter(q=>qCat==="All"||q.c===qCat),10);qi=0;qScore=0;
   chips($("#quizCats"),[{v:"Dictation",label:"🎧 Dictation"},...["All",...new Set(QUIZ.map(q=>q.c))].map(v=>({v}))],qCat,c=>{qCat=c;buildQuiz()});
   renderQ();
@@ -2745,7 +2758,7 @@ function renderQ(){
   $("#quizBar").style.width=(qi/qset.length*100)+"%";
   if(qi>=qset.length&&qCat==="Level"){showLevelResult();return}
   if(qi>=qset.length){
-    const pool=qCat==="Dictation"?VOCAB.filter(v=>v.e.length<85&&!/[—“]/.test(v.e)).map(v=>({dict:true,e:v.e})):QUIZ.filter(q=>qCat==="All"||q.c===qCat);
+    const pool=qCat==="Dictation"?[...VOCAB.filter(v=>v.e.length<85&&!/[—“]/.test(v.e)).map(v=>v.e),...SENTENCES.map(x=>x[1]).filter(e=>e.length<110)].map(e=>({dict:true,e})):QUIZ.filter(q=>qCat==="All"||q.c===qCat);
     const seenTxt=`You've seen ${seenCount(pool)} of ${pool.length} questions in this category. New ones come first.`;
     const msg=qScore===qset.length?"Perfect score. Nothing to add.":qScore>=qset.length*.7?"Well done. Read the explanations for the ones you missed.":"Try another round: repetition is what works.";
     $("#quizCard").innerHTML=`<p class="big">${qScore}/${qset.length}</p><p>${msg}</p><p class="small">${seenTxt}</p><div class="btns one"><button class="btn primary" id="again">New round</button></div>`;
@@ -2846,8 +2859,9 @@ function buildSession(){
   const lv=S.tests&&S.tests.length?S.tests[S.tests.length-1].lvl:"B1",order=["A2","B1","B2","C1","C2"],maxI=Math.max(1,order.indexOf(lv)+1);
   const okLvl=q=>{const L=q.lv||QLV[q.c];return !L||order.indexOf(L)<=maxI};
   const quiz=pickFresh(QUIZ.filter(q=>okLvl(q)),3);
-  const dict=pickFresh(VOCAB.filter(v=>v.e.length<90&&!/[—“]/.test(v.e)&&order.indexOf(v.lvl)<=maxI).map(v=>({dict:true,e:v.e})),1)[0];
-  const say=pickFresh(VOCAB.filter(v=>v.e.length<80&&order.indexOf(v.lvl)<=maxI).map(v=>({say:true,e:v.e})),1)[0];
+  const sentOk=SENTENCES.filter(x=>order.indexOf(x[0])<=maxI).map(x=>x[1]);
+  const dict=pickFresh([...VOCAB.filter(v=>v.e.length<90&&!/[—“]/.test(v.e)&&order.indexOf(v.lvl)<=maxI).map(v=>v.e),...sentOk].map(e=>({dict:true,e})),1)[0];
+  const say=pickFresh([...VOCAB.filter(v=>v.e.length<80&&order.indexOf(v.lvl)<=maxI).map(v=>v.e),...sentOk].map(e=>({say:true,e})),1)[0];
   return [...cards.map(v=>({type:"card",v})),...quiz.map(q=>({type:"quiz",q,o:shuffle(q.o.map((t,i)=>({t,i})))})),{type:"dict",e:dict.e},{type:"say",e:say.e}];
 }
 function renderSessionCard(){
@@ -3118,6 +3132,45 @@ function storyQuestions(st){
   st._ord=st._allq.map(q=>sshuffle(q.o.map((t,i)=>({t,i})),r));
   return st._allq;
 }
+
+/* ================= GENERATED TENSE QUESTIONS (templates) ================= */
+["run","swim","sit","get","begin","win","shop","stop","plan","chat"].forEach(b=>{if(VB[b]){VB[b].ing=b+b.slice(-1)+"ing"}});
+(function genTenseQuiz(){
+  const SUBJ=[{s:"I",p:"1"},{s:"You",p:"pl"},{s:"She",p:"3"},{s:"He",p:"3"},{s:"We",p:"pl"},{s:"They",p:"pl"},{s:"Tom",p:"3",n:1},{s:"My colleagues",p:"pl",n:1},{s:"Our team",p:"3",n:1}];
+  const ACT=[["fix","the bug"],["deploy","the new version"],["check","the logs"],["call","the client"],["write","the report"],["cook","dinner"],["clean","the kitchen"],["send","the invoice"],["finish","the migration"],["visit","my parents"],["take","the train"],["buy","groceries"],["watch","a film"],["learn","Dutch"],["meet","the new manager"],["pay","the bill"],["book","a table"],["walk","the dog"],["play","volleyball"],["repair","the bike"],["answer","emails"],["prepare","the presentation"],["test","the new feature"],["wash","the car"],["drive","to Antwerp"],["eat","lunch"],["drink","coffee"],["run","in the park"],["paint","the living room"],["plan","the trip"],["restart","the server"],["order","pizza"],["make","a cake"],["do","the dishes"],["go","to the gym"],["leave","the office"],["teach","the new hire"],["sell","the old car"],["build","a website"],["migrate","the database"]].filter(a=>VB[a[0]]);
+  const subjLow=x=>x.s==="I"||x.n?x.s.replace(/^My |^Our /,m=>m.toLowerCase()):x.s.toLowerCase();
+  const F=(v,x,k)=>{const p=x.p,be=p==="1"?"am":p==="3"?"is":"are",was=p==="pl"?"were":"was",has=p==="3"?"has":"have";
+    return {ps:p==="3"?v.s:v.b,pc:be+" "+v.ing,past:v.past,pastc:was+" "+v.ing,pp:has+" "+v.pp,ppc:has+" been "+v.ing,pastp:"had "+v.pp,will:"will "+v.b,futc:"will be "+v.ing,futp:"will have "+v.pp,would:"would "+v.b}[k]};
+  const FR=[
+    {t:"Yesterday, {s} ___ ({v}) {o}.",k:"past",d:["pp","ps","will"],x:"“Yesterday” = finished past time → past simple."},
+    {t:"{S} ___ ({v}) {o} last night.",k:"past",d:["pp","pc","futp"],x:"“Last night” = finished past time → past simple."},
+    {t:"{S} ___ ({v}) {o} every Monday.",k:"ps",d:["pc","past","pp"],x:"Habit / routine (every Monday) → present simple."},
+    {t:"{S} usually ___ ({v}) {o} on Fridays.",k:"ps",d:["pc","will","pastc"],x:"“Usually” = habit → present simple."},
+    {t:"Look! {S} ___ ({v}) {o} right now.",k:"pc",d:["ps","past","pp"],x:"“Right now” = happening at this moment → present continuous."},
+    {t:"{S} ___ ({v}) {o} twice so far this week.",k:"pp",d:["ps","pastp","will"],x:"“So far this week” = unfinished period → present perfect."},
+    {t:"{S} ___ ({v}) {o} since nine o'clock this morning.",k:"ppc",d:["pc","ps","past"],x:"Started in the past and still continuing, with “since” → present perfect continuous."},
+    {t:"When the phone rang, {s} ___ ({v}) {o}.",k:"pastc",d:["ps","pp","will"],x:"Action in progress interrupted by another past action → past continuous."},
+    {t:"By the time the manager arrived, {s} ___ ({v}) {o}.",k:"pastp",d:["pp","ps","will"],x:"Action finished before another past moment → past perfect."},
+    {t:"This time tomorrow, {s} ___ ({v}) {o}.",k:"futc",d:["pc","past","pp"],x:"Action in progress at a future moment → future continuous."},
+    {t:"By next Friday, {s} ___ ({v}) {o}.",k:"futp",d:["pp","past","ps"],x:"Finished before a future deadline (“by next Friday”) → future perfect."},
+    {t:"If it rains tomorrow, {s} ___ ({v}) {o} at home.",k:"will",d:["would","past","pp"],x:"First conditional: if + present, will + verb."},
+    {t:"If {s} had more time, {s} ___ ({v}) {o}.",k:"would",d:["will","past","pp"],x:"Second conditional (imaginary): if + past, would + verb.",pron:1},
+    {t:"Don't worry, I ___ ({v}) {o} tomorrow, I promise.",k:"will",d:["ps","past","pp"],x:"Promise or decision for the future → will.",fixI:1},
+  ];
+  const r=seeded("tense-bank-v1"),out=[],used=new Set();let guard=0;
+  while(out.length<300&&guard<20000){guard++;
+    const f=FR[out.length%FR.length],a=ACT[Math.floor(r()*ACT.length)];
+    let x=f.fixI?SUBJ[0]:SUBJ[Math.floor(r()*SUBJ.length)];if(f.pron&&x.n)continue;
+    const key=f.t+"|"+a[0]+"|"+x.s;if(used.has(key))continue;used.add(key);
+    const v=VB[a[0]];
+    let q=f.t.replace("{S}",x.s).replace(/\{s\}/g,()=>subjLow(x)).replace("{v}",v.b).replace("{o}",a[1]);
+    q=q.charAt(0).toUpperCase()+q.slice(1);
+    const opts=[F(v,x,f.k),...f.d.map(k=>F(v,x,k))];
+    if(new Set(opts).size<4)continue;
+    out.push({c:"Tenses",lv:["pastp","ppc","futc","futp","would"].includes(f.k)?"B2":"B1",q,o:opts,x:f.x+" → “"+opts[0]+"”."});
+  }
+  QUIZ.push(...out);
+})();
 
 function renderStory(){
   const st=storyOpen,QS=storyQuestions(st),n=QS.length,done=Object.keys(sAns).length===n;
